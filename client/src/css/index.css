@@ -15,8 +15,10 @@
   --text-300: #aaaaaa;
   --bg-100: #efefef;
   --bg-200: #fcfcfc;
+  --bg-300: #e5e5e5;
 
   /* font size */
+  --font-size-12: 12px;
   --font-size-14: 14px;
   --font-size-16: 16px;
   --font-size-18: 18px;
@@ -37,6 +39,7 @@
   --margin-large: 2rem;
 
   /* border-radius */
+  --border-radius-5: 5px;
   --border-radius-10: 10px;
   --border-radius-20: 20px;
   --border-radius-30: 30px;
@@ -46,6 +49,7 @@
 
   /* box-shadow */
   --box-shadow-basic: 0 4px 4px rgba(0, 0, 0, 0.25);
+  --box-shadow-medium: 0 0px 5px rgba(51, 51, 51, 0.3);
   --box-shadow-hover: 0 0 5px #333333;
 
   /* width */
