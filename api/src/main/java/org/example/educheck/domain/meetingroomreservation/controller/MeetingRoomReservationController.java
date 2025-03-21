@@ -40,4 +40,17 @@ public class MeetingRoomReservationController {
 
     }
 
+    @DeleteMapping("/{meetingRoomReservationId}")
+    public ResponseEntity<ApiResponse<Object>> cancelReservation(@AuthenticationPrincipal UserDetails userDetails,
+                                                                 @PathVariable Long meetingRoomReservationId) {
+        meetingRoomReservationService.cancelReservation(userDetails, meetingRoomReservationId);
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        "회의실 예약 취소 성공",
+                        "OK",
+                        null
+                )
+        );
+    }
 }

@@ -6,11 +6,13 @@ import org.example.educheck.domain.meetingroom.repository.MeetingRoomRepository;
 import org.example.educheck.domain.meetingroomreservation.dto.request.MeetingRoomReservationRequestDto;
 import org.example.educheck.domain.meetingroomreservation.dto.response.MeetingRoomReservationResponseDto;
 import org.example.educheck.domain.meetingroomreservation.entity.MeetingRoomReservation;
+import org.example.educheck.domain.meetingroomreservation.entity.ReservationStatus;
 import org.example.educheck.domain.meetingroomreservation.repository.MeetingRoomReservationRepository;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.repository.MemberRepository;
 import org.example.educheck.global.common.exception.custom.common.ResourceMismatchException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
+import org.example.educheck.global.common.exception.custom.common.ResourceOwnerMismatchException;
 import org.example.educheck.global.common.exception.custom.reservation.ReservationConflictException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -30,10 +32,16 @@ public class MeetingRoomReservationService {
     private final MemberRepository memberRepository;
     private final MeetingRoomRepository meetingRoomRepository;
 
+    private static void validateResourceOwner(Member authenticatedMember, MeetingRoomReservation meetingRoomReservation) {
+        if (!authenticatedMember.getId().equals(meetingRoomReservation.getMember().getId())) {
+            throw new ResourceOwnerMismatchException();
+        }
+    }
+
     @Transactional
     public void createReservation(UserDetails user, Long campusId, MeetingRoomReservationRequestDto requestDto) {
 
-        Member findMember = memberRepository.findByEmail(user.getUsername()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 member입니다."));
+        Member findMember = getAuthenticatedMember(user);
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(requestDto.getMeetingRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 회의실이 존재하지 않습니다."));
@@ -49,9 +57,10 @@ public class MeetingRoomReservationService {
         meetingRoomReservationRepository.save(meetingRoomReservation);
     }
 
-    /**
-     * 예약은 9시부터 22시까지 가능
-     */
+    private Member getAuthenticatedMember(UserDetails user) {
+        return memberRepository.findByEmail(user.getUsername()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 member입니다."));
+    }
+
     private void validateReservationTime(LocalDateTime startTime, LocalDateTime endTime) {
 
         LocalTime startOfDay = LocalTime.of(9, 0);
@@ -79,14 +88,13 @@ public class MeetingRoomReservationService {
     private void validateReservableTime(MeetingRoom meetingRoom, LocalDateTime startTime, LocalDateTime endTime) {
         LocalDate date = startTime.toLocalDate();
         boolean result = meetingRoomReservationRepository.existsOverlappingReservation(meetingRoom,
-                date, startTime, endTime);
+                date, startTime, endTime, ReservationStatus.ACTIVE);
 
         if (result) {
             throw new ReservationConflictException();
         }
     }
 
-    //TODO: 쿼리 발생하는거 확인 후, FETCH JOIN 처리 등 고려 하기
     private void validateUserCampusMatchMeetingRoom(Long campusId, MeetingRoom meetingRoom) {
 
         if (!campusId.equals(meetingRoom.getCampusId())) {
@@ -101,5 +109,18 @@ public class MeetingRoomReservationService {
         return MeetingRoomReservationResponseDto.from(meetingRoomReservation);
 
 
+    }
+
+    @Transactional
+    public void cancelReservation(UserDetails userDetails, Long meetingRoomReservationId) {
+
+        MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findByStatusAndById(meetingRoomReservationId, ReservationStatus.ACTIVE)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
+
+        Member authenticatedMember = getAuthenticatedMember(userDetails);
+        validateResourceOwner(authenticatedMember, meetingRoomReservation);
+
+        meetingRoomReservation.cancelReservation();
+        meetingRoomReservationRepository.save(meetingRoomReservation);
     }
 }
