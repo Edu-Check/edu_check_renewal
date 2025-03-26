@@ -2,6 +2,7 @@ package org.example.educheck.domain.studentCourseAttendance.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.educheck.domain.attendance.dto.response.MyAttendanceRecordListResponseDto;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.studentCourseAttendance.dto.response.AttendanceRecordListResponseDto;
 import org.example.educheck.domain.studentCourseAttendance.service.StudentCourseAttendanceService;
@@ -22,6 +23,10 @@ public class StudentCourseAttendanceController {
 
     private final StudentCourseAttendanceService studentCourseAttendanceService;
 
+    private static Pageable createPageable(int page, int size) {
+        return PageRequest.of(page, size, Sort.by(Sort.Order.asc("lectureDate")));
+    }
+
     @PreAuthorize("hasAnyAuthority('MIDDLE_ADMIN')")
     @GetMapping("/courses/{courseId}/students/{studentId}/attendances")
     public ResponseEntity<ApiResponse<AttendanceRecordListResponseDto>> getStudentAttendances(
@@ -32,7 +37,7 @@ public class StudentCourseAttendanceController {
             @RequestParam(defaultValue = "10") int size
     ) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Order.asc("lectureDate")));
+        Pageable pageable = createPageable(page, size);
 
         return ResponseEntity.ok(ApiResponse.ok(
                 "특정 학생 세부 출결 현황 조회 성공",
@@ -40,4 +45,25 @@ public class StudentCourseAttendanceController {
                 studentCourseAttendanceService.getStudentAttendanceRecordLists(member, studentId, courseId, pageable)
         ));
     }
+
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @GetMapping("/my/courses/{courseId}/attendances")
+    public ResponseEntity<ApiResponse<MyAttendanceRecordListResponseDto>> getAttendances(@AuthenticationPrincipal Member member,
+                                                                                         @PathVariable Long courseId,
+                                                                                         @RequestParam(required = false) Integer year,
+                                                                                         @RequestParam(required = false) Integer month,
+                                                                                         @RequestParam(defaultValue = "0") int page,
+                                                                                         @RequestParam(defaultValue = "10") int size
+    ) {
+
+        Pageable pageable = createPageable(page, size);
+
+        return ResponseEntity.ok(ApiResponse.ok(
+                "출석부 조회 성공",
+                "OK",
+                studentCourseAttendanceService.getMyAttendanceRecordLists(member, courseId, year, month, pageable)
+
+        ));
+    }
+
 }
