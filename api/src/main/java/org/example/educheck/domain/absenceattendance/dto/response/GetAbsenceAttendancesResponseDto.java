@@ -11,6 +11,7 @@ import org.example.educheck.global.common.exception.custom.common.ResourceNotFou
 import org.springframework.data.domain.Page;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,6 +58,8 @@ public class GetAbsenceAttendancesResponseDto {
         private boolean isAttached;
         private LocalDate startDate;
         private LocalDate endDate;
+        private LocalDateTime createdAt;
+        private String category;
 
 
         public static AbsenceAttendancesDto from(AbsenceAttendance absenceAttendance) {
@@ -68,6 +71,8 @@ public class GetAbsenceAttendancesResponseDto {
                     .isAttached(!absenceAttendance.getAbsenceAttendanceAttachmentFiles().isEmpty())
                     .startDate(absenceAttendance.getStartTime())
                     .endDate(absenceAttendance.getEndTime())
+                    .createdAt(absenceAttendance.getCreatedAt())
+                    .category(absenceAttendance.getCategory())
                     .build();
         }
     }
