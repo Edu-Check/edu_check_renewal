@@ -12,9 +12,11 @@ import StaffAttendance from '../pages/staffAttendance/StaffAttendance';
 import StaffAttendanceDetail from '../pages/staffAttendanceDetail/StaffAttendanceDetail';
 import StaffAttendanceAbsence from '../pages/staffAttendanceAbsence/StaffAttendanceAbsence';
 import StaffStudentManage from '../pages/staffStudentManage/StaffStudentManage';
-import StaffRoomReservation from '../pages/staffRoomReservation/StaffRoomReservation';
+// import StaffRoomReservation from '../pages/staffRoomReservation/StaffRoomReservation';
+import DateClickingSelecting from '../pages/roomReservation/dateClickingSelecting/DateClickingSelecting';
 import TmpLayout from '../layout/TmpLayout';
 import { URL_PATHS } from '../constants/urlPaths';
+import ReservationCalendar from '../pages/roomReservation/dateClickingSelecting/DateClickingSelecting';
 
 const router = createBrowserRouter([
   {
@@ -58,7 +60,7 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <RoomReservation />,
+                element: <ReservationCalendar />,
               },
             ],
           },
@@ -117,7 +119,7 @@ const router = createBrowserRouter([
             children: [
               {
                 index: true,
-                element: <StaffRoomReservation />,
+                element: <DateClickingSelecting />,
               },
             ],
           },
