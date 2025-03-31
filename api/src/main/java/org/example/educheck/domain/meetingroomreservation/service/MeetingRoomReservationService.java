@@ -46,7 +46,7 @@ public class MeetingRoomReservationService {
     }
 
     @Transactional
-    public void createReservation(UserDetails user, Long campusId, MeetingRoomReservationRequestDto requestDto) {
+    public MeetingRoomReservationResponseDto createReservation(UserDetails user, Long campusId, MeetingRoomReservationRequestDto requestDto) {
 
         Member findMember = getAuthenticatedMember(user);
 
@@ -62,11 +62,12 @@ public class MeetingRoomReservationService {
         validateReservableTime(meetingRoom, requestDto.getStartTime(), requestDto.getEndTime());
 
         MeetingRoomReservation meetingRoomReservation = requestDto.toEntity(findMember, meetingRoom);
-        meetingRoomReservationRepository.save(meetingRoomReservation);
+        return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
     }
 
     private void validateDailyReservationLimit(Long memberId) {
         int totalReservationMinutesForMember = meetingRoomReservationRepository.getTotalReservationMinutesForMember(memberId);
+        log.info("오늘 총 예약 시간 : {}", totalReservationMinutesForMember);
         if (totalReservationMinutesForMember > 120) {
             throw new InvalidRequestException("하루에 총 2시간까지 예약할 수 있습니다.");
         }
@@ -93,6 +94,9 @@ public class MeetingRoomReservationService {
         if (ChronoUnit.MINUTES.between(startTime, endTime) < 15) {
             throw new ReservationConflictException("최소 예약 시간은 15분입니다.");
         }
+
+        log.info("startTime: {}", startTime);
+        log.info("endTime: {}", endTime);
 
         if (startTime.toLocalTime().isBefore(startOfDay) || endTime.toLocalTime().isAfter(endOfDay)) {
             throw new ReservationConflictException("예약 가능 시간은 오전 9시부터 오후 10시까지입니다.");
@@ -139,9 +143,9 @@ public class MeetingRoomReservationService {
         meetingRoomReservationRepository.save(meetingRoomReservation);
     }
 
-    public CampusMeetingRoomsDto getMeetingRoomReservations(Long campusId) {
+    public CampusMeetingRoomsDto getMeetingRoomReservations(Long campusId, LocalDate date) {
 
-        List<MeetingRoomReservationsProjections> reservationsByCampus = meetingRoomReservationRepository.findByCampusId(campusId);
+        List<MeetingRoomReservationsProjections> reservationsByCampus = meetingRoomReservationRepository.findByCampusId(campusId, date);
 
         Map<Long, MeetingRoomDto> meetingRoomDtoMap = new LinkedHashMap<>();
 

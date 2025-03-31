@@ -11,6 +11,7 @@ const initialState = {
     isCompleted: false,
   },
   user: {
+    memberId: '',
     role: '',
     name: '',
     birthDate: '',
@@ -33,6 +34,7 @@ const authSlice = createSlice({
       state.accessToken = accessToken;
       state.isLoggedIn = true;
       state.user = {
+        memberId: action.payload.id || '',
         role: decodedToken.roles[0] || '',
         email: decodedToken.sub || '',
         name: action.payload.name || '',

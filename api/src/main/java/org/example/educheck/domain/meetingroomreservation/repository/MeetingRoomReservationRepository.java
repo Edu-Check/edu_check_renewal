@@ -41,7 +41,7 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
 
     @Query(value = """
                     SELECT
-                    COALESCE(SUM(TIMESTAMPDIFF(MINUTE , r.end_time, r.start_time)),0)
+                    COALESCE(SUM(TIMESTAMPDIFF(MINUTE , r.start_time, r.end_time)),0)
                     FROM meeting_room_reservation r
                     WHERE r.memeber_id = :memberId
                     AND r.status = 'ACTIVE'
@@ -63,15 +63,14 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
                 FROM meeting_room m
                 LEFT JOIN meeting_room_reservation r
                     ON m.id = r.meeting_room_id
+                    AND DATE(r.start_time) = COALESCE(:date, CURDATE())
+                    AND (r.status = 'ACTIVE' OR r.status IS NULL)
                 LEFT JOIN member me
                     ON r.memeber_id = me.id
                 WHERE m.campus_id = :campusId
-                  # 테스트용 날짜 잠시 수정
-                 AND (DATE(r.start_time) = DATE('2025-03-30') OR r.start_time IS NULL)
-                 AND (r.status = 'ACTIVE' OR r.status IS NULL)
-                ORDER BY r.start_time
+                ORDER BY m.name, m.id
             """, nativeQuery = true)
-    List<MeetingRoomReservationsProjections> findByCampusId(@Param("campusId") Long campusId);
+    List<MeetingRoomReservationsProjections> findByCampusId(@Param("campusId") Long campusId, @Param("date") LocalDate date);
 
 
 }

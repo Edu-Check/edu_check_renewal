@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { reservationApi } from '../../api/reservationApi';
 import Modal from '../../components/modal/Modal';
-
 import moment from 'moment';
 import 'moment/locale/ko';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
@@ -10,6 +9,7 @@ import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
 import styles from './RoomReservation.module.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar.css';
+import dayjs from 'dayjs';
 
 // 한국어 로케일 설정
 moment.locale('ko');
@@ -24,14 +24,18 @@ const RoomReservation = () => {
   const [modalData, setModalData] = useState({});
   const campusId = useSelector((state) => state.auth.user.campusId);
   const courseId = useSelector((state) => state.auth.user.courseId);
+  const memberId = useSelector((state) => state.auth.user.memberId);
 
   useEffect(() => {
     if (!campusId) return;
 
     const fetchData = async () => {
       try {
-        const response = await reservationApi.getReservations(campusId);
+        const formattedDate = moment(selectedDate).format('YYYY-MM-DD');
+        const response = await reservationApi.getReservations(campusId, formattedDate);
+
         const meetingRooms = response.data.data.meetingRooms;
+        console.log('meetingRooms', meetingRooms);
 
         // 회의실 데이터 변환
         const resourcesData = meetingRooms.map((room) => ({
@@ -43,8 +47,10 @@ const RoomReservation = () => {
 
         // 이벤트(예약) 데이터 변환
         const eventsData = meetingRooms.flatMap((room) =>
+          //배열 안에 객체로 들고 있어서 map으로 처리
           room.reservations.map((reservation) => ({
-            id: `${room.meetingRoomId}-${reservation.reserverId}`,
+            // 예약 pk
+            id: `${reservation.meetingRoomReservationId}`,
             resourceId: room.meetingRoomId.toString(),
             title: `${reservation.reserverName} 예약`,
             start: new Date(reservation.startDateTime.replace(' ', 'T')),
@@ -57,9 +63,9 @@ const RoomReservation = () => {
         setEvents(eventsData);
 
         // API 응답에서 첫 예약 날짜를 가져와 초기 날짜로 설정
-        if (eventsData.length > 0) {
-          setSelectedDate(new Date(eventsData[0].start));
-        }
+        // if (eventsData.length > 0) {
+        //   setSelectedDate(new Date(eventsData[0].start));
+        // }
       } catch (error) {
         console.error('데이터 불러오기 실패:', error);
       } finally {
@@ -68,46 +74,62 @@ const RoomReservation = () => {
     };
 
     fetchData();
-  }, [campusId]);
+  }, [campusId, selectedDate]);
 
   const handleNavigate = (date) => {
     setSelectedDate(date);
   };
 
-  const handleSelectSlot = async ({ start, end, resourceId }) => {
-    // 운영시간 체크 (9:00 - 22:00)
+  const isWithinOperationHours = (start, end) => {
     const startHour = start.getHours();
     const endHour = end.getHours();
     const endMinutes = end.getMinutes();
 
-    if (startHour < 9 || (endHour === 22 && endMinutes > 0) || endHour > 22) {
+    return !(startHour < 9 || (endHour === 22 && endMinutes > 0) || endHour > 22);
+  };
+
+  const handleSelectSlot = async ({ start, end, resourceId }) => {
+    const now = new Date();
+    const today = new Date().setHours(0, 0, 0, 0);
+
+    if (start < today) {
+      alert('당일 예약만 가능합니다.');
+      return;
+    }
+
+    if (start < now) {
+      alert('현재 시간 이후로만 예약할 수 있습니다.');
+      return;
+    }
+
+    if (!isWithinOperationHours(start, end)) {
       alert('운영 시간(09:00 - 22:00) 내에서만 예약할 수 있습니다.');
       return;
     }
 
-    const confirmed = window.confirm('이 시간에 예약하시겠습니까?');
-    if (!confirmed) return;
+    if (!window.confirm('이 시간에 예약하시겠습니까?')) return;
+
+    const convertToKST = (date) => {
+      return new Date(date.getTime() + 9 * 60 * 60 * 1000);
+    };
+
+    const requestBody = {
+      startTime: convertToKST(new Date(start)).toISOString(),
+      endTime: convertToKST(new Date(end)).toISOString(),
+      meetingRoomId: resourceId,
+      courseId: courseId,
+    };
 
     try {
-      const formatISOString = (date) => {
-        return date.toISOString().split('.')[0].replace('T', ' ');
-      };
-
-      const requestBody = {
-        startTime: formatISOString(start),
-        endTime: formatISOString(end),
-        meetingRoomId: resourceId,
-        courseId: courseId,
-      };
-
       const response = await reservationApi.createReservation(campusId, requestBody);
-
+      console.log(response);
       if (response.status === 201) {
         alert('예약이 완료되었습니다.');
 
         // 성공적으로 예약이 되었을 때 UI에 예약 추가
+        console.log(response.data.data.reservationId);
         const newEvent = {
-          id: `new-${Date.now()}`,
+          id: response.data.data.reservationId,
           resourceId: resourceId,
           title: `${response.data.data.reserverName || '새 예약'} 예약`,
           start,
@@ -116,16 +138,18 @@ const RoomReservation = () => {
           reserverName: response.data.data.reserverName || '새 예약',
         };
 
-        setEvents([...events, newEvent]);
+        setEvents((prevEvents) => [...prevEvents, newEvent]);
       }
     } catch (error) {
       console.error('예약 중 오류', error);
-      alert('예약 생성에 실패했습니다.');
+      const errorMessage = error.response?.data?.message ?? '오류가 발생했습니다.';
+      alert(errorMessage);
     }
   };
 
   const cancelReservation = async (eventId) => {
     setIsOpen(false);
+    console.log(eventId);
 
     try {
       const response = await reservationApi.cancelReservation(campusId, eventId.split('-')[0]);
@@ -173,8 +197,11 @@ const RoomReservation = () => {
 
     setModalData({
       content: confirmContent,
-      mainClick: () => cancelReservation(event.id),
-      mainText: '삭제',
+      mainClick:
+        memberId === event.reserverId && dayjs().isBefore(dayjs(event.end))
+          ? () => cancelReservation(event.id)
+          : null,
+      mainText: memberId === event.reserverId && dayjs().isBefore(dayjs(event.end)) ? '삭제' : '',
     });
 
     setIsOpen(true);
@@ -224,15 +251,13 @@ const RoomReservation = () => {
               <p>{`${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${dayOfWeek[date.getDay()]}요일`}</p>
             </div>
           </span>
+          {/* TODO: 예약은 당일만 가능하게 프론트에서 막기 */}
           <span className="rbc-btn-group">
             <button type="button" onClick={navigate.bind(null, 'TODAY')}>
               오늘
             </button>
             <button type="button" onClick={navigate.bind(null, 'PREV')}>
               이전
-            </button>
-            <button type="button" onClick={navigate.bind(null, 'NEXT')}>
-              다음
             </button>
           </span>
         </div>
@@ -243,7 +268,7 @@ const RoomReservation = () => {
                 <img src="/assets/clock-icon.png" alt="시계 아이콘" />
               </div>
               <p>
-                09:00 - 22:00 <span>(15분 단위 예약 가능)</span>
+                09:00 - 22:00 <span>(15분 단위 당일 예약만 가능)</span>
               </p>
             </div>
           </span>
@@ -271,8 +296,26 @@ const RoomReservation = () => {
             views={['day', 'week']}
             step={15}
             timeslots={4}
-            min={new Date(selectedDate.setHours(9, 0, 0))}
-            max={new Date(selectedDate.setHours(22, 0, 0))}
+            min={
+              new Date(
+                selectedDate.getFullYear(),
+                selectedDate.getMonth(),
+                selectedDate.getDate(),
+                9,
+                0,
+                0,
+              )
+            }
+            max={
+              new Date(
+                selectedDate.getFullYear(),
+                selectedDate.getMonth(),
+                selectedDate.getDate(),
+                22,
+                0,
+                0,
+              )
+            }
             date={selectedDate}
             onNavigate={handleNavigate}
             selectable
