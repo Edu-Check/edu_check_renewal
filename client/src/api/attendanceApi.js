@@ -78,9 +78,9 @@ export const attendanceApi = {
 
   getStudentAttendanceSheet: async (courseId, memberId) => {
     const response = await apiInstance.get(
-      // `${import.meta.env.VITE_APP_URL}/courses/${courseId}/members/${studentId}`,
-      `http://localhost:5000/courses/${courseId}/members/${memberId}`,
-      {},
+      `/courses/${courseId}/members/${studentId}`,
+      {baseURL: import.meta.env.VITE_APP_URL},
+
     );
     return response;
   },
