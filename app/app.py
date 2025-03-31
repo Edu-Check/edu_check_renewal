@@ -1,10 +1,12 @@
-from flask import Flask, jsonify, send_file
+from flask import Flask, Response, send_file
 import pandas as pd
 import io
 import mysql.connector
 from mysql.connector import pooling
 from dotenv import load_dotenv
 import os
+import xlsxwriter
+import json
 
 load_dotenv()
 
@@ -41,10 +43,22 @@ def get_data_from_db(member_id, course_id):
 """
         data = pd.read_sql(query, conn, params=(member_id, course_id))
         data["attendance_status"] = data["attendance_status"].replace(status_mapper)
+        data["lecture_date"] = data["lecture_date"].apply(
+            lambda x: str(x) if pd.notnull(x) else None
+        )
+        data.rename(
+            columns={
+                "lecture_session": "회차",
+                "lecture_date": "날짜",
+                "attendance_status": "출석 상태",
+            },
+            inplace=True,
+        )
 
     finally:
         conn.close()
     return data
+
 
 def get_student_name(member_id):
     conn = cnxpool.get_connection()
@@ -66,7 +80,9 @@ def get_student_name(member_id):
 def data(member_id, course_id):
     df = get_data_from_db(member_id, course_id)
 
-    return jsonify(df.to_dict(orient="records"))
+    json_str = json.dumps(df.to_dict(orient="records"), ensure_ascii=False)
+
+    return Response(json_str, mimetype="application/json")
 
 
 @app.route(
@@ -86,5 +102,4 @@ def download(member_id, course_id):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=False)
-
+    app.run(host="0.0.0.0", debug=True)
