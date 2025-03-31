@@ -1,87 +1,22 @@
-import apiInstance from './instance/apiInstance';
+import React, { useEffect } from 'react'
+import { attendanceApi } from '../api/attendanceApi'
+import axios from 'axios'
 
-export const attendanceApi = {
-  submitAttendance: async (latitude, longitude) => {
-    const response = await apiInstance.post(
-      '/checkin',
-      {
-        longitude,
-        latitude,
-      },
-      {
-        withCredentials: true,
-      },
-    );
-    return response.data;
-  },
-  submitCheckOut: async () => {
-    const response = await apiInstance.patch(
-      '/checkout',
-      {},
-      {
-        withCredentials: true,
-      },
-    );
-    return response.data;
-  },
-  getAbsenceAttendanceAndRate: async (courseId) => {
-    const response = await apiInstance.get(
-      `/my/course/${courseId}/attendances/stats`,
-      {},
-      {
-        withCredentials: true,
-      },
-    );
-    return response.data;
-  },
-  getAttendanceRecords: async (courseId, page = 0, size = 10) => {
-    const response = await apiInstance.get(
-      `/my/courses/${courseId}/attendances?page=${page}&size=${size}`,
-      {},
-      {
-        withCredentials: true,
-      },
-    );
-    return response.data;
-  },
-  getAttendanceRecordsByYearMonth: async (courseId, year, month, page = 0, size = 10) => {
-    const response = await apiInstance.get(
-      `/my/courses/${courseId}/attendances?year=${year}&month=${month}&page=${page}&size=${size}`,
-      {},
-      {
-        withCredentials: true,
-      },
-    );
-    return response.data;
-  },
-  // STAFF
-  getTodayAttendances: async (courseId) => {
-    const response = await apiInstance.get(
-      `/courses/${courseId}/attendances/today`,
-      {},
-      {
-        withCredentials: true,
-      },
-    );
-    return response;
-  },
-  getStudentAttendances: async (courseId, studentId) => {
-    const response = await apiInstance.get(
-      `/courses/${courseId}/students/${studentId}/attendances`,
-      {},
-      {
-        withCredentials: true,
-      },
-    );
-    return response;
-  },
-
-  getStudentAttendanceSheet: async (courseId, memberId) => {
-    const response = await apiInstance.get(
-      `/courses/${courseId}/members/${memberId}`,
+export default function Test() {
+  useEffect(() => {
+    const test = async () => {
+      // const response = await attendanceApi.getStudentAttendanceSheet(10, 1);
+      const response = await axios.get(
+        `/courses/10/members/1`,
       {baseURL: import.meta.env.VITE_APP_URL},
+      );
+      console.log(response);
+      
+    }
+    test();
+  })
 
-    );
-    return response;
-  },
-};
+  return (
+    <div>Test</div>
+  )
+}
