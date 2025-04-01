@@ -61,7 +61,6 @@ const router = createBrowserRouter([
               {
                 index: true,
                 element: <RoomReservation />,
-                // element: <StudentSetting />,
               },
             ],
           },
@@ -121,7 +120,6 @@ const router = createBrowserRouter([
               {
                 index: true,
                 element: <RoomReservation />,
-                // element: <StudentSetting />,
               },
             ],
           },
