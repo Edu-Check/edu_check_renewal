@@ -106,9 +106,31 @@ export default function StudentAttendanceAbsence() {
     setOpenModal(true);
   };
 
-  const handleDelete = (item) => {
-    // 삭제 로직 구현
-    console.log('삭제:', item);
+  const handleDelete = async (item) => {
+    try {
+      if (!window.confirm('정말로 이 유고 결석 신청내역을 삭제하시겠습니까?')) {
+        return;
+      }
+
+      const response = await absenceAttendancesApi.deleteAbsenceAttendance(
+        courseId,
+        item.absenceAttendanceId,
+      );
+
+      setAbsenceList((prevList) =>
+        prevList.filter((listItem) => listItem.absenceAttendanceId !== item.absenceAttendanceId),
+      );
+
+      alert('유고 결석 신청이 성공적으로 삭제되었습니다.');
+    } catch (error) {
+      console.error('유고 결석 삭제 실패:', error);
+
+      if (error.response && error.response.data && error.response.data.message) {
+        alert(`삭제 실패: ${error.response.data.message}`);
+      } else {
+        alert('유고 결석 삭제 중 오류가 발생했습니다.');
+      }
+    }
   };
 
   const handleInfoEdit = (item) => {
@@ -128,7 +150,6 @@ export default function StudentAttendanceAbsence() {
         .replace(/\./g, '');
     };
 
-    // 수정된 항목 생성
     const updatedItem = {
       ...currentItem,
       startDate: formatDate(startDate),
@@ -301,7 +322,7 @@ export default function StudentAttendanceAbsence() {
         children={modifiedItem}
         onTagChange={() => handleTagChange(item)}
         onEdit={handleEdit}
-        onDelete={handleDelete}
+        onDelete={() => handleDelete(item)}
       />
     );
   });
@@ -419,7 +440,7 @@ export default function StudentAttendanceAbsence() {
         </div>
       </div>
 
-      {/* <div className={styles.editModalContainer}>
+      <div className={styles.editModalContainer}>
         <Modal
           isOpen={openModal}
           onClose={handleCloseModal}
@@ -428,7 +449,7 @@ export default function StudentAttendanceAbsence() {
           mainText={'수정'}
           content={editInputBox}
         />
-      </div> */}
+      </div>
     </>
   );
 }
