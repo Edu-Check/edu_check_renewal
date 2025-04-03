@@ -242,11 +242,18 @@ export default function StudentAttendanceAbsence() {
       reason: uploadData.reason,
     };
 
+    if (new Date(jsonData.endDate) < new Date(jsonData.startDate)) {
+      alert('유고결석 종료일이 시작일 이전일 수 없습니다.');
+      return;
+    }
+
     formData.append('data', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
 
-    files.forEach((file) => {
-      formData.append('files', file);
-    });
+    if (files && files.length > 0) {
+      files.forEach((file) => {
+        formData.append('files', file);
+      });
+    }
 
     try {
       const response = await absenceAttendancesApi.submitAbsenceAttendance(courseId, formData);
@@ -258,7 +265,7 @@ export default function StudentAttendanceAbsence() {
         }
       }
     } catch (error) {
-      console.error(error);
+      alert(error.response?.data?.message || error.message);
     }
   };
 
