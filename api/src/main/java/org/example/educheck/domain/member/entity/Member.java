@@ -67,4 +67,8 @@ public class Member implements UserDetails {
     public Long getStudentId() {
         return student != null ? student.getId() : null;
     }
+
+    public boolean isStudent() {
+        return role == Role.STUDENT;
+    }
 }

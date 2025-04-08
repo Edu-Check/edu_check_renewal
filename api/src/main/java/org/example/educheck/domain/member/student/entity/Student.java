@@ -43,6 +43,10 @@ public class Student {
         this.registrations = registrations;
     }
 
+    public boolean isParticipatingCourse() {
+        return this.courseParticipationStatus == 'T';
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -29,15 +29,13 @@ public class AttendanceController {
             @AuthenticationPrincipal Member member,
             @Valid @RequestBody AttendanceCheckinRequestDto requestDto
     ) {
-        AttendanceStatus attendanceStatus = attendanceService.checkIn(member, requestDto);
 
-        AttendanceStatusResponseDto responseDto = new AttendanceStatusResponseDto(attendanceStatus);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(
                         "출석 성공",
                         "OK",
-                        responseDto
+                        attendanceService.checkIn(member, requestDto)
                 ));
     }
 
@@ -59,11 +57,10 @@ public class AttendanceController {
 
     @PatchMapping("/checkout")
     public ResponseEntity<ApiResponse<AttendanceStatusResponseDto>> checkOut(
-            @AuthenticationPrincipal UserDetails user,
+            @AuthenticationPrincipal Member member,
             @Valid @RequestBody AttendanceCheckinRequestDto requestDto
     ) {
-        AttendanceStatus attendanceStatus = attendanceService.checkOut(user, requestDto);
-
+        AttendanceStatus attendanceStatus = attendanceService.checkOut(member, requestDto);
         AttendanceStatusResponseDto responseDto = new AttendanceStatusResponseDto(attendanceStatus);
 
         return ResponseEntity.status(HttpStatus.OK)

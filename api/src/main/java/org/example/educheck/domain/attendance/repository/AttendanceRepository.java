@@ -14,12 +14,6 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     @Query("SELECT a FROM Attendance a WHERE a.student = :studentId AND a.lecture = :lectureId")
     Attendance findByLectureIdStudentId(Long studentId, Long lectureId);
 
-    Optional<Attendance> findByStudentIdAndCheckInTimestampBetween(
-            Long studentId,
-            LocalDateTime startOfDay,
-            LocalDateTime endOfDay
-    );
-
     @Query("SELECT a FROM Attendance a " +
             "WHERE a.student.id = :studentId " +
             "AND a.checkInTimestamp IS NOT NULL " +

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Campus {
+    private static final int ATTENDANCE_METER = 5000;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,5 +32,14 @@ public class Campus {
         this.contact = contact;
         this.gpsX = gpsX;
         this.gpsY = gpsY;
+    }
+
+    public boolean isWithinDistance(double latitude, double longitude) {
+
+        double metersPerDegree = 111000;
+        double dx = (longitude - this.gpsX) * metersPerDegree * Math.cos(Math.toRadians(latitude));
+        double dy = (latitude - this.gpsY) * metersPerDegree;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        return distance <= ATTENDANCE_METER;
     }
 }
