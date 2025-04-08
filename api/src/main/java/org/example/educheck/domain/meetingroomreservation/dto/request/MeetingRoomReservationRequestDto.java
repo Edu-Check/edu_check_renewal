@@ -20,11 +20,4 @@ public class MeetingRoomReservationRequestDto {
     private long meetingRoomId;
     private long courseId;
 
-    public MeetingRoomReservation toEntity(Member member, MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
-        return MeetingRoomReservation.builder()
-                .member(member)
-                .meetingRoom(meetingRoom)
-                .reservationTime(reservationTime)
-                .build();
-    }
 }

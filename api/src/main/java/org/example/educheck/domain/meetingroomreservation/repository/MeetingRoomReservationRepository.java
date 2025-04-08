@@ -75,10 +75,12 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
 
     @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r " +
             "WHERE r.status = :status " +
+            "AND r.member.id = :memberId " +
             "AND FUNCTION('DATE',r.reservationTime.startTime)  = :date " +
             "AND r.reservationTime.startTime < :endTime " +
             "AND r.reservationTime.endTime > :startTime")
-    boolean existsMemberReservationAtSameTime( @Param("date") LocalDate data,
+    boolean existsMemberReservationAtSameTime( @Param("memberId") Long memberId,
+                                         @Param("date") LocalDate data,
                                          @Param("startTime") LocalDateTime startTime,
                                          @Param("endTime") LocalDateTime endTime,
                                          @Param("status") ReservationStatus status);

@@ -47,11 +47,15 @@ public class MeetingRoomReservation extends BaseTimeEntity {
         this.status = ReservationStatus.CANCELED;
     }
 
-    @Builder
-    public MeetingRoomReservation(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
+    @Builder //TODO: DTO에서 사용하는거 삭제 후 빌더 삭제하기
+    private MeetingRoomReservation(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
         this.member = member;
         this.meetingRoom = meetingRoom;
         this.reservationTime = reservationTime;
         status = ReservationStatus.ACTIVE;
+    }
+
+    public static MeetingRoomReservation create(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
+        return new MeetingRoomReservation(member, meetingRoom, reservationTime);
     }
 }
