@@ -56,6 +56,8 @@ public class MeetingRoomReservationService {
 
         validateReservationTime(requestDto.getStartTime(), requestDto.getEndTime());
 
+
+
         validateDailyReservationLimit(member.getId(), requestDto);
 
         validateReservableTime(meetingRoom, requestDto.getStartTime(), requestDto.getEndTime());
@@ -129,7 +131,6 @@ public class MeetingRoomReservationService {
         MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findByIdWithDetails(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
 
-        log.info("시간 확인 : {}", meetingRoomReservation.getStartTime());
         return MeetingRoomReservationResponseDto.from(meetingRoomReservation);
 
 
@@ -150,10 +151,8 @@ public class MeetingRoomReservationService {
         meetingRoomReservationRepository.save(meetingRoomReservation);
     }
 
-    private void validateEndTimeIsBeforeNow(MeetingRoomReservation meetingRoomReservation) {
-        if (meetingRoomReservation.getEndTime().isBefore(LocalDateTime.now())) {
-            throw new InvalidRequestException("예약 종료 시간 이전에만 취소가 가능합니다.");
-        }
+    private void validateEndTimeIsBeforeNow(MeetingRoomReservation reservation) {
+        reservation.getReservationTime().validateCancelable();
     }
 
     public CampusMeetingRoomsDto getMeetingRoomReservations(Long campusId, LocalDate date) {

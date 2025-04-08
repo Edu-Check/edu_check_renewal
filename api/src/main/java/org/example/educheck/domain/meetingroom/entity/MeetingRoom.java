@@ -23,12 +23,6 @@ public class MeetingRoom {
 
     private String name;
 
-    @Builder
-    public MeetingRoom(String name, Campus campus) {
-        this.name = name;
-        this.campus = campus;
-    }
-
     public Long getCampusId() {
         return this.campus != null ? this.campus.getId() : null;
     }

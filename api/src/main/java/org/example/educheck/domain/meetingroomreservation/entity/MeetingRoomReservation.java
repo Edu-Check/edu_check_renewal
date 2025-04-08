@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MeetingRoomReservation extends BaseTimeEntity {
 
-    private static final Logger log = LoggerFactory.getLogger(MeetingRoomReservation.class);
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,21 +36,12 @@ public class MeetingRoomReservation extends BaseTimeEntity {
     @JoinColumn(name = "meeting_room_id")
     private MeetingRoom meetingRoom;
 
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    @Embedded
+    private MeetingRoomReservationTime reservationTime;
 
     @Column(columnDefinition = "VARCHAR(20)")
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
-
-    @Builder
-    public MeetingRoomReservation(Member member, MeetingRoom meetingRoom, LocalDateTime startTime, LocalDateTime endTime) {
-        this.member = member;
-        this.meetingRoom = meetingRoom;
-        this.startTime = startTime;
-        this.endTime = endTime;
-        this.status = ReservationStatus.ACTIVE;
-    }
 
     public void cancelReservation() {
         this.status = ReservationStatus.CANCELED;
