@@ -46,9 +46,9 @@ public class MeetingRoomReservationTime {
         LocalTime endOfDay = LocalTime.of(22, 0);
         LocalDate today = LocalDate.now();
 
-        if (!startTime.toLocalDate().isEqual(today) || !endTime.toLocalDate().isEqual(today)) {
-            throw new InvalidRequestException("당일 예약만 가능합니다.");
-        }
+//        if (!startTime.toLocalDate().isEqual(today) || !endTime.toLocalDate().isEqual(today)) {
+//            throw new InvalidRequestException("당일 예약만 가능합니다.");
+//        }
 
         if (startTime.isBefore(LocalDateTime.now())) {
             throw new InvalidRequestException("현재 시간 이후로만 예약 가능합니다.");

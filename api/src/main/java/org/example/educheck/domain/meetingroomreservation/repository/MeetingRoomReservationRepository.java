@@ -15,7 +15,8 @@ import java.util.Optional;
 
 public interface MeetingRoomReservationRepository extends JpaRepository<MeetingRoomReservation, Long> {
 
-    @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r WHERE r.meetingRoom = :meetingRoom " +
+    @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r " +
+            "WHERE r.meetingRoom = :meetingRoom " +
             "AND r.status = :status " +
             "AND FUNCTION('DATE',r.reservationTime.startTime)  = :date " +
             "AND ((r.reservationTime.startTime <= :endTime AND r.reservationTime.endTime > :startTime) " +
@@ -71,6 +72,16 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
                 ORDER BY m.name, m.id
             """, nativeQuery = true)
     List<MeetingRoomReservationsProjections> findByCampusId(@Param("campusId") Long campusId, @Param("date") LocalDate date);
+
+    @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r " +
+            "WHERE r.status = :status " +
+            "AND FUNCTION('DATE',r.reservationTime.startTime)  = :date " +
+            "AND r.reservationTime.startTime < :endTime " +
+            "AND r.reservationTime.endTime > :startTime")
+    boolean existsMemberReservationAtSameTime( @Param("date") LocalDate data,
+                                         @Param("startTime") LocalDateTime startTime,
+                                         @Param("endTime") LocalDateTime endTime,
+                                         @Param("status") ReservationStatus status);
 
 
 }

@@ -61,6 +61,8 @@ public class MeetingRoomReservationService {
 
         validateReservableTime(meetingRoom, requestDto.getStartTime(), requestDto.getEndTime());
 
+        validateReservedAtSameTime(requestDto.getStartTime(), requestDto.getEndTime());
+
         MeetingRoomReservation meetingRoomReservation = requestDto.toEntity(member, meetingRoom, reservationTime);
         return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
     }
@@ -87,6 +89,17 @@ public class MeetingRoomReservationService {
 
         if (result) {
             throw new ReservationConflictException();
+        }
+    }
+
+
+    private void validateReservedAtSameTime(LocalDateTime startTime, LocalDateTime endTime) {
+        LocalDate date = startTime.toLocalDate();
+        boolean result = meetingRoomReservationRepository.existsMemberReservationAtSameTime(
+                date, startTime, endTime, ReservationStatus.ACTIVE);
+
+        if (result) {
+            throw new InvalidRequestException("같은 시간대에 여러 회의실을 예약할 수 없습니다.");
         }
     }
 
