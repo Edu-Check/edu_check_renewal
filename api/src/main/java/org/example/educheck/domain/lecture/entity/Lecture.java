@@ -41,10 +41,18 @@ public class Lecture {
 
         return LocalTime.now().isAfter(startTime);
     }
+    public boolean isAfterLectureStartTime(LocalTime currentTime) {
+
+        return currentTime.isAfter(startTime);
+    }
 
     public boolean isBeforeLectureEndTime() {
 
         return LocalTime.now().isBefore(endTime);
+    }
+    public boolean isBeforeLectureEndTime(LocalTime currentTime) {
+
+        return currentTime.isBefore(endTime);
     }
 
 }

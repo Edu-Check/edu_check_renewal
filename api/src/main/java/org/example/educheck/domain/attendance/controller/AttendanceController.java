@@ -39,7 +39,6 @@ public class AttendanceController {
                 ));
     }
 
-    // 수강생 출결 상태 수정
     @PatchMapping("/courses/{courseId}/students/{studentId}/attendances")
     public ResponseEntity<ApiResponse<Object>> updateStudentAttendance(
             @PathVariable Long courseId,
@@ -48,6 +47,7 @@ public class AttendanceController {
             @AuthenticationPrincipal UserDetails user
     ) {
         attendanceService.updateStudentAttendance(courseId, studentId, requestDto, user);
+
         return ResponseEntity.ok(ApiResponse.ok(
                 "특정 학생 출결 수정 성공",
                 "OK",

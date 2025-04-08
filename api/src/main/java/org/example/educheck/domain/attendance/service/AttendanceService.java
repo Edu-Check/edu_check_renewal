@@ -45,11 +45,9 @@ public class AttendanceService { //TODO: 예외처리
     private final MemberRepository memberRepository;
     private final StaffRepository staffRepository;
     private final StaffCourseRepository staffCourseRepository;
-    private final CourseRepository courseRepository;
 
     @Transactional
     public AttendanceStatusResponseDto checkIn(Member member, AttendanceCheckinRequestDto requestDto) {
-
         validateStudent(member);
 
         Student student = member.getStudent();
@@ -60,10 +58,10 @@ public class AttendanceService { //TODO: 예외처리
 
         validateCampusLocation(campus, requestDto.getLongitude(), requestDto.getLatitude());
 
-        if (!todayLecture.isBeforeLectureEndTime()) {
-            throw new IllegalArgumentException("출석 가능한 시간이 아닙니다.");
-        }
-
+        attendanceRepository.findByStudentIdAndCheckInDate(student.getId())
+                .ifPresent(attendance -> {
+                    throw new IllegalArgumentException("이미 출석한 기록이 있습니다.");
+                });
 
         return new AttendanceStatusResponseDto(
                 attendanceRepository.save(
@@ -78,7 +76,7 @@ public class AttendanceService { //TODO: 예외처리
     public AttendanceStatus checkOut(Member member, AttendanceCheckinRequestDto requestDto) {
         validateStudent(member);
 
-        Student student = studentRepository.findByMemberId(member.getId())
+        Student student = studentRepository.findByMemberId(member.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("학생 정보를 찾을 수 없습니다."));
 
         if (!student.isParticipatingCourse()) {
@@ -90,7 +88,6 @@ public class AttendanceService { //TODO: 예외처리
                 .orElseThrow(() -> new IllegalArgumentException("현재 진행 중인 과정 등록이 없습니다."));
 
         Course currentCourse = currentRegistration.getCourse();
-        Lecture todayLecture = getTodayLecture(currentCourse.getId());
         Campus campus = currentCourse.getCampus();
 
         validateCampusLocation(campus, requestDto.getLongitude(), requestDto.getLatitude());
@@ -98,12 +95,14 @@ public class AttendanceService { //TODO: 예외처리
         Attendance attendance = attendanceRepository.findByStudentIdAndCheckInDate(student.getId())
                 .orElseThrow(() -> new IllegalArgumentException("금일 출석 기록이 없습니다."));
 
+
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        attendance.checkOut(currentTime);
         if (attendance.getCheckOutTimestamp() != null) {
-            throw new IllegalStateException("이미 퇴실 처리되었습니다.");
+
+            attendanceRepository.save(attendance);
         }
-
-
-        attendance.checkOut();
 
         return attendance.getAttendanceStatus();
     }
@@ -118,6 +117,7 @@ public class AttendanceService { //TODO: 예외처리
                 .orElseThrow(() -> new ResourceNotFoundException("해당 날짜의 강의가 없습니다."));
 
         Attendance attendance = attendanceRepository.findByLectureIdStudentId(studentId, lecture.getId());
+        attendance.setAttendanceStatus(requestDto.getStatus());
         attendanceRepository.save(attendance);
     }
 

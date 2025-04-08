@@ -19,4 +19,5 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
             "AND a.checkInTimestamp IS NOT NULL " +
             "AND DATE(a.checkInTimestamp) = DATE(now())")
     Optional<Attendance> findByStudentIdAndCheckInDate(@Param("studentId") Long studentId);
+
 }
