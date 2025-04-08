@@ -47,22 +47,20 @@ public class MeetingRoomReservationService {
     }
 
     @Transactional
-    public MeetingRoomReservationResponseDto createReservation(UserDetails user, Long campusId, MeetingRoomReservationRequestDto requestDto) {
-
-        Member findMember = getAuthenticatedMember(user);
+    public MeetingRoomReservationResponseDto createReservation(Member member, Long campusId, MeetingRoomReservationRequestDto requestDto) {
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(requestDto.getMeetingRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 회의실이 존재하지 않습니다."));
 
-        validateUserCampusMatchMeetingRoom(campusId, meetingRoom);
+        meetingRoom.validateBelongsToCampus(campusId);
 
         validateReservationTime(requestDto.getStartTime(), requestDto.getEndTime());
 
-        validateDailyReservationLimit(findMember.getId(), requestDto);
+        validateDailyReservationLimit(member.getId(), requestDto);
 
         validateReservableTime(meetingRoom, requestDto.getStartTime(), requestDto.getEndTime());
 
-        MeetingRoomReservation meetingRoomReservation = requestDto.toEntity(findMember, meetingRoom);
+        MeetingRoomReservation meetingRoomReservation = requestDto.toEntity(member, meetingRoom);
         return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
     }
 

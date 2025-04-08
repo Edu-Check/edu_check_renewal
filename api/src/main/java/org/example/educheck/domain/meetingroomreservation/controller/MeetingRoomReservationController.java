@@ -28,7 +28,7 @@ public class MeetingRoomReservationController {
     private final MeetingRoomReservationService meetingRoomReservationService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<MeetingRoomReservationResponseDto>> createReservation(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<ApiResponse<MeetingRoomReservationResponseDto>> createReservation(@AuthenticationPrincipal Member member,
                                                                                             @PathVariable Long campusId,
                                                                                             @Valid @RequestBody MeetingRoomReservationRequestDto requestDto) {
 
@@ -37,7 +37,7 @@ public class MeetingRoomReservationController {
                         ApiResponse.ok(
                                 "회의실 예약 성공",
                                 "OK",
-                                meetingRoomReservationService.createReservation(userDetails, campusId, requestDto)
+                                meetingRoomReservationService.createReservation(member, campusId, requestDto)
                         )
                 );
     }
