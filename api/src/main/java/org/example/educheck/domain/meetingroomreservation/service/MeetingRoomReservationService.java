@@ -55,28 +55,22 @@ public class MeetingRoomReservationService {
 
         meetingRoom.validateBelongsToCampus(campusId);
 
-        MeetingRoomReservationTime meetingRoomReservationTime = MeetingRoomReservationTime.of(requestDto.getStartTime(), requestDto.getEndTime());
-
-        validateReservationTime(requestDto.getStartTime(), requestDto.getEndTime());
-
-
+        MeetingRoomReservationTime reservationTime = MeetingRoomReservationTime.of(requestDto.getStartTime(), requestDto.getEndTime());
 
         validateDailyReservationLimit(member.getId(), requestDto);
 
         validateReservableTime(meetingRoom, requestDto.getStartTime(), requestDto.getEndTime());
 
-        MeetingRoomReservation meetingRoomReservation = requestDto.toEntity(member, meetingRoom);
+        MeetingRoomReservation meetingRoomReservation = requestDto.toEntity(member, meetingRoom, reservationTime);
         return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
     }
 
     private void validateDailyReservationLimit(Long memberId, MeetingRoomReservationRequestDto requestDto) {
-        int totalReservationMinutesForMember = meetingRoomReservationRepository.getTotalReservationMinutesForMember(memberId);
-        log.info("오늘 총 예약 시간 : {}", totalReservationMinutesForMember);
+        int todayReservedMinutes = meetingRoomReservationRepository.getTotalReservationMinutesForMember(memberId);
 
-        int totalMinAfterRequest = (int) Duration.between(requestDto.getStartTime(), requestDto.getEndTime()).toMinutes() + totalReservationMinutesForMember;
-        int availableTime = 120 - totalReservationMinutesForMember;
+        int totalMinAfterRequest = (int) Duration.between(requestDto.getStartTime(), requestDto.getEndTime()).toMinutes() + todayReservedMinutes;
+        int availableTime = 120 - todayReservedMinutes;
 
-        log.info("totalMinAfterRequest : {}", totalMinAfterRequest);
         if (totalMinAfterRequest > 120) {
             throw new InvalidRequestException(String.format("하루에 총 2시간까지 예약할 수 있습니다. 오늘 가능한 시간은 %d분 입니다.", availableTime));
         }
@@ -84,33 +78,6 @@ public class MeetingRoomReservationService {
 
     private Member getAuthenticatedMember(UserDetails user) {
         return memberRepository.findByEmail(user.getUsername()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 member입니다."));
-    }
-
-    private void validateReservationTime(LocalDateTime startTime, LocalDateTime endTime) {
-
-        LocalTime startOfDay = LocalTime.of(9, 0);
-        LocalTime endOfDay = LocalTime.of(22, 0);
-
-
-        if (endTime.isBefore(startTime)) {
-            throw new ReservationConflictException("시작 시간이 종료 시간보다 늦을 수 없습니다.");
-        }
-
-        if (startTime.isAfter(endTime)) {
-            throw new ReservationConflictException("종료 시간이 시작 시간보다 빠를 수 없습니다.");
-        }
-
-        if (ChronoUnit.MINUTES.between(startTime, endTime) < 15) {
-            throw new ReservationConflictException("최소 예약 시간은 15분입니다.");
-        }
-
-        log.info("startTime: {}", startTime);
-        log.info("endTime: {}", endTime);
-
-        if (startTime.toLocalTime().isBefore(startOfDay) || endTime.toLocalTime().isAfter(endOfDay)) {
-            throw new ReservationConflictException("예약 가능 시간은 오전 9시부터 오후 10시까지입니다.");
-        }
-
     }
 
     private void validateReservableTime(MeetingRoom meetingRoom, LocalDateTime startTime, LocalDateTime endTime) {

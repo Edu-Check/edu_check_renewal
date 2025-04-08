@@ -17,10 +17,10 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
 
     @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r WHERE r.meetingRoom = :meetingRoom " +
             "AND r.status = :status " +
-            "AND FUNCTION('DATE',r.startTime)  = :date " +
-            "AND ((r.startTime <= :endTime AND r.endTime > :startTime) " +
-            "OR (r.startTime < :endTime AND r.endTime >= :endTime) " +
-            "OR (r.startTime >= :startTime AND r.endTime <= :endTime))")
+            "AND FUNCTION('DATE',r.reservationTime.startTime)  = :date " +
+            "AND ((r.reservationTime.startTime <= :endTime AND r.reservationTime.endTime > :startTime) " +
+            "OR (r.reservationTime.startTime < :endTime AND r.reservationTime.endTime >= :endTime) " +
+            "OR (r.reservationTime.startTime >= :startTime AND r.reservationTime.endTime <= :endTime))")
     boolean existsOverlappingReservation(@Param("meetingRoom") MeetingRoom meetingRoom,
                                          @Param("date") LocalDate data,
                                          @Param("startTime") LocalDateTime startTime,

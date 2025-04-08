@@ -46,4 +46,12 @@ public class MeetingRoomReservation extends BaseTimeEntity {
     public void cancelReservation() {
         this.status = ReservationStatus.CANCELED;
     }
+
+    @Builder
+    public MeetingRoomReservation(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
+        this.member = member;
+        this.meetingRoom = meetingRoom;
+        this.reservationTime = reservationTime;
+        status = ReservationStatus.ACTIVE;
+    }
 }
