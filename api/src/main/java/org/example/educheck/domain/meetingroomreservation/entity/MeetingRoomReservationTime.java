@@ -1,6 +1,8 @@
 package org.example.educheck.domain.meetingroomreservation.entity;
 
 import jakarta.persistence.Embeddable;
+import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
@@ -11,17 +13,35 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Embeddable
 public class MeetingRoomReservationTime {
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    public MeetingRoomReservationTime(LocalDateTime startTime, LocalDateTime endTime) {
+    @Builder
+    private MeetingRoomReservationTime(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime == null || endTime == null) {
+            throw new InvalidRequestException("시작 시간과 종료 시간은 필수입니다.");
+        }
+
+        this.startTime = startTime;
+        this.endTime = endTime;
+
+        validateReservableTime();
+    }
+
+    public static MeetingRoomReservationTime of(LocalDateTime startTime, LocalDateTime endTime) {
+        return MeetingRoomReservationTime.builder()
+                .startTime(startTime)
+                .endTime(endTime)
+                .build();
+    }
+
+    private void validateReservableTime() {
         LocalTime startOfDay = LocalTime.of(9, 0);
         LocalTime endOfDay = LocalTime.of(22, 0);
-
 
         if (endTime.isBefore(startTime)) {
             throw new ReservationConflictException("시작 시간이 종료 시간보다 늦을 수 없습니다.");
@@ -38,9 +58,6 @@ public class MeetingRoomReservationTime {
         if (startTime.toLocalTime().isBefore(startOfDay) || endTime.toLocalTime().isAfter(endOfDay)) {
             throw new ReservationConflictException("예약 가능 시간은 오전 9시부터 오후 10시까지입니다.");
         }
-
-        this.startTime = startTime;
-        this.endTime = endTime;
     }
 
 

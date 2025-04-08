@@ -7,6 +7,7 @@ import org.example.educheck.domain.meetingroom.repository.MeetingRoomRepository;
 import org.example.educheck.domain.meetingroomreservation.dto.request.MeetingRoomReservationRequestDto;
 import org.example.educheck.domain.meetingroomreservation.dto.response.*;
 import org.example.educheck.domain.meetingroomreservation.entity.MeetingRoomReservation;
+import org.example.educheck.domain.meetingroomreservation.entity.MeetingRoomReservationTime;
 import org.example.educheck.domain.meetingroomreservation.entity.ReservationStatus;
 import org.example.educheck.domain.meetingroomreservation.repository.MeetingRoomReservationRepository;
 import org.example.educheck.domain.member.entity.Member;
@@ -53,6 +54,8 @@ public class MeetingRoomReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("해당 회의실이 존재하지 않습니다."));
 
         meetingRoom.validateBelongsToCampus(campusId);
+
+        MeetingRoomReservationTime meetingRoomReservationTime = MeetingRoomReservationTime.of(requestDto.getStartTime(), requestDto.getEndTime());
 
         validateReservationTime(requestDto.getStartTime(), requestDto.getEndTime());
 
