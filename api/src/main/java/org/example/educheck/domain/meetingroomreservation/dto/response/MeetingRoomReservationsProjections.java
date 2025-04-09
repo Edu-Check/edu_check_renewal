@@ -3,7 +3,7 @@ package org.example.educheck.domain.meetingroomreservation.dto.response;
 import java.time.LocalDateTime;
 
 
-public interface MeetingRoomReservationsProjection {
+public interface MeetingRoomReservationsProjections {
     Long getMeetingRoomId();
 
     String getMeetingRoomName();
