@@ -1,7 +1,7 @@
 package org.example.educheck.domain.meetingroomreservation.repository;
 
 import org.example.educheck.domain.meetingroom.entity.MeetingRoom;
-import org.example.educheck.domain.meetingroomreservation.dto.response.MeetingRoomReservationsProjections;
+import org.example.educheck.domain.meetingroomreservation.dto.response.MeetingRoomReservationsProjection;
 import org.example.educheck.domain.meetingroomreservation.entity.MeetingRoomReservation;
 import org.example.educheck.domain.meetingroomreservation.entity.ReservationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -72,7 +72,7 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
                 WHERE m.campus_id = :campusId
                 ORDER BY m.name, m.id
             """, nativeQuery = true)
-    List<MeetingRoomReservationsProjections> findByCampusId(@Param("campusId") Long campusId, @Param("date") LocalDate date);
+    List<MeetingRoomReservationsProjection> findByCampusId(@Param("campusId") Long campusId, @Param("date") LocalDate date);
 
     @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r " +
             "WHERE r.status = :status " +

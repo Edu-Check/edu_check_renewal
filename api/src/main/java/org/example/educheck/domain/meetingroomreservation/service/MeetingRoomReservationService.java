@@ -83,30 +83,35 @@ public class MeetingRoomReservationService {
 
     public CampusMeetingRoomsDto getMeetingRoomReservations(Long campusId, LocalDate date) {
 
-        List<MeetingRoomReservationsProjections> reservationsByCampus = meetingRoomReservationRepository.findByCampusId(campusId, date);
+        List<MeetingRoomReservationsProjection> reservationProjections = meetingRoomReservationRepository.findByCampusId(campusId, date);
 
         Map<Long, MeetingRoomDto> meetingRoomDtoMap = new LinkedHashMap<>();
 
-        for (MeetingRoomReservationsProjections reservation : reservationsByCampus) {
-            Long meetingRoomId = reservation.getMeetingRoomId();
-            String meetingRoomName = reservation.getMeetingRoomName();
+        for (MeetingRoomReservationsProjection projection : reservationProjections) {
+            Long meetingRoomId = projection.getMeetingRoomId();
 
-            log.info("reservationId, reservationStartTime : {}, {}", reservation.getMeetingRoomReservationId(), reservation.getStartTime());
+            meetingRoomDtoMap.putIfAbsent(meetingRoomId, createEmptyMeetingRoomDto(projection));
 
-            meetingRoomDtoMap.putIfAbsent(meetingRoomId, new MeetingRoomDto(meetingRoomId, meetingRoomName, new ArrayList<>()));
-
-            if (reservation.getMeetingRoomReservationId() != null) {
-                meetingRoomDtoMap.get(meetingRoomId).getReservations().add(
-                        new ReservationDto(reservation.getMeetingRoomReservationId(),
-                                reservation.getMemberId(),
-                                reservation.getMemberName(),
-                                reservation.getStartTime(),
-                                reservation.getEndTime())
-                );
+            if (projection.getMeetingRoomReservationId() != null) {
+                ReservationDto reservationDto = toReservationDto(projection);
+                meetingRoomDtoMap.get(meetingRoomId).getReservations().add(reservationDto);
             }
-
         }
 
         return new CampusMeetingRoomsDto(campusId, LocalDate.now(), new ArrayList<>(meetingRoomDtoMap.values()));
+    }
+
+    private MeetingRoomDto createEmptyMeetingRoomDto(MeetingRoomReservationsProjection projection) {
+        return new MeetingRoomDto(projection.getMeetingRoomId(), projection.getMeetingRoomName(), new ArrayList<>());
+    }
+
+    private ReservationDto toReservationDto(MeetingRoomReservationsProjection projection) {
+        return new ReservationDto(
+                projection.getMeetingRoomReservationId(),
+                projection.getMemberId(),
+                projection.getMemberName(),
+                projection.getStartTime(),
+                projection.getEndTime()
+        );
     }
 }
