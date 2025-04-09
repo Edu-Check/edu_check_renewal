@@ -28,7 +28,7 @@ public class MeetingRoomReservationController {
     private final MeetingRoomReservationService meetingRoomReservationService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<MeetingRoomReservationResponseDto>> createReservation(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<ApiResponse<MeetingRoomReservationResponseDto>> createReservation(@AuthenticationPrincipal Member member,
                                                                                             @PathVariable Long campusId,
                                                                                             @Valid @RequestBody MeetingRoomReservationRequestDto requestDto) {
 
@@ -37,7 +37,7 @@ public class MeetingRoomReservationController {
                         ApiResponse.ok(
                                 "회의실 예약 성공",
                                 "OK",
-                                meetingRoomReservationService.createReservation(userDetails, campusId, requestDto)
+                                meetingRoomReservationService.createReservation(member, campusId, requestDto)
                         )
                 );
     }
@@ -49,7 +49,7 @@ public class MeetingRoomReservationController {
                 ApiResponse.ok(
                         "예약 조회 성공",
                         "OK",
-                        meetingRoomReservationService.getMeetingRoomReservationById(meetingRoomReservationId)
+                        meetingRoomReservationService.getMeetingRoomReservationDetails(meetingRoomReservationId)
                 )
         );
 
@@ -74,9 +74,9 @@ public class MeetingRoomReservationController {
 
 
     @DeleteMapping("/{meetingRoomReservationId}")
-    public ResponseEntity<ApiResponse<Object>> cancelReservation(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<ApiResponse<Object>> cancelReservation(@AuthenticationPrincipal Member member,
                                                                  @PathVariable Long meetingRoomReservationId) {
-        meetingRoomReservationService.cancelReservation(userDetails, meetingRoomReservationId);
+        meetingRoomReservationService.cancelReservation(member, meetingRoomReservationId);
 
         return ResponseEntity.ok(
                 ApiResponse.ok(
