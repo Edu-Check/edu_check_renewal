@@ -2,16 +2,13 @@ package org.example.educheck.domain.meetingroomreservation.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.meetingroom.entity.MeetingRoom;
+import org.example.educheck.domain.meetingroomreservation.policy.MeetingRoomReservationPolicy;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.global.common.entity.BaseTimeEntity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.time.LocalDateTime;
+import org.example.educheck.global.common.exception.custom.common.ResourceOwnerMismatchException;
 
 @Getter
 @Entity
@@ -47,7 +44,6 @@ public class MeetingRoomReservation extends BaseTimeEntity {
         this.status = ReservationStatus.CANCELED;
     }
 
-    @Builder //TODO: DTO에서 사용하는거 삭제 후 빌더 삭제하기
     private MeetingRoomReservation(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
         this.member = member;
         this.meetingRoom = meetingRoom;
@@ -57,5 +53,17 @@ public class MeetingRoomReservation extends BaseTimeEntity {
 
     public static MeetingRoomReservation create(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
         return new MeetingRoomReservation(member, meetingRoom, reservationTime);
+    }
+
+    public void cancel(Member member, MeetingRoomReservationPolicy policy) {
+        validateOwner(member);
+        policy.validateCancelableTime(this.getReservationTime().getEndTime());
+        this.status = ReservationStatus.CANCELED;
+    }
+
+    private void validateOwner(Member member) {
+        if (!this.member.getId().equals(member.getId())) {
+            throw new ResourceOwnerMismatchException();
+        }
     }
 }

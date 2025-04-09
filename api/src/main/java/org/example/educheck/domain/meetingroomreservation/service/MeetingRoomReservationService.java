@@ -45,11 +45,7 @@ public class MeetingRoomReservationService {
     private final MemberReservationPolicy memberReservationPolicy;
     private final MeetingRoomReservationPolicy meetingRoomReservationPolicy;
 
-    private static void validateResourceOwner(Member authenticatedMember, MeetingRoomReservation meetingRoomReservation) {
-        if (!authenticatedMember.getId().equals(meetingRoomReservation.getMember().getId())) {
-            throw new ResourceOwnerMismatchException();
-        }
-    }
+
 
     @Transactional
     public MeetingRoomReservationResponseDto createReservation(Member member, Long campusId, MeetingRoomReservationRequestDto requestDto) {
@@ -73,10 +69,6 @@ public class MeetingRoomReservationService {
         return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
     }
 
-    private Member getAuthenticatedMember(UserDetails user) {
-        return memberRepository.findByEmail(user.getUsername()).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 member입니다."));
-    }
-
     public MeetingRoomReservationResponseDto getMeetingRoomReservationById(Long reservationId) {
         MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findByIdWithDetails(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
@@ -87,22 +79,14 @@ public class MeetingRoomReservationService {
     }
 
     @Transactional
-    public void cancelReservation(UserDetails userDetails, Long meetingRoomReservationId) {
+    public void cancelReservation(Member member, Long meetingRoomReservationId) {
 
         MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findByStatusAndById(meetingRoomReservationId, ReservationStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
 
-        Member authenticatedMember = getAuthenticatedMember(userDetails);
-        validateResourceOwner(authenticatedMember, meetingRoomReservation);
-
-        validateEndTimeIsBeforeNow(meetingRoomReservation.getReservationTime().getEndTime());
-
+        meetingRoomReservation.cancel(member, meetingRoomReservationPolicy);
         meetingRoomReservation.cancelReservation();
         meetingRoomReservationRepository.save(meetingRoomReservation);
-    }
-
-    private void validateEndTimeIsBeforeNow(LocalDateTime endTime) {
-        meetingRoomReservationPolicy.validateCancelable(endTime);
     }
 
     public CampusMeetingRoomsDto getMeetingRoomReservations(Long campusId, LocalDate date) {

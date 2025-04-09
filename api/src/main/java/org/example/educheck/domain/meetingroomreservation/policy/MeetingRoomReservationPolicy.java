@@ -17,6 +17,9 @@ public class MeetingRoomReservationPolicy {
 
     private final MeetingRoomReservationRepository meetingRoomReservationRepository;
 
+    /**
+     * 한 회의실에 동시간대에 여러 예약을 할 수 없다.
+     */
     public void validateReservableTime(MeetingRoom meetingRoom, LocalDateTime startTime, LocalDateTime endTime) {
         LocalDate date = startTime.toLocalDate();
         boolean result = meetingRoomReservationRepository.existsOverlappingReservation(meetingRoom,
@@ -27,7 +30,10 @@ public class MeetingRoomReservationPolicy {
         }
     }
 
-    public void validateCancelable(LocalDateTime endTime) {
+    /**
+     * 예약 종료 시간 이전에만 취소 가능하다.
+     */
+    public void validateCancelableTime(LocalDateTime endTime) {
         if (!isFinished(endTime)) {
             throw new InvalidRequestException("예약 종료 시간 이전에만 취소가 가능합니다.");
         }
@@ -36,5 +42,8 @@ public class MeetingRoomReservationPolicy {
     private boolean isFinished(LocalDateTime endTime) {
         return endTime.isBefore(LocalDateTime.now());
     }
+
+
+
 
 }

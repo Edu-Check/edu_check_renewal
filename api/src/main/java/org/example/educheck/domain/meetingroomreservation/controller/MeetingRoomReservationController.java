@@ -74,9 +74,9 @@ public class MeetingRoomReservationController {
 
 
     @DeleteMapping("/{meetingRoomReservationId}")
-    public ResponseEntity<ApiResponse<Object>> cancelReservation(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<ApiResponse<Object>> cancelReservation(@AuthenticationPrincipal Member member,
                                                                  @PathVariable Long meetingRoomReservationId) {
-        meetingRoomReservationService.cancelReservation(userDetails, meetingRoomReservationId);
+        meetingRoomReservationService.cancelReservation(member, meetingRoomReservationId);
 
         return ResponseEntity.ok(
                 ApiResponse.ok(
