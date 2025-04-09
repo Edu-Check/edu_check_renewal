@@ -1,7 +1,7 @@
 package org.example.educheck.domain.meetingroomreservation.repository;
 
 import org.example.educheck.domain.meetingroom.entity.MeetingRoom;
-import org.example.educheck.domain.meetingroomreservation.dto.response.MeetingRoomReservationsProjection;
+import org.example.educheck.domain.meetingroomreservation.dto.response.MeetingRoomReservationsProjections;
 import org.example.educheck.domain.meetingroomreservation.entity.MeetingRoomReservation;
 import org.example.educheck.domain.meetingroomreservation.entity.ReservationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,13 +15,12 @@ import java.util.Optional;
 
 public interface MeetingRoomReservationRepository extends JpaRepository<MeetingRoomReservation, Long> {
 
-    @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r " +
-            "WHERE r.meetingRoom = :meetingRoom " +
+    @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r WHERE r.meetingRoom = :meetingRoom " +
             "AND r.status = :status " +
-            "AND FUNCTION('DATE',r.reservationTime.startTime)  = :date " +
-            "AND ((r.reservationTime.startTime <= :endTime AND r.reservationTime.endTime > :startTime) " +
-            "OR (r.reservationTime.startTime < :endTime AND r.reservationTime.endTime >= :endTime) " +
-            "OR (r.reservationTime.startTime >= :startTime AND r.reservationTime.endTime <= :endTime))")
+            "AND FUNCTION('DATE',r.startTime)  = :date " +
+            "AND ((r.startTime <= :endTime AND r.endTime > :startTime) " +
+            "OR (r.startTime < :endTime AND r.endTime >= :endTime) " +
+            "OR (r.startTime >= :startTime AND r.endTime <= :endTime))")
     boolean existsOverlappingReservation(@Param("meetingRoom") MeetingRoom meetingRoom,
                                          @Param("date") LocalDate data,
                                          @Param("startTime") LocalDateTime startTime,
@@ -31,9 +30,8 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
     @Query("SELECT r FROM MeetingRoomReservation r " +
             "JOIN FETCH r.member m " +
             "JOIN FETCH r.meetingRoom mr " +
-            "WHERE r.id = :reservationId " +
-            "AND r.status = 'ACTIVE' ")
-    Optional<MeetingRoomReservation> findActiveByIdWithDetails(@Param("reservationId") Long reservationId);
+            "WHERE r.id = :reservationId")
+    Optional<MeetingRoomReservation> findByIdWithDetails(@Param("reservationId") Long reservationId);
 
     @Query("SELECT r FROM MeetingRoomReservation r " +
             "WHERE r.status = :status " +
@@ -72,19 +70,7 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
                 WHERE m.campus_id = :campusId
                 ORDER BY m.name, m.id
             """, nativeQuery = true)
-    List<MeetingRoomReservationsProjection> findByCampusId(@Param("campusId") Long campusId, @Param("date") LocalDate date);
-
-    @Query("SELECT COUNT(r) > 0 FROM MeetingRoomReservation r " +
-            "WHERE r.status = :status " +
-            "AND r.member.id = :memberId " +
-            "AND FUNCTION('DATE',r.reservationTime.startTime)  = :date " +
-            "AND r.reservationTime.startTime < :endTime " +
-            "AND r.reservationTime.endTime > :startTime")
-    boolean existsMemberReservationAtSameTime( @Param("memberId") Long memberId,
-                                         @Param("date") LocalDate data,
-                                         @Param("startTime") LocalDateTime startTime,
-                                         @Param("endTime") LocalDateTime endTime,
-                                         @Param("status") ReservationStatus status);
+    List<MeetingRoomReservationsProjections> findByCampusId(@Param("campusId") Long campusId, @Param("date") LocalDate date);
 
 
 }

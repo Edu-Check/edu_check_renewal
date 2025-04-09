@@ -2,13 +2,14 @@ package org.example.educheck.domain.meetingroomreservation.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.meetingroom.entity.MeetingRoom;
-import org.example.educheck.domain.meetingroomreservation.policy.MeetingRoomReservationPolicy;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.global.common.entity.BaseTimeEntity;
-import org.example.educheck.global.common.exception.custom.common.ResourceOwnerMismatchException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MeetingRoomReservation extends BaseTimeEntity {
 
+    private static final Logger log = LoggerFactory.getLogger(MeetingRoomReservation.class);
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,33 +37,23 @@ public class MeetingRoomReservation extends BaseTimeEntity {
     @JoinColumn(name = "meeting_room_id")
     private MeetingRoom meetingRoom;
 
-    @Embedded
-    private MeetingRoomReservationTime reservationTime;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
 
     @Column(columnDefinition = "VARCHAR(20)")
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 
-    private MeetingRoomReservation(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
+    @Builder
+    public MeetingRoomReservation(Member member, MeetingRoom meetingRoom, LocalDateTime startTime, LocalDateTime endTime) {
         this.member = member;
         this.meetingRoom = meetingRoom;
-        this.reservationTime = reservationTime;
-        status = ReservationStatus.ACTIVE;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = ReservationStatus.ACTIVE;
     }
 
-    public static MeetingRoomReservation create(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
-        return new MeetingRoomReservation(member, meetingRoom, reservationTime);
-    }
-
-    public void cancel(Member member, MeetingRoomReservationPolicy policy, LocalDateTime now) {
-        validateOwner(member);
-        policy.validateCancelableTime(this.getReservationTime().getEndTime(), now);
+    public void cancelReservation() {
         this.status = ReservationStatus.CANCELED;
-    }
-
-    private void validateOwner(Member member) {
-        if (!this.member.getId().equals(member.getId())) {
-            throw new ResourceOwnerMismatchException();
-        }
     }
 }
