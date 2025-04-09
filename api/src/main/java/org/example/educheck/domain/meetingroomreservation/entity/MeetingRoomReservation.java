@@ -10,6 +10,8 @@ import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.global.common.entity.BaseTimeEntity;
 import org.example.educheck.global.common.exception.custom.common.ResourceOwnerMismatchException;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Table(
@@ -51,9 +53,9 @@ public class MeetingRoomReservation extends BaseTimeEntity {
         return new MeetingRoomReservation(member, meetingRoom, reservationTime);
     }
 
-    public void cancel(Member member, MeetingRoomReservationPolicy policy) {
+    public void cancel(Member member, MeetingRoomReservationPolicy policy, LocalDateTime now) {
         validateOwner(member);
-        policy.validateCancelableTime(this.getReservationTime().getEndTime());
+        policy.validateCancelableTime(this.getReservationTime().getEndTime(), now);
         this.status = ReservationStatus.CANCELED;
     }
 

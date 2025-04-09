@@ -19,6 +19,7 @@ import org.example.educheck.global.common.exception.custom.common.ResourceMismat
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
 import org.example.educheck.global.common.exception.custom.common.ResourceOwnerMismatchException;
 import org.example.educheck.global.common.exception.custom.reservation.ReservationConflictException;
+import org.example.educheck.global.common.time.SystemTimeProvider;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,10 +41,10 @@ import java.util.Map;
 public class MeetingRoomReservationService {
 
     private final MeetingRoomReservationRepository meetingRoomReservationRepository;
-    private final MemberRepository memberRepository;
     private final MeetingRoomRepository meetingRoomRepository;
     private final MemberReservationPolicy memberReservationPolicy;
     private final MeetingRoomReservationPolicy meetingRoomReservationPolicy;
+    private final SystemTimeProvider systemTimeProvider;
 
 
 
@@ -81,10 +82,12 @@ public class MeetingRoomReservationService {
     @Transactional
     public void cancelReservation(Member member, Long meetingRoomReservationId) {
 
+        LocalDateTime now = systemTimeProvider.now();
+
         MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findByStatusAndById(meetingRoomReservationId, ReservationStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
 
-        meetingRoomReservation.cancel(member, meetingRoomReservationPolicy);
+        meetingRoomReservation.cancel(member, meetingRoomReservationPolicy, now);
     }
 
     public CampusMeetingRoomsDto getMeetingRoomReservations(Long campusId, LocalDate date) {

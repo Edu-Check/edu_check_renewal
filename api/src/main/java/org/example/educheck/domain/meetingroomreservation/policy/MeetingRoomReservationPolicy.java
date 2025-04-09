@@ -35,17 +35,10 @@ public class MeetingRoomReservationPolicy {
     /**
      * 예약 종료 시간 이전에만 취소 가능하다.
      */
-    public void validateCancelableTime(LocalDateTime endTime) {
-        if (isFinished(endTime)) {
+    public void validateCancelableTime(LocalDateTime endTime, LocalDateTime now) {
+        if (endTime.isBefore(now)) {
             throw new InvalidRequestException("예약 종료 시간 이전에만 취소가 가능합니다.");
         }
     }
-
-    private boolean isFinished(LocalDateTime endTime) {
-wq        return endTime.isBefore(LocalDateTime.now());
-    }
-
-
-
 
 }
