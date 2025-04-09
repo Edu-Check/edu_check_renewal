@@ -25,6 +25,7 @@ public class Course {
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
+    private CourseStatus status;
 
     @Builder
     public Course(Campus campus, String name, LocalDate startDate, LocalDate endDate) {
