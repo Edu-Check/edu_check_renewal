@@ -14,6 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Campus {
     private static final int ATTENDANCE_METER = 5000;
+    private static final double EARTH_RADIUS = 6371000;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,10 +37,22 @@ public class Campus {
 
     public boolean isWithinDistance(double latitude, double longitude) {
 
-        double metersPerDegree = 111000;
-        double dx = (longitude - this.gpsX) * metersPerDegree * Math.cos(Math.toRadians(latitude));
-        double dy = (latitude - this.gpsY) * metersPerDegree;
-        double distance = Math.sqrt(dx * dx + dy * dy);
+        double lat1 = Math.toRadians(this.gpsY);
+        double lon1 = Math.toRadians(this.gpsX);
+        double lat2 = Math.toRadians(latitude);
+        double lon2 = Math.toRadians(longitude);
+
+
+        double dLat = lat2 - lat1;
+        double dLon = lon2 - lon1;
+
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        double distance = EARTH_RADIUS * c;
+
+
         return distance <= ATTENDANCE_METER;
     }
 }

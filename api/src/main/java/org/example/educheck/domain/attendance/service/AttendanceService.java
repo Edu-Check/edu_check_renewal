@@ -25,6 +25,7 @@ import org.example.educheck.domain.registration.repository.RegistrationRepositor
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,10 +51,18 @@ public class AttendanceService { //TODO: 예외처리
     public AttendanceStatusResponseDto checkIn(Member member, AttendanceCheckinRequestDto requestDto) {
         validateStudent(member);
 
-        Student student = member.getStudent();
-        Registration currentRegistration = getCurrentRegistration(student);
+        Student student = studentRepository.findById(member.getStudentId())
+                .orElseThrow(() -> new ResourceNotFoundException("학생 정보를 찾을 수 없습니다."));
+
+        Registration currentRegistration = student.getRegistrations().stream()
+                .filter(reg -> reg.getRegistrationStatus() == RegistrationStatus.PROGRESS)
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("현재 과정에 참여 중이지 않은 학생입니다."));
+
         Course currentCourse = currentRegistration.getCourse();
-        Lecture todayLecture = getTodayLecture(currentCourse.getId());
+                LocalDate today = LocalDate.now();
+        Lecture todayLecture = lectureRepository.findByCourseIdAndDate(currentCourse.getId(), today)
+                .orElseThrow(() -> new IllegalArgumentException("오늘 예정된 강의가 없습니다."));
         Campus campus = currentCourse.getCampus();
 
         validateCampusLocation(campus, requestDto.getLongitude(), requestDto.getLatitude());
@@ -89,6 +98,7 @@ public class AttendanceService { //TODO: 예외처리
 
         Course currentCourse = currentRegistration.getCourse();
         Campus campus = currentCourse.getCampus();
+        Hibernate.initialize(campus);
 
         validateCampusLocation(campus, requestDto.getLongitude(), requestDto.getLatitude());
 
@@ -128,18 +138,8 @@ public class AttendanceService { //TODO: 예외처리
         }
     }
 
-    private Registration getCurrentRegistration(Student student) {
-        return student.getRegistrations().stream()
-                .filter(reg -> reg.getRegistrationStatus() == RegistrationStatus.PROGRESS)
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("현재 과정에 참여 중이지 않은 학생입니다."));
-    }
 
-    private Lecture getTodayLecture(Long courseId) {
-        LocalDate today = LocalDate.now();
-        return lectureRepository.findByCourseIdAndDate(courseId, today)
-                .orElseThrow(() -> new IllegalArgumentException("오늘 예정된 강의가 없습니다."));
-    }
+
 
     private void validateCampusLocation(Campus campus, double longitude, double latitude) {
         if (!campus.isWithinDistance(longitude, latitude)) {

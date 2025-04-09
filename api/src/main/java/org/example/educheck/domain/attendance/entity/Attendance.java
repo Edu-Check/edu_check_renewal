@@ -59,7 +59,7 @@ public class Attendance {
         }
 
         long diffMilliSeconds = Duration.between(lectureStart, nowTime).toMillis();
-        AttendanceStatus status = diffMilliSeconds < ATTENDANCE_DEADLINE_MILLI_SECONDS
+        AttendanceStatus status = diffMilliSeconds < Math.pow((long)ATTENDANCE_DEADLINE_MILLI_SECONDS, 3)
                 ? AttendanceStatus.ATTENDANCE
                 : AttendanceStatus.LATE;
 
@@ -80,7 +80,7 @@ public class Attendance {
 
         if (lecture.isBeforeLectureEndTime(nowDateTime.toLocalTime())) {
             if (attendanceStatus == AttendanceStatus.LATE) {
-                attendanceStatus = null; // TODO: 결석
+                attendanceStatus = AttendanceStatus.ABSENCE;
             } else {
                 attendanceStatus = AttendanceStatus.EARLY_LEAVE;
             }
