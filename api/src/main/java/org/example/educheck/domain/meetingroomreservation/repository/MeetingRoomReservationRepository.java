@@ -31,8 +31,9 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
     @Query("SELECT r FROM MeetingRoomReservation r " +
             "JOIN FETCH r.member m " +
             "JOIN FETCH r.meetingRoom mr " +
-            "WHERE r.id = :reservationId")
-    Optional<MeetingRoomReservation> findByIdWithDetails(@Param("reservationId") Long reservationId);
+            "WHERE r.id = :reservationId " +
+            "AND r.status = 'ACTIVE' ")
+    Optional<MeetingRoomReservation> findActiveByIdWithDetails(@Param("reservationId") Long reservationId);
 
     @Query("SELECT r FROM MeetingRoomReservation r " +
             "WHERE r.status = :status " +

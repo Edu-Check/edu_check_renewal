@@ -49,7 +49,7 @@ public class MeetingRoomReservationController {
                 ApiResponse.ok(
                         "예약 조회 성공",
                         "OK",
-                        meetingRoomReservationService.getMeetingRoomReservationById(meetingRoomReservationId)
+                        meetingRoomReservationService.getMeetingRoomReservationDetails(meetingRoomReservationId)
                 )
         );
 

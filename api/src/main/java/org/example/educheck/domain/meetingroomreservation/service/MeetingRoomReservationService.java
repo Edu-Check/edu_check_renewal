@@ -13,22 +13,12 @@ import org.example.educheck.domain.meetingroomreservation.policy.MeetingRoomRese
 import org.example.educheck.domain.meetingroomreservation.policy.MemberReservationPolicy;
 import org.example.educheck.domain.meetingroomreservation.repository.MeetingRoomReservationRepository;
 import org.example.educheck.domain.member.entity.Member;
-import org.example.educheck.domain.member.repository.MemberRepository;
-import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
-import org.example.educheck.global.common.exception.custom.common.ResourceMismatchException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
-import org.example.educheck.global.common.exception.custom.common.ResourceOwnerMismatchException;
-import org.example.educheck.global.common.exception.custom.reservation.ReservationConflictException;
 import org.example.educheck.global.common.time.SystemTimeProvider;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,8 +60,9 @@ public class MeetingRoomReservationService {
         return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
     }
 
-    public MeetingRoomReservationResponseDto getMeetingRoomReservationById(Long reservationId) {
-        MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findByIdWithDetails(reservationId)
+    public MeetingRoomReservationResponseDto getMeetingRoomReservationDetails(Long reservationId) {
+
+        MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findActiveByIdWithDetails(reservationId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
 
         return MeetingRoomReservationResponseDto.from(meetingRoomReservation);
