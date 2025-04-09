@@ -85,8 +85,6 @@ public class MeetingRoomReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
 
         meetingRoomReservation.cancel(member, meetingRoomReservationPolicy);
-        meetingRoomReservation.cancelReservation();
-        meetingRoomReservationRepository.save(meetingRoomReservation);
     }
 
     public CampusMeetingRoomsDto getMeetingRoomReservations(Long campusId, LocalDate date) {

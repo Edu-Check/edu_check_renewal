@@ -40,10 +40,6 @@ public class MeetingRoomReservation extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 
-    public void cancelReservation() {
-        this.status = ReservationStatus.CANCELED;
-    }
-
     private MeetingRoomReservation(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
         this.member = member;
         this.meetingRoom = meetingRoom;

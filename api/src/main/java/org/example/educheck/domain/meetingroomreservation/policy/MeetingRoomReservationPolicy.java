@@ -1,6 +1,7 @@
 package org.example.educheck.domain.meetingroomreservation.policy;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.meetingroom.entity.MeetingRoom;
 import org.example.educheck.domain.meetingroomreservation.entity.ReservationStatus;
 import org.example.educheck.domain.meetingroomreservation.repository.MeetingRoomReservationRepository;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class MeetingRoomReservationPolicy {
@@ -34,13 +36,13 @@ public class MeetingRoomReservationPolicy {
      * 예약 종료 시간 이전에만 취소 가능하다.
      */
     public void validateCancelableTime(LocalDateTime endTime) {
-        if (!isFinished(endTime)) {
+        if (isFinished(endTime)) {
             throw new InvalidRequestException("예약 종료 시간 이전에만 취소가 가능합니다.");
         }
     }
 
     private boolean isFinished(LocalDateTime endTime) {
-        return endTime.isBefore(LocalDateTime.now());
+wq        return endTime.isBefore(LocalDateTime.now());
     }
 
 
