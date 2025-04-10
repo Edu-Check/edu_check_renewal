@@ -25,13 +25,17 @@ public class Course {
     private String name;
     private LocalDate startDate;
     private LocalDate endDate;
+    @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "VARCHAR(10)")
+    private CourseStatus status;
 
     @Builder
-    public Course(Campus campus, String name, LocalDate startDate, LocalDate endDate) {
+    public Course(Campus campus, String name, LocalDate startDate, LocalDate endDate, CourseStatus status) {
         this.campus = campus;
         this.name = name;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.status = status;
     }
 
 

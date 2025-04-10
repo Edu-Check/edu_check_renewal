@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.educheck.domain.registration.entity.RegistrationStatus;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,6 +17,5 @@ public class StudentInfoResponseDto {
     private String studentName;
     private String studentEmail;
     private String studentPhoneNumber;
-    private RegistrationStatus registrationStatus;
 
 }

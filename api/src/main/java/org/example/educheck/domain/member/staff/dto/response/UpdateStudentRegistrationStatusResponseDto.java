@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.educheck.domain.registration.entity.RegistrationStatus;
+
+import java.time.LocalDate;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,15 +17,24 @@ public class UpdateStudentRegistrationStatusResponseDto {
     private Long courseId;
     private String studentName;
     private String courseName;
-    private RegistrationStatus registrationStatus;
+    private LocalDate dropDate;
+    private LocalDate completionDate;
 
-    public static UpdateStudentRegistrationStatusResponseDto from(Long studentId, Long courseId, String studentName, String courseName, RegistrationStatus registrationStatus) {
+    public static UpdateStudentRegistrationStatusResponseDto from(
+            Long studentId,
+            Long courseId,
+            String studentName,
+            String courseName,
+            LocalDate dropDate,
+            LocalDate completionDate) {
+
         return UpdateStudentRegistrationStatusResponseDto.builder()
                 .studentId(studentId)
                 .courseId(courseId)
                 .studentName(studentName)
                 .courseName(courseName)
-                .registrationStatus(registrationStatus)
+                .dropDate(dropDate)
+                .completionDate(completionDate)
                 .build();
     }
 
