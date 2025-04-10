@@ -11,7 +11,6 @@ import org.example.educheck.domain.attendance.repository.AttendanceRepository;
 import org.example.educheck.domain.campus.Campus;
 import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.course.entity.CourseStatus;
-import org.example.educheck.domain.course.repository.CourseRepository;
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.domain.lecture.repository.LectureRepository;
 import org.example.educheck.domain.member.entity.Member;
@@ -27,6 +26,7 @@ import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.example.educheck.global.common.exception.custom.attendance.AttendanceAlreadyException;
 import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,43 +84,18 @@ public class AttendanceService {
     }
 
     @Transactional
-    public AttendanceStatus checkOut(Member member, AttendanceCheckinRequestDto requestDto) {
+    public AttendanceStatusResponseDto checkOut(Member member, AttendanceCheckinRequestDto requestDto) {
+        LocalDateTime currentTime = LocalDateTime.now();
         validateStudent(member);
 
         Student student = studentRepository.findByMemberId(member.getStudentId())
                 .orElseThrow(() -> new ResourceNotFoundException("학생 정보를 찾을 수 없습니다."));
 
-        if (!student.isParticipatingCourse()) {
-            throw new IllegalArgumentException("현재 과정에 참여 중이지 않은 학생입니다.");
-        }
-
-        Registration currentRegistration = registrationRepository.findActiveRegistrationByStudentId(
-                        student.getId(), CourseStatus.FINISH)
-                .orElseThrow(() -> new IllegalArgumentException("현재 진행 중인 과정 등록이 없습니다."));
-
-        Course currentCourse = currentRegistration.getCourse();
-
-        Campus campus = currentCourse.getCampus();
-
-        if (!campus.isWithinDistance(requestDto.getLongitude(), requestDto.getLatitude())) {
-            throw new IllegalArgumentException("출석 가능한 위치가 아닙니다.");
-        }
-
-        validateCampusLocation(campus, requestDto.getLongitude(), requestDto.getLatitude());
-
         Attendance attendance = attendanceRepository.findByStudentIdTodayCheckInDate(student.getId())
                 .orElseThrow(() -> new IllegalArgumentException("금일 출석 기록이 없습니다."));
-
-
-        LocalDateTime currentTime = LocalDateTime.now();
-
         attendance.checkOut(currentTime);
-        if (attendance.getCheckOutTimestamp() != null) {
 
-            attendanceRepository.save(attendance);
-        }
-
-        return attendance.getAttendanceStatus();
+        return new AttendanceStatusResponseDto(attendance.getAttendanceStatus());
     }
 
     public void updateStudentAttendance(Long courseId, Long studentId, AttendanceUpdateRequestDto requestDto, UserDetails user) {

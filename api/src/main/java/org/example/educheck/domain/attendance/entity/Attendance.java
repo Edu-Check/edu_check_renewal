@@ -59,7 +59,7 @@ public class Attendance {
         }
 
         long diffMilliSeconds = Duration.between(lectureStart, nowTime).toMillis();
-        AttendanceStatus status = diffMilliSeconds < Math.pow((long)ATTENDANCE_DEADLINE_MILLI_SECONDS, 3)
+        AttendanceStatus status = diffMilliSeconds < Math.pow((long) ATTENDANCE_DEADLINE_MILLI_SECONDS, 3)
                 ? AttendanceStatus.ATTENDANCE
                 : AttendanceStatus.LATE;
 
@@ -74,16 +74,14 @@ public class Attendance {
     public void checkOut(LocalDateTime nowDateTime) {
 
         if (checkInTimestamp == null) {
+
             throw new IllegalArgumentException("금일 출석 기록이 없습니다.");
         }
         checkOutTimestamp = nowDateTime;
-
         if (lecture.isBeforeLectureEndTime(nowDateTime.toLocalTime())) {
-            if (attendanceStatus == AttendanceStatus.LATE) {
-                attendanceStatus = AttendanceStatus.ABSENCE;
-            } else {
-                attendanceStatus = AttendanceStatus.EARLY_LEAVE;
-            }
+
+            attendanceStatus = attendanceStatus == AttendanceStatus.LATE || attendanceStatus == AttendanceStatus.ABSENCE
+                    ? AttendanceStatus.ABSENCE : AttendanceStatus.EARLY_LEAVE;
         }
     }
 }

@@ -60,14 +60,12 @@ public class AttendanceController {
             @AuthenticationPrincipal Member member,
             @Valid @RequestBody AttendanceCheckinRequestDto requestDto
     ) {
-        AttendanceStatus attendanceStatus = attendanceService.checkOut(member, requestDto);
-        AttendanceStatusResponseDto responseDto = new AttendanceStatusResponseDto(attendanceStatus);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(
                         "퇴실 성공",
                         "OK",
-                        responseDto
+                        attendanceService.checkOut(member, requestDto)
                 ));
     }
 
