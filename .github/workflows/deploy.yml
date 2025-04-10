@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - main
-      # # - deploy/*
-      # - test/*
-      # - deploy
-      # - fix/*
 
 jobs:
   deploy:
@@ -72,7 +68,7 @@ jobs:
           source: "docker-compose.yml, .env"
           target: "~/work-directory"
 
-      - name: Pull Image from Docker Hub
+      - name: Pull Image from Docker Hub And UP Containers
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -80,18 +76,15 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            echo "[1/4] Move to working dir"
             cd ~/work-directory
+
+            echo "[2/4] Pull Images"
             docker compose pull
 
-      - name: UP Containers
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            cd ~/work-directory
+            echo "[3/4] Restart containers"
             docker compose down
             docker compose up -d
+
+            echo "[4/4] Clean Up Docker Resources"
             docker system prune -f

@@ -5,6 +5,8 @@ import lombok.*;
 import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.member.student.entity.Student;
 
+import java.time.LocalDate;
+
 @Getter
 @Entity
 @Setter
@@ -22,15 +24,14 @@ public class Registration {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id")
     private Course course;
+    private LocalDate dropDate;
+    private LocalDate completionDate;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(50)")
-    private RegistrationStatus registrationStatus;
+
 
     @Builder
-    public Registration(Student student, Course course, RegistrationStatus registrationStatus) {
+    public Registration(Student student, Course course) {
         this.student = student;
         this.course = course;
-        this.registrationStatus = registrationStatus;
     }
 }
