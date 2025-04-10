@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Campus {
-    private static final int ATTENDANCE_METER = 5000;
+    private static final int ATTENDANCE_METER = 100000; //TODO: 100키로-> 100m로 바꾸기
     private static final double EARTH_RADIUS = 6371000;
 
     @Id

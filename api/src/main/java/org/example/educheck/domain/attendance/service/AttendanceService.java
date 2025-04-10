@@ -24,6 +24,7 @@ import org.example.educheck.domain.member.student.repository.StudentRepository;
 import org.example.educheck.domain.registration.entity.Registration;
 import org.example.educheck.domain.registration.repository.RegistrationRepository;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
+import org.example.educheck.global.common.exception.custom.attendance.AttendanceAlreadyException;
 import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -40,7 +41,6 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AttendanceService {
-    private static final int ATTENDANCE_DEADLINE = 1800000;
     private final StudentRepository studentRepository;
     private final RegistrationRepository registrationRepository;
     private final LectureRepository lectureRepository;
@@ -48,10 +48,10 @@ public class AttendanceService {
     private final MemberRepository memberRepository;
     private final StaffRepository staffRepository;
     private final StaffCourseRepository staffCourseRepository;
-    private final CourseRepository courseRepository;
 
     @Transactional
     public AttendanceStatusResponseDto checkIn(Member member, AttendanceCheckinRequestDto requestDto) {
+        LocalDateTime currentTime = LocalDateTime.now();
         validateStudent(member);
 
         Student student = studentRepository.findById(member.getStudentId())
@@ -63,8 +63,7 @@ public class AttendanceService {
                 .orElseThrow(() -> new IllegalArgumentException("현재 과정에 참여 중이지 않은 학생입니다."));
 
         Course currentCourse = currentRegistration.getCourse();
-                LocalDate today = LocalDate.now();
-        Lecture todayLecture = lectureRepository.findByCourseIdAndDate(currentCourse.getId(), today)
+        Lecture todayLecture = lectureRepository.findByCourseIdAndDate(currentCourse.getId(), currentTime.toLocalDate())
                 .orElseThrow(() -> new IllegalArgumentException("오늘 예정된 강의가 없습니다."));
         Campus campus = currentCourse.getCampus();
 
@@ -72,13 +71,13 @@ public class AttendanceService {
 
         attendanceRepository.findByStudentIdTodayCheckInDate(student.getId())
                 .ifPresent(attendance -> {
-                    throw new IllegalArgumentException("이미 출석한 기록이 있습니다.");
+                    throw new AttendanceAlreadyException();
                 });
 
         return new AttendanceStatusResponseDto(
                 attendanceRepository.save(
                         Attendance.checkIn(
-                                student, todayLecture, LocalDateTime.now()
+                                student, todayLecture, currentTime
                         )
                 ).getAttendanceStatus()
         );
@@ -100,11 +99,6 @@ public class AttendanceService {
                 .orElseThrow(() -> new IllegalArgumentException("현재 진행 중인 과정 등록이 없습니다."));
 
         Course currentCourse = currentRegistration.getCourse();
-
-        LocalDate today = LocalDate.now();
-        Lecture todayLecture = lectureRepository.findByCourseIdAndDate(
-                        currentCourse.getId(), today)
-                .orElseThrow(() -> new IllegalArgumentException("오늘 예정된 강의가 없습니다."));
 
         Campus campus = currentCourse.getCampus();
 
@@ -149,8 +143,6 @@ public class AttendanceService {
             throw new ForbiddenException();
         }
     }
-
-
 
 
     private void validateCampusLocation(Campus campus, double longitude, double latitude) {
@@ -200,8 +192,6 @@ public class AttendanceService {
         Course currentCourse = currentRegistration.getCourse();
 
         LocalDate today = LocalDate.now();
-        LocalDateTime startOfDay = today.atStartOfDay();
-        LocalDateTime endOfDay = today.plusDays(1).atStartOfDay().minusNanos(1);
 
         Attendance attendance = attendanceRepository.findByStudentIdTodayCheckInDate(
                         student.getId())
