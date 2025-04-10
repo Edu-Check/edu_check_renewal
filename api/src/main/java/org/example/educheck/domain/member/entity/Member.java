@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.educheck.domain.member.staff.entity.Staff;
 import org.example.educheck.domain.member.student.entity.Student;
+import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -67,5 +68,9 @@ public class Member implements UserDetails {
 
     public Long getStudentId() {
         return student != null ? student.getId() : null;
+    }
+
+    public boolean canAccessCourse(Long courseId, StaffCourseRepository repository) {
+        return repository.existsByStaffIdAndCourseId(this.staff.getId(), courseId);
     }
 }

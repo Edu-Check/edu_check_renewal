@@ -17,7 +17,7 @@ public interface StudentCourseAttendanceRepository extends JpaRepository<Student
 //             "AND DATE( sca.lectureDate) = DATE(NOW())") 테스트로 잠시 날짜 픽스
     @Query("SELECT sca FROM StudentCourseAttendance sca " +
             "WHERE sca.id.courseId = :courseId " +
-            "AND DATE( sca.lectureDate) = DATE('2025-04-04')")
+            "AND DATE( sca.lectureDate) = DATE('2025-04-10')")
     List<StudentCourseAttendance> findByCourseIdAndLectureDateIsToday(@Param("courseId") Long courseId);
 
     Page<StudentCourseAttendance> findByIdStudentIdAndIdCourseId(Long studentId, Long courseId, Pageable pageable);

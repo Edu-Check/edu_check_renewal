@@ -132,8 +132,7 @@ public class StudentCourseAttendanceService {
     }
 
     private void validateStaffAuthorizationInCourse(Member member, Long courseId) {
-        Long staffId = member.getStaff().getId();
-        if (!staffCourseRepository.existsByStaffIdAndCourseId(staffId, courseId)) {
+        if(!member.canAccessCourse(courseId, staffCourseRepository)) {
             throw new ForbiddenException("출석부 조회는 해당 과정의 관리자만 조회 가능합니다.");
         }
     }
