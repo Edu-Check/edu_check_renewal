@@ -1,11 +1,10 @@
 package org.example.educheck.domain.attendanceRegister.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 import org.hibernate.annotations.Immutable;
 import org.springframework.data.annotation.Id;
 
@@ -55,8 +54,9 @@ public class AttendanceRegister {
     @Column(name = "check_out_timestamp")
     private LocalDateTime checkOutTimestamp;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "attendance_status")
-    private String attendanceStatus;
+    private AttendanceStatus attendanceStatus;
 
     /**
      * Registration 테이블의 drop_date, completion_date 컬럼 값에 따라 상태값 판단

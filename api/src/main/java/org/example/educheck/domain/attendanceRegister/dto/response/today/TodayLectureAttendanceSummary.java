@@ -3,6 +3,7 @@ package org.example.educheck.domain.attendanceRegister.dto.response.today;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -22,18 +23,20 @@ public class TodayLectureAttendanceSummary {
     private final Long totalAbsence;
 
     public static TodayLectureAttendanceSummary from(List<TodayLectureAttendanceStatus> statuses) {
-        Map<String, Long> countMap = statuses.stream()
-                .filter(status -> !status.getAttendanceStatus().equals("EXCUSED") && !status.getAttendanceStatus().equals("UPCOMING"))
+        Map<AttendanceStatus, Long> countMap = statuses.stream()
+                .filter(status ->
+                        status.getAttendanceStatus() !=AttendanceStatus.EXCUSED &&
+                        status.getAttendanceStatus() != AttendanceStatus.UPCOMING)
                 .collect(Collectors.groupingBy(
                         TodayLectureAttendanceStatus::getAttendanceStatus,
                         Collectors.counting()
                 ));
 
         return new TodayLectureAttendanceSummary(
-                countMap.getOrDefault("ATTENDANCE", 0L),
-                countMap.getOrDefault("EARLY_LEAVE", 0L),
-                countMap.getOrDefault("LATE", 0L),
-                countMap.getOrDefault("ABSENT", 0L)
+                countMap.getOrDefault(AttendanceStatus.ATTENDANCE, 0L),
+                countMap.getOrDefault(AttendanceStatus.EARLY_LEAVE, 0L),
+                countMap.getOrDefault(AttendanceStatus.LATE, 0L),
+                countMap.getOrDefault(AttendanceStatus.ABSENCE, 0L)
         );
     }
 

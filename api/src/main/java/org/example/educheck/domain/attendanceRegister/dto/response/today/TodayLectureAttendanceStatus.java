@@ -2,6 +2,7 @@ package org.example.educheck.domain.attendanceRegister.dto.response.today;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 
 @Getter
@@ -11,7 +12,7 @@ public class TodayLectureAttendanceStatus {
     private final Long memberId;
     private final String studentName;
     private final String studentPhoneNumber;
-    private String attendanceStatus;
+    private AttendanceStatus attendanceStatus;
 
     public static TodayLectureAttendanceStatus from (AttendanceRegister attendanceRegister) {
         return TodayLectureAttendanceStatus.builder()
