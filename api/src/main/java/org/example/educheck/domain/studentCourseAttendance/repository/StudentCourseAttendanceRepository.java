@@ -14,13 +14,11 @@ import java.util.List;
 
 public interface StudentCourseAttendanceRepository extends JpaRepository<StudentCourseAttendance, Integer> {
 
-
+//             "AND DATE( sca.lectureDate) = DATE(NOW())") 테스트로 잠시 날짜 픽스
     @Query("SELECT sca FROM StudentCourseAttendance sca " +
             "WHERE sca.id.courseId = :courseId " +
-            "AND DATE( sca.lectureDate) = DATE(NOW())")
+            "AND DATE( sca.lectureDate) = DATE('2025-04-04')")
     List<StudentCourseAttendance> findByCourseIdAndLectureDateIsToday(@Param("courseId") Long courseId);
-
-    List<StudentCourseAttendance> findByIdStudentIdAndIdCourseId(Long studentId, Long courseId);
 
     Page<StudentCourseAttendance> findByIdStudentIdAndIdCourseId(Long studentId, Long courseId, Pageable pageable);
 
