@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Immutable
-public class StudentCourseAttendance {
+public class StudentCourseAttendanceV2 {
 
     @EmbeddedId
-    private StudentCourseAttendanceId id;
+    private StudentCourseAttendanceIdV2 id;
 
     @Column(name = "member_id")
     private Long memberId;
@@ -49,7 +49,7 @@ public class StudentCourseAttendance {
 
     @Override
     public String toString() {
-        return "StudentCourseAttendance{" +
+        return "StudentCourseAttendanceV2{" +
                 "id=" + id +
                 ", memberId=" + memberId +
                 ", memberName='" + memberName + '\'' +
