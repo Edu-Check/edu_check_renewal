@@ -9,6 +9,7 @@ import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 import org.example.educheck.domain.attendance.repository.AttendanceRepository;
 import org.example.educheck.domain.campus.Campus;
 import org.example.educheck.domain.course.entity.Course;
+import org.example.educheck.domain.course.entity.CourseStatus;
 import org.example.educheck.domain.course.repository.CourseRepository;
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.domain.lecture.repository.LectureRepository;
@@ -20,7 +21,6 @@ import org.example.educheck.domain.member.staff.entity.Staff;
 import org.example.educheck.domain.member.student.entity.Student;
 import org.example.educheck.domain.member.student.repository.StudentRepository;
 import org.example.educheck.domain.registration.entity.Registration;
-import org.example.educheck.domain.registration.entity.RegistrationStatus;
 import org.example.educheck.domain.registration.repository.RegistrationRepository;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.example.educheck.global.common.exception.custom.attendance.AttendanceAlreadyException;
@@ -71,8 +71,8 @@ public class AttendanceService {
             throw new IllegalArgumentException("현재 과정에 참여 중이지 않은 학생입니다.");
         }
 
-        Registration currentRegistration = registrationRepository.findByStudentIdAndRegistrationStatus(
-                        studentId, RegistrationStatus.PROGRESS)
+        Registration currentRegistration = registrationRepository.findActiveRegistrationByStudentId(
+                        studentId, CourseStatus.FINISH)
                 .orElseThrow(() -> new IllegalArgumentException("현재 진행 중인 과정 등록이 없습니다."));
         Course currentCourse = currentRegistration.getCourse();
 
@@ -198,8 +198,8 @@ public class AttendanceService {
             throw new IllegalArgumentException("현재 과정에 참여 중이지 않은 학생입니다.");
         }
 
-        Registration currentRegistration = registrationRepository.findByStudentIdAndRegistrationStatus(
-                        studentId, RegistrationStatus.PROGRESS)
+        Registration currentRegistration = registrationRepository.findActiveRegistrationByStudentId(
+                        studentId, CourseStatus.FINISH)
                 .orElseThrow(() -> new IllegalArgumentException("현재 진행 중인 과정 등록이 없습니다."));
         Course currentCourse = currentRegistration.getCourse();
 

@@ -26,8 +26,6 @@ public class Student {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "VARCHAR(50)")
 
     private char courseParticipationStatus;
 
@@ -35,9 +33,8 @@ public class Student {
     private List<Registration> registrations = new ArrayList<>();
 
     @Builder
-    public Student(Member member, StudentStatus studentStatus, char courseParticipationStatus, List<Registration> registrations) {
+    public Student(Member member, char courseParticipationStatus, List<Registration> registrations) {
         this.member = member;
-        this.studentStatus = studentStatus;
         this.courseParticipationStatus = courseParticipationStatus;
         this.registrations = registrations;
     }
