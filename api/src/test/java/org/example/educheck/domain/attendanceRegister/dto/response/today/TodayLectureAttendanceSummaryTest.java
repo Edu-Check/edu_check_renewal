@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("출석 상태별 통계 요약 테스트")
 class TodayLectureAttendanceSummaryTest {
 
-    @DisplayName("집계시 EXCUSE(유고결석 승인된 출석)와 UPCOMING(수업 시작 전)은 제외된다.")
     @Test
     void 출석상태리스트로_출석통계_집계_성공_테스트() {
         //given
@@ -34,6 +33,8 @@ class TodayLectureAttendanceSummaryTest {
         assertEquals(1L, summary.getTotalLate());
         assertEquals(1L, summary.getTotalEarlyLeave());
         assertEquals(1L, summary.getTotalAbsence());
+        assertEquals(1L, summary.getTotalExcused());
+        assertEquals(1L, summary.getTotalUpcoming());
     }
 
     private TodayLectureAttendanceStatus makeStatus(Long memberId, AttendanceStatus status) {

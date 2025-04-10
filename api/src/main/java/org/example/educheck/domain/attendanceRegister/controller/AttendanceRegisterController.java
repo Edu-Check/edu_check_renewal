@@ -29,8 +29,6 @@ public class AttendanceRegisterController {
             @PathVariable Long courseId,
             @AuthenticationPrincipal Member member
     ) {
-        log.info("호출됨");
-
         return ResponseEntity.ok(ApiResponse.ok(
                 "금일 출석 현황 조회 성공",
                 "OK",
