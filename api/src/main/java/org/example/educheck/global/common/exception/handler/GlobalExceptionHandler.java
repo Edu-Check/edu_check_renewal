@@ -135,10 +135,5 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ErrorCode.ALREADY_ATTENDANCE.getMessage(),
                         ErrorCode.ALREADY_ATTENDANCE.getCode()));
     }
-    @ExceptionHandler(IllegalArgumentException.class) //TODO: 임시 핸들러, 삭제 예정
-    public ResponseEntity<ApiResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(ApiResponse.error("Internal Server Error", "500"));
-    }
+
 }

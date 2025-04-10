@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.domain.member.student.entity.Student;
+import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
+import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -55,7 +57,7 @@ public class Attendance {
         LocalTime nowTime = nowDateTime.toLocalTime();
 
         if (nowTime.isAfter(lectureEnd)) {
-            throw new IllegalArgumentException("출석 가능한 시간이 아닙니다.");
+            throw new InvalidRequestException("출석 가능한 시간이 아닙니다.");
         }
 
         long diffMilliSeconds = Duration.between(lectureStart, nowTime).toMillis();
@@ -75,7 +77,7 @@ public class Attendance {
 
         if (checkInTimestamp == null) {
 
-            throw new IllegalArgumentException("금일 출석 기록이 없습니다.");
+            throw new ResourceNotFoundException("출석 정보를 찾을 수 없습니다.");
         }
         checkOutTimestamp = nowDateTime;
         if (lecture.isBeforeLectureEndTime(nowDateTime.toLocalTime())) {
