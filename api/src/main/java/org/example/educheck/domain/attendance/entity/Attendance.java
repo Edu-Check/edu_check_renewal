@@ -61,7 +61,7 @@ public class Attendance {
         }
 
         long diffMilliSeconds = Duration.between(lectureStart, nowTime).toMillis();
-        AttendanceStatus status = diffMilliSeconds < Math.pow((long) ATTENDANCE_DEADLINE_MILLI_SECONDS, 3)
+        AttendanceStatus status = diffMilliSeconds < ATTENDANCE_DEADLINE_MILLI_SECONDS
                 ? AttendanceStatus.ATTENDANCE
                 : AttendanceStatus.LATE;
 

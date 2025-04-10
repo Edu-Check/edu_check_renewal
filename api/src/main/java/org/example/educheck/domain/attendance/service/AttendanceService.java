@@ -6,7 +6,6 @@ import org.example.educheck.domain.attendance.dto.request.AttendanceCheckinReque
 import org.example.educheck.domain.attendance.dto.request.AttendanceUpdateRequestDto;
 import org.example.educheck.domain.attendance.dto.response.AttendanceStatusResponseDto;
 import org.example.educheck.domain.attendance.entity.Attendance;
-import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 import org.example.educheck.domain.attendance.repository.AttendanceRepository;
 import org.example.educheck.domain.campus.Campus;
 import org.example.educheck.domain.course.entity.Course;
@@ -14,7 +13,6 @@ import org.example.educheck.domain.course.entity.CourseStatus;
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.domain.lecture.repository.LectureRepository;
 import org.example.educheck.domain.member.entity.Member;
-import org.example.educheck.domain.member.entity.Role;
 import org.example.educheck.domain.member.repository.MemberRepository;
 import org.example.educheck.domain.member.repository.StaffRepository;
 import org.example.educheck.domain.member.staff.entity.Staff;
@@ -28,14 +26,11 @@ import org.example.educheck.global.common.exception.custom.common.ForbiddenExcep
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
 import org.example.educheck.global.common.exception.custom.common.ResourceMismatchException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
-import org.hibernate.Hibernate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
 
 @Slf4j
@@ -44,7 +39,6 @@ import java.time.LocalTime;
 @Transactional(readOnly = true)
 public class AttendanceService {
     private final StudentRepository studentRepository;
-    private final RegistrationRepository registrationRepository;
     private final LectureRepository lectureRepository;
     private final AttendanceRepository attendanceRepository;
     private final MemberRepository memberRepository;
@@ -53,7 +47,7 @@ public class AttendanceService {
 
     @Transactional
     public AttendanceStatusResponseDto checkIn(Member member, AttendanceCheckinRequestDto requestDto) {
-        LocalDateTime currentTime = LocalDateTime.now();
+        final LocalDateTime currentTime = LocalDateTime.now();
         validateStudent(member);
 
         Student student = studentRepository.findById(member.getStudentId())
@@ -100,6 +94,12 @@ public class AttendanceService {
                 .orElseThrow(() -> new ResourceNotFoundException("금일 출석 기록이 없습니다."));
         attendance.checkOut(currentTime);
 
+        Campus campus = attendance.getLecture().getCourse().getCampus();
+        if (!campus.isWithinDistance(requestDto.getLongitude(), requestDto.getLatitude())) {
+
+            throw new InvalidRequestException("출석/퇴실 가능한 위치가 아닙니다.");
+        }
+
         return new AttendanceStatusResponseDto(attendance.getAttendanceStatus());
     }
 
@@ -123,8 +123,6 @@ public class AttendanceService {
             throw new ForbiddenException();
         }
     }
-
-
 
 
     private void checkStaffHasCourse(UserDetails user, Long courseId) {
