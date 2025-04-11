@@ -41,9 +41,10 @@ export default function SideBar() {
   });
 
   const handleAttendanceCheck = () => {
-    if (isCheckedIn && isAttendanceToday && !isCompleted) {
+    const cookieValue = getCookie(email);
+    if (cookieValue) {
       handleCompleteAttendance();
-    } else if (!isCheckedIn || !isAttendanceToday) {
+    } else {
       handleCheckIn();
     }
   };
@@ -68,6 +69,17 @@ export default function SideBar() {
         getPosition();
       });
   };
+
+  const getCookie = (cookieName) => {
+    const nameEQ = cookieName + '=';
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      let cookie = cookies[i].trim();
+      if (cookie.indexOf(nameEQ) === 0) return cookie.substring(nameEQ.length);
+    }
+    return null;
+  };
+
   useEffect(() => {
     if (isLoggedIn) {
       const storedDate = attendanceDate;
@@ -114,7 +126,7 @@ export default function SideBar() {
   };
 
   const getButtonProps = () => {
-    if (isCheckedIn && isAttendanceToday) {
+    if (getCookie(email)) {
       return { title: '퇴실하기', isEnable: true };
     } else {
       return { title: '출석하기', isEnable: true };
