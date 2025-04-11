@@ -100,9 +100,13 @@ export default function SideBar() {
 
   const submitAttendanceAPI = async (latitude, longitude) => {
     try {
-      const data = await attendanceApi.submitAttendance(latitude, longitude);
-      alert(data.message);
+      const response = await attendanceApi.submitAttendance(latitude, longitude);
+      alert(response.message);
       dispatch(checkIn());
+      const isCheckIn = response.data.data.isCheckIn;
+      if (isCheckIn) {
+        document.cookie = `${response.data.data.email}=checkIn; expires=${new Date(new Date().setHours(24, 0, 0, 0)).toUTCString()}; path=/`;
+      }
     } catch (error) {
       console.error('출석 체크 오류:', error);
       alert('출석 체크에 실패했습니다: ' + (error.response?.data?.message || error.message));
@@ -110,9 +114,7 @@ export default function SideBar() {
   };
 
   const getButtonProps = () => {
-    if (isCompleted && isAttendanceToday) {
-      return { title: '퇴실 완료', isEnable: false };
-    } else if (isCheckedIn && isAttendanceToday) {
+    if (isCheckedIn && isAttendanceToday) {
       return { title: '퇴실하기', isEnable: true };
     } else {
       return { title: '출석하기', isEnable: true };

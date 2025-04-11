@@ -48,7 +48,7 @@ export default function Login() {
       );
       const isCheckIn = response.data.data.isCheckIn;
       if (isCheckIn) {
-        document.cookie = `isCheckIn=true; expires=${new Date(new Date().setHours(24, 0, 0, 0)).toUTCString()}; path=/`;
+        document.cookie = `${response.data.data.email}=checkIn; expires=${new Date(new Date().setHours(24, 0, 0, 0)).toUTCString()}; path=/`;
       }
     } catch (error) {
       console.error(error);
