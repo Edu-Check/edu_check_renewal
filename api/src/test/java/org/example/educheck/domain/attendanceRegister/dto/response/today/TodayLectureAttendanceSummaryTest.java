@@ -1,6 +1,5 @@
 package org.example.educheck.domain.attendanceRegister.dto.response.today;
 
-import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
 import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +21,7 @@ class TodayLectureAttendanceSummaryTest {
                 makeStatus(4L, AttendanceStatus.EARLY_LEAVE),
                 makeStatus(5L, AttendanceStatus.ABSENCE),
                 makeStatus(6L, AttendanceStatus.EXCUSED),
-                makeStatus(7L, AttendanceStatus.UPCOMING)
+                makeStatus(7L, AttendanceStatus.NOT_CHECKIN)
         );
 
         //when
@@ -34,7 +33,7 @@ class TodayLectureAttendanceSummaryTest {
         assertEquals(1L, summary.getTotalEarlyLeave());
         assertEquals(1L, summary.getTotalAbsence());
         assertEquals(1L, summary.getTotalExcused());
-        assertEquals(1L, summary.getTotalUpcoming());
+        assertEquals(1L, summary.getTotalNotCheckIn());
     }
 
     private TodayLectureAttendanceStatus makeStatus(Long memberId, AttendanceStatus status) {

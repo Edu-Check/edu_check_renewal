@@ -75,6 +75,10 @@ public class Member implements UserDetails {
         return role == Role.STUDENT;
     }
 
+    public boolean isMiddleAdmin() {
+        return role == Role.MIDDLE_ADMIN;
+    }
+
     public boolean canAccessCourse(Long courseId, StaffCourseRepository repository) {
         return repository.existsByStaffIdAndCourseId(this.staff.getId(), courseId);
     }
