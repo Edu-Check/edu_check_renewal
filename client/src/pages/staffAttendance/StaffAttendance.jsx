@@ -33,15 +33,23 @@ export default function StaffAttendance() {
   const getAttendances = async () => {
     try {
       const response = await attendanceApi.getTodayAttendances(courseId);
-      const { totalAttendance, totalEarlyLeave, totalLate, totalAbsence } =
-        response.data.data.summary;
+      const {
+        totalAttendance,
+        totalEarlyLeave,
+        totalLate,
+        totalAbsence,
+        totalExcused,
+        totalUpcoming,
+      } = response.summary;
       setDataList([
         { label: '출석', value: totalAttendance },
         { label: '조퇴', value: totalEarlyLeave },
         { label: '지각', value: totalLate },
         { label: '결석', value: totalAbsence },
+        { label: '기타', value: totalExcused },
+        { label: '강의 예정', value: totalUpcoming },
       ]);
-      setStudents(response.data.data.students);
+      setStudents(response.records);
     } catch (error) {
       const modalData = {
         content: error.message,
@@ -90,12 +98,17 @@ export default function StaffAttendance() {
         ATTENDANCE: '출석',
         EARLY_LEAVE: '조퇴',
         LATE: '지각',
-        ABSENT: '결석',
+        ABSENCE: '결석',
+        EXCUSED: '유고결석',
+        UPCOMING: '강의 예정',
       };
 
+      console.log(item);
+
+      //dataList(집계 처리한 부분을 기준으로 조건에 맞는 항목만 필터링해서 UI에 랜더링)
       const isFiltered =
         (Array.isArray(isActiveIndex) &&
-          isActiveIndex.some((idx) => dataList[idx]?.label === tag[item.status])) ||
+          isActiveIndex.some((idx) => dataList[idx]?.label === tag[item.attendanceStatus])) ||
         isActiveIndex === false;
 
       if (isFiltered) {
@@ -103,8 +116,9 @@ export default function StaffAttendance() {
           <div key={index} className={styles.baseListItems}>
             <BaseListItem
               content={item.studentName}
-              tagTitle={tag[item.status]}
-              onClick={() => handleStudentClick(item.studentId)}
+              phone={item.studentPhoneNumber}
+              tagTitle={tag[item.attendanceStatus]}
+              onClick={() => handleStudentClick(item.memberId)}
             />
           </div>
         );

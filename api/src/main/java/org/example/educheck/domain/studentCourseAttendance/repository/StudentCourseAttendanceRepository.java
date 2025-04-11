@@ -1,8 +1,8 @@
 package org.example.educheck.domain.studentCourseAttendance.repository;
 
-import org.example.educheck.domain.studentCourseAttendance.dto.response.AttendanceRateStatisticsProjection;
-import org.example.educheck.domain.studentCourseAttendance.dto.response.AttendanceStatsProjection;
-import org.example.educheck.domain.studentCourseAttendance.entity.StudentCourseAttendance;
+import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceRateStatisticsProjection;
+import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceStatsProjection;
+import org.example.educheck.domain.studentCourseAttendance.entity.StudentCourseAttendanceV2;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,22 +12,22 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 
-public interface StudentCourseAttendanceRepository extends JpaRepository<StudentCourseAttendance, Integer> {
+public interface StudentCourseAttendanceRepository extends JpaRepository<StudentCourseAttendanceV2, Integer> {
 
 //             "AND DATE( sca.lectureDate) = DATE(NOW())") 테스트로 잠시 날짜 픽스
-    @Query("SELECT sca FROM StudentCourseAttendance sca " +
+    @Query("SELECT sca FROM StudentCourseAttendanceV2 sca " +
             "WHERE sca.id.courseId = :courseId " +
-            "AND DATE( sca.lectureDate) = DATE('2025-04-04')")
-    List<StudentCourseAttendance> findByCourseIdAndLectureDateIsToday(@Param("courseId") Long courseId);
+            "AND DATE( sca.lectureDate) = DATE('2025-04-10')")
+    List<StudentCourseAttendanceV2> findByCourseIdAndLectureDateIsToday(@Param("courseId") Long courseId);
 
-    Page<StudentCourseAttendance> findByIdStudentIdAndIdCourseId(Long studentId, Long courseId, Pageable pageable);
+    Page<StudentCourseAttendanceV2> findByIdStudentIdAndIdCourseId(Long studentId, Long courseId, Pageable pageable);
 
-    @Query("SELECT sca FROM StudentCourseAttendance sca " +
+    @Query("SELECT sca FROM StudentCourseAttendanceV2 sca " +
             "WHERE sca.id.studentId = :studentId " +
             "AND sca.id.courseId = :courseId " +
             "AND (:year IS NULL OR FUNCTION('YEAR', sca.lectureDate) = :year) " +
             "AND (:month IS NULL OR FUNCTION('MONTH', sca.lectureDate) = :month)")
-    Page<StudentCourseAttendance> findByStudentAndCourse(
+    Page<StudentCourseAttendanceV2> findByStudentAndCourse(
             @Param("studentId") Long studentId,
             @Param("courseId") Long courseId,
             @Param("year") Integer year,

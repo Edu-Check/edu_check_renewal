@@ -1,7 +1,5 @@
 import apiInstance from './instance/apiInstance';
 
-
-
 export const attendanceApi = {
   submitAttendance: async (latitude, longitude) => {
     const response = await apiInstance.post(
@@ -56,17 +54,13 @@ export const attendanceApi = {
     );
     return response.data;
   },
+
   // STAFF
   getTodayAttendances: async (courseId) => {
-    const response = await apiInstance.get(
-      `/courses/${courseId}/attendances/today`,
-      {},
-      {
-        withCredentials: true,
-      },
-    );
-    return response;
+    const response = await apiInstance.get(`/courses/${courseId}/attendances/today`);
+    return response.data.data;
   },
+
   getStudentAttendances: async (courseId, studentId) => {
     const response = await apiInstance.get(
       `/courses/${courseId}/students/${studentId}/attendances`,
@@ -79,17 +73,9 @@ export const attendanceApi = {
   },
 
   getStudentAttendanceSheet: async (courseId, memberId) => {
-    const response = await apiInstance.get(
-      `/courses/${courseId}/members/${memberId}`,
-      {baseURL: import.meta.env.VITE_APP_URL},
-
-
-
-
-
-
-
-    );
+    const response = await apiInstance.get(`/courses/${courseId}/members/${memberId}`, {
+      baseURL: import.meta.env.VITE_APP_URL,
+    });
     return response;
   },
 };
