@@ -73,6 +73,7 @@ public class Member implements UserDetails {
 
     public boolean isStudent() {
         return role == Role.STUDENT;
+    }
 
     public boolean canAccessCourse(Long courseId, StaffCourseRepository repository) {
         return repository.existsByStaffIdAndCourseId(this.staff.getId(), courseId);

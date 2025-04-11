@@ -39,7 +39,7 @@ export default function StaffAttendance() {
         totalLate,
         totalAbsence,
         totalExcused,
-        totalUpcoming,
+        totalNotCheckIn,
       } = response.summary;
       setDataList([
         { label: '출석', value: totalAttendance },
@@ -47,7 +47,7 @@ export default function StaffAttendance() {
         { label: '지각', value: totalLate },
         { label: '결석', value: totalAbsence },
         { label: '기타', value: totalExcused },
-        { label: '강의 예정', value: totalUpcoming },
+        { label: '미출석', value: totalNotCheckIn },
       ]);
       setStudents(response.records);
     } catch (error) {
@@ -88,7 +88,7 @@ export default function StaffAttendance() {
         title={item.label}
         content={item.value}
         handleActiveFilter={handleActiveFilter}
-      ></FilterButton>
+       />
     );
   });
 
@@ -100,7 +100,7 @@ export default function StaffAttendance() {
         LATE: '지각',
         ABSENCE: '결석',
         EXCUSED: '유고결석',
-        UPCOMING: '강의 예정',
+        NOT_CHECKIN: '미출석',
       };
 
       console.log(item);

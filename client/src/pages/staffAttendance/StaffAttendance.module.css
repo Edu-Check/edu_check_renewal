@@ -5,9 +5,14 @@
 
 .filterButtonBox {
   display: flex;
+  flex-wrap: wrap;
   width: 100%;
   gap: 1rem;
   margin-bottom: var(--margin-basic);
+}
+
+.filterButtonBox > * {
+  flex: 0 0 calc((100% - 2rem) / 3);  
 }
 
 .dashBoardItemBox {
@@ -20,6 +25,6 @@
   gap: 1rem;
 }
 
-.studentsBox > div:hover {
+.baseListItems > div:hover {
   box-shadow: var(--box-shadow-medium);
 }
