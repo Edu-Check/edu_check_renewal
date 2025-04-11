@@ -75,7 +75,7 @@ public class AuthService {
                 .student(savedStudent)
                 .course(course)
                 .build();
-        Registration savedRegistration = registrationRepository.save(registration);
+        registrationRepository.save(registration);
 
         return RegisteredMemberResponseDto.from(member);
 
@@ -84,6 +84,7 @@ public class AuthService {
 
     @Transactional
     public LoginResponseDto login(LoginRequestDto requestDto, HttpServletResponse response) {
+        LocalDateTime now = LocalDateTime.now();
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -93,7 +94,7 @@ public class AuthService {
         Member member = (Member) authentication.getPrincipal();
         setTokensInResponse(authentication, response);
         LoginResponseDto loginResponseDto = roleBasedLogin(member);
-        member.setLastLoginDateTime(LocalDateTime.now());
+        member.setLastLoginDateTime(now);
 
         return loginResponseDto;
     }
