@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 
 import java.time.LocalDate;
 
@@ -13,6 +14,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class AttendanceUpdateRequestDto {
 
-    private String status;
+    private AttendanceStatus status;
     private LocalDate date;
 }

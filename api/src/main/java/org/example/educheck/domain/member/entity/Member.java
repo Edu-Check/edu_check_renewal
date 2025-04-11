@@ -70,6 +70,10 @@ public class Member implements UserDetails {
         return student != null ? student.getId() : null;
     }
 
+
+    public boolean isStudent() {
+        return role == Role.STUDENT;
+
     public boolean canAccessCourse(Long courseId, StaffCourseRepository repository) {
         return repository.existsByStaffIdAndCourseId(this.staff.getId(), courseId);
     }

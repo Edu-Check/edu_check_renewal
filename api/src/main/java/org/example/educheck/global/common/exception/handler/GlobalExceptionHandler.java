@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.global.common.dto.ApiResponse;
 import org.example.educheck.global.common.exception.ErrorCode;
 import org.example.educheck.global.common.exception.custom.LoginValidationException;
+import org.example.educheck.global.common.exception.custom.attendance.AttendanceAlreadyException;
 import org.example.educheck.global.common.exception.custom.auth.EmailNotFoundException;
 import org.example.educheck.global.common.exception.custom.common.GlobalException;
 import org.springframework.http.HttpStatus;
@@ -127,4 +128,12 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ErrorCode.EMAIL_NOT_FOUND.getMessage(),
                         ErrorCode.EMAIL_NOT_FOUND.getCode()));
     }
+    @ExceptionHandler(AttendanceAlreadyException.class)
+    public ResponseEntity<ApiResponse<Object>> handleAttendanceAlreadyException(AttendanceAlreadyException ex) {
+        return ResponseEntity
+                .status(ErrorCode.ALREADY_ATTENDANCE.getStatus())
+                .body(ApiResponse.error(ErrorCode.ALREADY_ATTENDANCE.getMessage(),
+                        ErrorCode.ALREADY_ATTENDANCE.getCode()));
+    }
+
 }

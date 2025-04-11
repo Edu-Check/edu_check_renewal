@@ -30,11 +30,29 @@ public class Lecture {
 
     private int session;
     private String title;
-    //LocalDate로 변경
+
     private LocalDate date;
 
     private LocalTime startTime;
 
     private LocalTime endTime;
+
+    public boolean isAfterLectureStartTime() {
+
+        return LocalTime.now().isAfter(startTime);
+    }
+    public boolean isAfterLectureStartTime(LocalTime currentTime) {
+
+        return currentTime.isAfter(startTime);
+    }
+
+    public boolean isBeforeLectureEndTime() {
+
+        return LocalTime.now().isBefore(endTime);
+    }
+    public boolean isBeforeLectureEndTime(LocalTime currentTime) {
+
+        return currentTime.isBefore(endTime);
+    }
 
 }

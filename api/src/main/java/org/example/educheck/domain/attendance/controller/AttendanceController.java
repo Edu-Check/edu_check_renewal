@@ -29,19 +29,16 @@ public class AttendanceController {
             @AuthenticationPrincipal Member member,
             @Valid @RequestBody AttendanceCheckinRequestDto requestDto
     ) {
-        AttendanceStatus attendanceStatus = attendanceService.checkIn(member, requestDto);
 
-        AttendanceStatusResponseDto responseDto = new AttendanceStatusResponseDto(attendanceStatus);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(
                         "출석 성공",
                         "OK",
-                        responseDto
+                        attendanceService.checkIn(member, requestDto)
                 ));
     }
 
-    // 수강생 출결 상태 수정
     @PatchMapping("/courses/{courseId}/students/{studentId}/attendances")
     public ResponseEntity<ApiResponse<Object>> updateStudentAttendance(
             @PathVariable Long courseId,
@@ -50,6 +47,7 @@ public class AttendanceController {
             @AuthenticationPrincipal UserDetails user
     ) {
         attendanceService.updateStudentAttendance(courseId, studentId, requestDto, user);
+
         return ResponseEntity.ok(ApiResponse.ok(
                 "특정 학생 출결 수정 성공",
                 "OK",
@@ -59,18 +57,15 @@ public class AttendanceController {
 
     @PatchMapping("/checkout")
     public ResponseEntity<ApiResponse<AttendanceStatusResponseDto>> checkOut(
-            @AuthenticationPrincipal UserDetails user,
+            @AuthenticationPrincipal Member member,
             @Valid @RequestBody AttendanceCheckinRequestDto requestDto
     ) {
-        AttendanceStatus attendanceStatus = attendanceService.checkOut(user, requestDto);
-
-        AttendanceStatusResponseDto responseDto = new AttendanceStatusResponseDto(attendanceStatus);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(
                         "퇴실 성공",
                         "OK",
-                        responseDto
+                        attendanceService.checkOut(member, requestDto)
                 ));
     }
 

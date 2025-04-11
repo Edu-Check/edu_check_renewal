@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface LectureRepository extends JpaRepository<Lecture, Long> {
 
-    Optional<Lecture> findByCourseIdAndDate(Long courseId, LocalDateTime date);
+
 
 //    @Query("SELECT l FROM Lecture l WHERE l.course.id = :courseId AND l.date BETWEEN :startDate AND :endDate")
 //    Optional<Lecture> findByCourseIdAndDateBetween(
@@ -19,7 +19,6 @@ public interface LectureRepository extends JpaRepository<Lecture, Long> {
 //            @Param("startDate") LocalDate startDate,
 //            @Param("endDate") LocalDate endDate
 //    );
-
     Optional<Lecture> findByCourseIdAndDate(@Param("courseId") Long courseId, @Param("endDate") LocalDate endDate);
 
     List<Lecture> findAllByCourseId(Long courseId);
