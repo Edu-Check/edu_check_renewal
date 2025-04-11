@@ -9,6 +9,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -54,5 +56,9 @@ public class Campus {
 
 
         return distance <= ATTENDANCE_METER;
+    }
+
+    public boolean isSameCampus(Long campusId) {
+        return Objects.equals(this.id, campusId);
     }
 }

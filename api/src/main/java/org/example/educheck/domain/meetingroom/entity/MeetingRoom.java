@@ -2,7 +2,6 @@ package org.example.educheck.domain.meetingroom.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.campus.Campus;
@@ -28,8 +27,12 @@ public class MeetingRoom {
     }
 
     public void validateBelongsToCampus(Long campusId) {
-        if (!this.campus.getId().equals(campusId)) {
+        if (isNotInCampus(campusId)) {
             throw new ResourceMismatchException("해당 회의실은 캠퍼스 내 회의실이 아닙니다.");
         }
+    }
+
+    public boolean isNotInCampus(Long campusId) {
+        return !this.campus.isSameCampus(campusId);
     }
 }
