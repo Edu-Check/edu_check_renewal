@@ -19,6 +19,13 @@ export default function App() {
             accessToken: accessToken,
           }),
         );
+        const isCheckIn = response.data.data.isCheckIn;
+      if (isCheckIn) {
+        const expiryDate = new Date();
+        expiryDate.setUTCDate(expiryDate.getUTCDate() + 1);
+        expiryDate.setUTCHours(15, 0, 0, 0);
+        document.cookie = `${response.data.data.email}=checkIn; expires=${expiryDate.toUTCString()}; path=/`;
+      }
       } catch (error) {
         // console.error(error);
       }
