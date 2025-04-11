@@ -22,10 +22,6 @@ public class MeetingRoom {
 
     private String name;
 
-    public Long getCampusId() {
-        return this.campus != null ? this.campus.getId() : null;
-    }
-
     public void validateBelongsToCampus(Long campusId) {
         if (isNotInCampus(campusId)) {
             throw new ResourceMismatchException("해당 회의실은 캠퍼스 내 회의실이 아닙니다.");
