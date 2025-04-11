@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 
 @Getter
@@ -66,6 +67,7 @@ public class Member implements UserDetails {
         return email;
     }
 
+    //TODO: 사용하는 로직 보고 수정할 것
     public Long getStudentId() {
         return student != null ? student.getId() : null;
     }
@@ -81,5 +83,22 @@ public class Member implements UserDetails {
 
     public boolean canAccessCourse(Long courseId, StaffCourseRepository repository) {
         return repository.existsByStaffIdAndCourseId(this.staff.getId(), courseId);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return Objects.equals(id, member.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    public boolean isSameMember(Member member) {
+        return Objects.equals(this, member);
     }
 }

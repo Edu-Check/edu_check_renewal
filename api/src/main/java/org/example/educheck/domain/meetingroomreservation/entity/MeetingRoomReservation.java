@@ -60,8 +60,13 @@ public class MeetingRoomReservation extends BaseTimeEntity {
     }
 
     private void validateOwner(Member member) {
-        if (!this.member.getId().equals(member.getId())) {
-            throw new ResourceOwnerMismatchException();
+        if (isNotReservedBy(member)) {
+            throw new ResourceOwnerMismatchException("회의실 예약한 본인만 취소할 수 있습니다.");
         }
     }
+
+    private boolean isNotReservedBy(Member member) {
+        return !this.member.isSameMember(member);
+    }
 }
+
