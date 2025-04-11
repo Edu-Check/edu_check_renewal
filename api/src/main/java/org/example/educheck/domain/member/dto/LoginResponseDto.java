@@ -24,5 +24,6 @@ public class LoginResponseDto {
     private String courseName;
     private LocalDateTime lastLoginDateTime;
     private LocalDateTime lastPasswordChangeDateTime;
+    private Boolean isCheckIn;
 
 }
