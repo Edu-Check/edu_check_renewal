@@ -46,9 +46,13 @@ export default function Login() {
           accessToken: accessToken,
         }),
       );
-      const isCheckIn = response.data.data.isCheckIn;
+      const isCheckIn = response.data?.data?.isCheckIn;
+
       if (isCheckIn) {
-        document.cookie = `${response.data.data.email}=checkIn; expires=${new Date(new Date().setHours(24, 0, 0, 0)).toUTCString()}; path=/`;
+        const expiryDate = new Date();
+        expiryDate.setUTCDate(expiryDate.getUTCDate() + 1);
+        expiryDate.setUTCHours(15, 0, 0, 0);
+        document.cookie = `${response.data.data.email}=checkIn; expires=${expiryDate.toUTCString()}; path=/`;
       }
     } catch (error) {
       console.error(error);

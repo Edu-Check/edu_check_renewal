@@ -93,7 +93,6 @@ public class AttendanceService {
         Attendance attendance = attendanceRepository.findByStudentIdTodayCheckInDate(student.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("금일 출석 기록이 없습니다."));
         Campus campus = attendance.getLecture().getCourse().getCampus();
-
         if (!campus.isWithinDistance(requestDto.getLongitude(), requestDto.getLatitude())) {
 
             throw new InvalidRequestException("출석/퇴실 가능한 위치가 아닙니다.");
