@@ -6,11 +6,14 @@ import org.example.educheck.global.common.exception.custom.common.InvalidRequest
 import org.example.educheck.global.common.exception.custom.reservation.ReservationConflictException;
 import org.example.educheck.global.common.time.SystemTimeProvider;
 import org.springframework.cglib.core.Local;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,8 +21,14 @@ import java.time.temporal.ChronoUnit;
 @Embeddable
 public class MeetingRoomReservationTime {
 
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("a h시 m분").withLocale(Locale.KOREAN);
     private static final LocalTime START_OF_DAY = LocalTime.of(9,0);
     private static final LocalTime END_OF_DAY = LocalTime.of(22, 0);
+    private static final String RESERVATION_AVAILABLE_TIME_MESSAGE = String.format(
+            "예약 가능 시간은 %s부터 %s까지입니다. ",
+            START_OF_DAY.format(TIME_FORMATTER),
+            END_OF_DAY.format(TIME_FORMATTER)
+    );
 
     private LocalDateTime startTime;
     private LocalDateTime endTime;
@@ -54,7 +63,7 @@ public class MeetingRoomReservationTime {
         }
 
         if (startTime.toLocalTime().isBefore(START_OF_DAY) || endTime.toLocalTime().isAfter(END_OF_DAY)) {
-            throw new InvalidRequestException("예약 가능 시간은 오전 9시부터 오후 10시까지입니다.");
+            throw new InvalidRequestException(RESERVATION_AVAILABLE_TIME_MESSAGE);
         }
     }
 
