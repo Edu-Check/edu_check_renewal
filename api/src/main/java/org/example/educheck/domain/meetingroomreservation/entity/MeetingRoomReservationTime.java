@@ -3,10 +3,6 @@ package org.example.educheck.domain.meetingroomreservation.entity;
 import jakarta.persistence.Embeddable;
 import lombok.*;
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
-import org.example.educheck.global.common.exception.custom.reservation.ReservationConflictException;
-import org.example.educheck.global.common.time.SystemTimeProvider;
-import org.springframework.cglib.core.Local;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -42,28 +38,40 @@ public class MeetingRoomReservationTime {
 
         LocalDate currentDate = now.toLocalDate();
 
-        if (isNotSameDay(startTime, currentDate) || isNotSameDay(endTime, currentDate)) {
-            throw new InvalidRequestException("당일 예약만 가능합니다.");
-        }
+        validateSameDay(startTime, endTime, currentDate);
+        validateStartTimeIsAfterNow(startTime, now);
+        validateTimeOrder(startTime, endTime);
+        validateMinimumTimeDuration(startTime, endTime);
+        validateAvailableTimeRange(startTime, endTime);
+    }
 
-        if (startTime.isBefore(now)) {
-            throw new InvalidRequestException("현재 시간 이후로만 예약 가능합니다.");
+    private static void validateAvailableTimeRange(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime.toLocalTime().isBefore(START_OF_DAY) || endTime.toLocalTime().isAfter(END_OF_DAY)) {
+            throw new InvalidRequestException(RESERVATION_AVAILABLE_TIME_MESSAGE);
         }
+    }
 
-        if (endTime.isBefore(startTime)) {
-            throw new InvalidRequestException("시작 시간이 종료 시간보다 늦을 수 없습니다.");
-        }
-
-        if (startTime.isAfter(endTime)) {
-            throw new InvalidRequestException("종료 시간이 시작 시간보다 빠를 수 없습니다.");
-        }
-
+    private static void validateMinimumTimeDuration(LocalDateTime startTime, LocalDateTime endTime) {
         if (ChronoUnit.MINUTES.between(startTime, endTime) < 15) {
             throw new InvalidRequestException("최소 예약 시간은 15분입니다.");
         }
+    }
 
-        if (startTime.toLocalTime().isBefore(START_OF_DAY) || endTime.toLocalTime().isAfter(END_OF_DAY)) {
-            throw new InvalidRequestException(RESERVATION_AVAILABLE_TIME_MESSAGE);
+    private static void validateTimeOrder(LocalDateTime startTime, LocalDateTime endTime) {
+        if (startTime.isAfter(endTime)) {
+            throw new InvalidRequestException("시작 시간이 종료 시간보다 늦을 수 없습니다.");
+        }
+    }
+
+    private static void validateStartTimeIsAfterNow(LocalDateTime startTime, LocalDateTime now) {
+        if (startTime.isBefore(now)) {
+            throw new InvalidRequestException("현재 시간 이후로만 예약 가능합니다.");
+        }
+    }
+
+    private static void validateSameDay(LocalDateTime startTime, LocalDateTime endTime, LocalDate currentDate) {
+        if (isNotSameDay(startTime, currentDate) || isNotSameDay(endTime, currentDate)) {
+            throw new InvalidRequestException("당일 예약만 가능합니다.");
         }
     }
 
