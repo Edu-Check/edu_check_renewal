@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 
 @Getter
@@ -93,8 +94,8 @@ public class Member implements UserDetails {
             throw new ForbiddenException("관리자 권한이 없습니다.");
         }
 
-        if (this.staff == null || this.staff.hasAccessToCourse(courseId, staffCourseRepository)) {
-            throw new ForbiddenException("해당 과정에 대한 접근 권한이 없습니다.");
-        }
+        Optional.ofNullable(this.staff)
+                .filter(staff -> staff.hasAccessToCourse(courseId, staffCourseRepository))
+                .orElseThrow(() -> new ForbiddenException("해당 과정에 대한 접근 권한이 없습니다."));
     }
 }
