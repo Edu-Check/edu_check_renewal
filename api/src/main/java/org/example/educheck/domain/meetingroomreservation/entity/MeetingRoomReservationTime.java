@@ -29,7 +29,7 @@ public class MeetingRoomReservationTime {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
 
-    public static MeetingRoomReservationTime of(LocalDateTime startTime, LocalDateTime endTime, LocalDateTime now) {
+    public static MeetingRoomReservationTime create(LocalDateTime startTime, LocalDateTime endTime, LocalDateTime now) {
         validateReservableTime(startTime, endTime, now);
         return new MeetingRoomReservationTime(startTime, endTime);
     }

@@ -43,19 +43,14 @@ public class MeetingRoomReservationService {
         LocalDateTime now = systemTimeProvider.nowDateTime();
         LocalDateTime startTime = requestDto.getStartTime();
         LocalDateTime endTime = requestDto.getEndTime();
-        Long memberId = member.getId();
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(requestDto.getMeetingRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 회의실이 존재하지 않습니다."));
 
         meetingRoom.validateBelongsToCampus(campusId);
-        meetingRoomReservationPolicy.validateReservableTime(meetingRoom, startTime, endTime);
 
-        memberReservationPolicy.validateDailyReservationLimit(memberId, startTime, endTime);
-        memberReservationPolicy.validateReservedAtSameTime(memberId, startTime, endTime);
-
-        MeetingRoomReservationTime reservationTime = MeetingRoomReservationTime.of(startTime, endTime, now);
-        MeetingRoomReservation meetingRoomReservation = MeetingRoomReservation.create(member, meetingRoom, reservationTime);
+        MeetingRoomReservationTime reservationTime = MeetingRoomReservationTime.create(startTime, endTime, now);
+        MeetingRoomReservation meetingRoomReservation = MeetingRoomReservation.create(member, meetingRoom, reservationTime, meetingRoomReservationPolicy, memberReservationPolicy);
 
         return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
     }
