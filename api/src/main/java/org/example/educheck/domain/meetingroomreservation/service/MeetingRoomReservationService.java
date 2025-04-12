@@ -40,7 +40,7 @@ public class MeetingRoomReservationService {
 
     @Transactional
     public MeetingRoomReservationResponseDto createReservation(Member member, Long campusId, MeetingRoomReservationRequestDto requestDto) {
-
+        LocalDateTime now = systemTimeProvider.nowDateTime();
         LocalDateTime startTime = requestDto.getStartTime();
         LocalDateTime endTime = requestDto.getEndTime();
         Long memberId = member.getId();
@@ -54,7 +54,7 @@ public class MeetingRoomReservationService {
         memberReservationPolicy.validateDailyReservationLimit(memberId, startTime, endTime);
         memberReservationPolicy.validateReservedAtSameTime(memberId, startTime, endTime);
 
-        MeetingRoomReservationTime reservationTime = MeetingRoomReservationTime.of(startTime, endTime);
+        MeetingRoomReservationTime reservationTime = MeetingRoomReservationTime.of(startTime, endTime, now);
         MeetingRoomReservation meetingRoomReservation = MeetingRoomReservation.create(member, meetingRoom, reservationTime);
 
         return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
@@ -73,7 +73,7 @@ public class MeetingRoomReservationService {
     @Transactional
     public void cancelReservation(Member member, Long meetingRoomReservationId) {
 
-        LocalDateTime now = systemTimeProvider.now();
+        LocalDateTime now = systemTimeProvider.nowDateTime();
 
         MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findByStatusAndById(meetingRoomReservationId, ReservationStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
