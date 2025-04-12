@@ -3,7 +3,6 @@ import styles from './LeftLineListItem.module.css';
 import { getBackgroundColor } from '../../../utils/buttonContentList';
 import MoreButton from '../../buttons/moreButton/MoreButton';
 
-
 export default function LeftLineListItem({
   isClickable = false,
   handleClick,
@@ -54,7 +53,8 @@ export default function LeftLineListItem({
 
           <div className={styles.rightBox}>
             <p>
-              {children.startDate}~{children.endDate}
+              {children.startDate}
+              {children.startDate !== children.endDate && ' ~ ' + children.endDate}
             </p>
             {!isClickable && (
               <MoreButton
