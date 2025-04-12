@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -88,7 +87,7 @@ public class MeetingRoomReservationService {
             meetingRoomDtoMap.putIfAbsent(meetingRoomId, createEmptyMeetingRoomDto(projection));
 
             if (projection.getMeetingRoomReservationId() != null) {
-                ReservationDto reservationDto = toReservationDto(projection);
+                ReservationDto reservationDto = ReservationDto.from(projection);
                 meetingRoomDtoMap.get(meetingRoomId).getReservations().add(reservationDto);
             }
         }
@@ -100,13 +99,4 @@ public class MeetingRoomReservationService {
         return new MeetingRoomDto(projection.getMeetingRoomId(), projection.getMeetingRoomName(), new ArrayList<>());
     }
 
-    private ReservationDto toReservationDto(MeetingRoomReservationsProjection projection) {
-        return new ReservationDto(
-                projection.getMeetingRoomReservationId(),
-                projection.getMemberId(),
-                projection.getMemberName(),
-                projection.getStartTime(),
-                projection.getEndTime()
-        );
-    }
 }
