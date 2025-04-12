@@ -9,6 +9,7 @@ import org.example.educheck.domain.attendanceRegister.repository.AttendanceRegis
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,5 +37,9 @@ public class AttendanceRegisterService {
         if(!member.canAccessCourse(courseId, staffCourseRepository)) {
             throw new ForbiddenException("출석부 조회는 해당 과정의 관리자만 조회 가능합니다.");
         }
+    }
+
+    public void getStudentAttendanceRecordLists(Member member, Long studentId, Long courseId, Pageable pageable) {
+        member.validateStaffAccessToCourse(courseId, staffCourseRepository);
     }
 }

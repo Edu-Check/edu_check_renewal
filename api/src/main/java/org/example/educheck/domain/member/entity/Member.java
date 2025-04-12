@@ -5,6 +5,7 @@ import lombok.*;
 import org.example.educheck.domain.member.staff.entity.Staff;
 import org.example.educheck.domain.member.student.entity.Student;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
+import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -79,7 +80,21 @@ public class Member implements UserDetails {
         return role == Role.MIDDLE_ADMIN;
     }
 
+    public boolean isNotMiddleAdmin() {
+        return role != Role.MIDDLE_ADMIN;
+    }
+
     public boolean canAccessCourse(Long courseId, StaffCourseRepository repository) {
         return repository.existsByStaffIdAndCourseId(this.staff.getId(), courseId);
+    }
+
+    public void validateStaffAccessToCourse(Long courseId, StaffCourseRepository staffCourseRepository) {
+        if (isNotMiddleAdmin()) {
+            throw new ForbiddenException("관리자 권한이 없습니다.");
+        }
+
+        if (this.staff == null || this.staff.hasAccessToCourse(courseId, staffCourseRepository)) {
+            throw new ForbiddenException("해당 과정에 대한 접근 권한이 없습니다.");
+        }
     }
 }

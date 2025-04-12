@@ -3,6 +3,7 @@ package org.example.educheck.domain.member.staff.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.example.educheck.domain.member.entity.Member;
+import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 
 @Entity
 @Getter
@@ -19,5 +20,9 @@ public class Staff {
     @Enumerated(EnumType.STRING)
     @Column(columnDefinition = "VARCHAR(100)")
     private Type type;
+
+    public boolean hasAccessToCourse(Long courseId, StaffCourseRepository repository) {
+        return repository.existsByStaffIdAndCourseId(this.id, courseId);
+    }
 
 }
