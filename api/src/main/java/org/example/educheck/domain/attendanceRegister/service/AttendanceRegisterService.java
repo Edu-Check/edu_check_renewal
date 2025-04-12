@@ -7,8 +7,12 @@ import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLe
 import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 import org.example.educheck.domain.attendanceRegister.repository.AttendanceRegisterRepository;
 import org.example.educheck.domain.member.entity.Member;
+import org.example.educheck.domain.member.student.entity.Student;
+import org.example.educheck.domain.member.student.repository.StudentRepository;
+import org.example.educheck.domain.registration.repository.RegistrationRepository;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
+import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +25,8 @@ public class AttendanceRegisterService {
 
     private final AttendanceRegisterRepository attendanceRegisterRepository;
     private final StaffCourseRepository staffCourseRepository;
+    private final StudentRepository studentRepository;
+    private final RegistrationRepository registrationRepository;
 
     public TodayLectureAttendanceResponseDto getTodayLectureAttendances(Long courseId, Member member) {
         validateStaffAuthorizationInCourse(member, courseId);
@@ -41,5 +47,9 @@ public class AttendanceRegisterService {
 
     public void getStudentAttendanceRecordLists(Member member, Long studentId, Long courseId, Pageable pageable) {
         member.validateStaffAccessToCourse(courseId, staffCourseRepository);
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 학생이 존재하지 않습니다."));
+        student.validateEnrolledInCourse(courseId, registrationRepository);
+
     }
 }

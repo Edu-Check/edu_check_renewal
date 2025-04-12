@@ -16,4 +16,5 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
                 "LEFT JOIN Course c ON r.course.id = c.id " +
                 "WHERE c.id = :courseId")
         List<Student> findAllByCourseId(Long courseId);
+
 }

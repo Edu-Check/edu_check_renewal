@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.registration.entity.Registration;
+import org.example.educheck.domain.registration.repository.RegistrationRepository;
+import org.example.educheck.global.common.exception.custom.common.ResourceMismatchException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,5 +56,12 @@ public class Student {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    public void validateEnrolledInCourse(Long courseId, RegistrationRepository registrationRepository) {
+        boolean isExist = registrationRepository.existsByStudentIdAndCourseId(this.id, courseId);
+        if (!isExist) {
+            throw new ResourceMismatchException("해당 과정에 등록된 학생이 아닙니다.");
+        }
     }
 }
