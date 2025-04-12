@@ -1,10 +1,13 @@
 package org.example.educheck.domain.member.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.educheck.domain.member.dto.UpdateMyProfileRequestDto;
 import org.example.educheck.domain.member.dto.response.MyProfileResponseDto;
 import org.example.educheck.domain.member.entity.Member;
+import org.example.educheck.domain.member.service.AuthService;
 import org.example.educheck.domain.member.service.MyService;
 import org.example.educheck.global.common.dto.ApiResponse;
 import org.slf4j.Logger;
@@ -21,6 +24,7 @@ public class MyController {
 
     private static final Logger log = LoggerFactory.getLogger(MyController.class);
     private final MyService myService;
+    private final AuthService authService;
 
     //        @PreAuthorize("hasAuthority('STUDENT')")
     @PreAuthorize("hasAuthority('STUDENT')")
@@ -38,9 +42,14 @@ public class MyController {
     }
 
     @PatchMapping
-    public ResponseEntity<ApiResponse<Void>> updateMyProfile(@AuthenticationPrincipal Member member, @Valid @RequestBody UpdateMyProfileRequestDto requestDto) {
+    public ResponseEntity<ApiResponse<Void>> updateMyProfile(
+            @AuthenticationPrincipal Member member,
+            @Valid @RequestBody UpdateMyProfileRequestDto requestDto,
+            HttpServletRequest request,
+            HttpServletResponse response) {
 
         myService.updateMyProfile(member, requestDto);
+        authService.logout(request, response);
 
         return ResponseEntity.ok(
                 ApiResponse.ok(
