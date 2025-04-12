@@ -28,7 +28,7 @@ public class MeetingRoomReservationPolicy {
                 date, startTime, endTime, ReservationStatus.ACTIVE);
 
         if (result) {
-            throw new ReservationConflictException();
+            throw new ReservationConflictException("해당 시간에는 이미 예약이 있습니다. 다른 시간을 선택해주세요.");
         }
     }
 
