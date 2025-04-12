@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.Length;
 
 import java.time.LocalDate;
 
@@ -18,5 +19,6 @@ public class UpdateMyProfileRequestDto {
     public LocalDate birthDate;
 
     public String currentPassword;
+    @Length(min = 8, message = "비밀번호은 8개 자리 이상으로 입력할 수 있습니다.")
     public String newPassword;
 }
