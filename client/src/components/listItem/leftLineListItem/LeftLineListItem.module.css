@@ -11,7 +11,10 @@
   box-sizing: border-box;
   position: relative;
   transition: var(--transition-basic);
-  cursor: pointer;
+}
+
+.leftLineListItem:hover {
+  box-shadow: var(--box-shadow-medium);
 }
 
 .colorLine {
@@ -93,7 +96,7 @@ p.green {
   justify-content: center;
   position: absolute;
   top: var(--padding-basic);
-  right: var(--padding-medium);
+  right: var(--padding-basic);
 }
 
 .rightBox p {
