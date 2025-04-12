@@ -7,10 +7,6 @@ import org.example.educheck.domain.member.dto.response.MyProfileResponseDto;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.repository.MemberRepository;
 import org.example.educheck.global.common.exception.custom.common.ResourceMismatchException;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +31,7 @@ public class MyService {
     @Transactional
     public void updateMyProfile(Member member, UpdateMyProfileRequestDto requestDto) {
 
-        if (requestDto.getCurrentPassword() == null
-                && !passwordEncoder.matches(requestDto.getCurrentPassword(), member.getPassword())) {
+        if (!passwordEncoder.matches(requestDto.getCurrentPassword(), member.getPassword())) {
 
             throw new ResourceMismatchException("현재 비밀번호가 일치하지 않습니다.");
         }
