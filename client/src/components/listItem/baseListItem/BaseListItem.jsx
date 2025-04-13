@@ -13,8 +13,6 @@ export default function BaseListItem({
   onClick,
   lectureTitle,
 }) {
-  console.log('BaseListItem', tagTitle);
-
   return (
     <div className={styles.baseListItem} onClick={onClick}>
       <div>

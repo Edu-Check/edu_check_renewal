@@ -48,7 +48,6 @@ export default function StaffAttendanceDetail() {
           currentPage - 1,
         );
         const studentAttendanceData = response.data.data;
-        console.log(studentAttendanceData);
         setStudentAttendance(studentAttendanceData);
       } catch (error) {
         console.error('수강생 출결 현황 조회 실패:', error);
