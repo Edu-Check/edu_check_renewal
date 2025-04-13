@@ -60,4 +60,10 @@ public class AttendanceRegisterService {
         return StudentAttendanceOverviewDto.from(studentMember, attendanceRate, attendanceRecord);
 
     }
+
+    public void getAttendanceDashboardData(Member member, Long courseId) {
+
+        Student enrolledStudent = studentService.getEnrolledStudent(member.getStudentId(), courseId);
+        attendanceRegisterRepository.findAttendanceSummaryByStudentIdAndCourseId(enrolledStudent.getId(), courseId);
+    }
 }

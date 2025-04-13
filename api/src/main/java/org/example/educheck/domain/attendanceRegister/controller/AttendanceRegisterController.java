@@ -59,4 +59,20 @@ public class AttendanceRegisterController {
                 attendanceRegisterService.getStudentAttendanceRecordLists(member, studentId, courseId, pageable)
         ));
     }
+
+    @PreAuthorize("hasAnyAuthority('STUDENT')")
+    @GetMapping("/my/course/{courseId}/attendances/stats")
+    public void getAttendancesStats(@AuthenticationPrincipal Member member,
+                                    @PathVariable Long courseId) {
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        "내 출석률 및 결석 현황 조회 성공",
+                        "OK",
+                        attendanceRegisterService.getAttendanceDashboardData(member, courseId)
+
+                )
+        );
+    }
+
 }
