@@ -2,15 +2,19 @@ package org.example.educheck.domain.attendanceRegister.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceRateProjection;
-import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceRecordResponseDto;
-import org.example.educheck.domain.attendanceRegister.dto.response.StudentAttendanceOverviewDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.AttendanceRateProjection;
+import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.AttendanceRecordResponseDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.StudentAttendanceOverviewDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsProjection;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceStatus;
 import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 import org.example.educheck.domain.attendanceRegister.repository.AttendanceRegisterRepository;
+import org.example.educheck.domain.course.entity.Course;
+import org.example.educheck.domain.course.repository.CourseRepository;
+import org.example.educheck.domain.course.service.CourseService;
 import org.example.educheck.domain.member.entity.Member;
-import org.example.educheck.domain.member.repository.MemberRepository;
 import org.example.educheck.domain.member.student.entity.Student;
 import org.example.educheck.domain.member.student.service.StudentService;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
@@ -30,6 +34,7 @@ public class AttendanceRegisterService {
     private final AttendanceRegisterRepository attendanceRegisterRepository;
     private final StaffCourseRepository staffCourseRepository;
     private final StudentService studentService;
+    private final CourseService courseService;
 
 
     public TodayLectureAttendanceResponseDto getTodayLectureAttendances(Long courseId, Member member) {
@@ -59,5 +64,14 @@ public class AttendanceRegisterService {
 
         return StudentAttendanceOverviewDto.from(studentMember, attendanceRate, attendanceRecord);
 
+    }
+
+    public MyAttendanceStaticsResponseDto getAttendanceDashboardData(Member member, Long courseId) {
+
+        Course validCourse = courseService.getValidCourse(courseId);
+        Student enrolledStudent = studentService.getEnrolledStudent(member.getStudentId(), courseId);
+        MyAttendanceStaticsProjection projection = attendanceRegisterRepository.findAttendanceSummaryByStudentIdAndCourseId(enrolledStudent.getId(), courseId);
+
+        return MyAttendanceStaticsResponseDto.from(projection, validCourse);
     }
 }
