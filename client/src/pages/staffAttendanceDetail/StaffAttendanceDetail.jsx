@@ -93,11 +93,11 @@ export default function StaffAttendanceDetail() {
         <div className={styles.listContainer}>
           {studentAttendance.attendanceRecords.attendanceRecords &&
             studentAttendance.attendanceRecords.attendanceRecords.map((item, index) => (
-              <div key={index}>
+              <div key={index} className={styles.listItemWrapper}>
                 <BaseListItem
                   content={item.lectureDate}
                   //TODO: API에서 lectureTitle 뽑아 온 후 넣어주기
-                  lectureTitle={item.lectureSession}
+                  lectureTitle={`${item.lectureSession}회차 : ${item.lectureTitle}`}
                   tagTitle={getAttendanceStatusText(item.attendanceStatus)}
                 />
               </div>

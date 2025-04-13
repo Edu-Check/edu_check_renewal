@@ -131,3 +131,11 @@
   border-radius: 0 !important;
   box-shadow: none !important;
 }
+
+.listItemWrapper {
+  width: 100%;
+}
+
+.listItemWrapper > div:nth-child(2) {
+  text-align: left !important;
+}
