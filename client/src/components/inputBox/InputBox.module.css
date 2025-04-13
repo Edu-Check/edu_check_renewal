@@ -9,7 +9,6 @@
   border-radius: var(--border-radius-5);
   margin: 6px 0;
   box-sizing: border-box;
-
 }
 
 .inputBox::placeholder {
@@ -22,10 +21,15 @@
   outline-color: var(--primary-100);
 }
 
-.inputContainer .content,
+.inputContainer,
 .inputContainer .label span {
-  color: var(--text-300);
+  color: var(--text-100);
   font-size: var(--font-size-14);
+}
+
+.content {
+  color: var(--primary-300);
+  font-size: var(--font-size-16);
 }
 
 .inputContainer .label span {
@@ -33,6 +37,6 @@
   padding-left: 6px;
 }
 
-.label{
+.label {
   text-wrap-mode: nowrap;
 }

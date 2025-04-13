@@ -4,28 +4,91 @@ import InputBox from '../../components/inputBox/InputBox';
 import MainButton from '../../components/buttons/mainButton/MainButton';
 import { profileApi } from '../../api/profileApi';
 import { useSelector } from 'react-redux';
-import { setYear } from 'date-fns';
 
 export default function StudentSetting() {
-  const [profileData, setProfileData] = useState({});
-  const [year, setYear] = useState('');
-  const [month, setMonth] = useState('');
-  const [day, setDay] = useState('');
   const accessToken = useSelector((state) => state.auth.accessToken);
-  const [error, setError] = useState('');
+
   const [input, setInput] = useState({
     phoneNumber: '',
     password: '',
+    confirmPassword: '',
+    currentPassword: '',
+    year: '',
+    month: '',
+    day: '',
   });
 
-  useEffect(() => {
-    if (profileData.birthDate) {
-      const [year, month, day] = profileData.birthDate.split('-');
-      setYear(year);
-      setMonth(month);
-      setDay(day);
+  const formatPhoneNumber = (value) => {
+    const cleaned = value.replace(/\D/g, '');
+
+    if (!cleaned) return '';
+
+    if (cleaned.startsWith('010')) {
+      if (cleaned.length < 4) return cleaned;
+
+      if (cleaned.length < 7) {
+        return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+      }
+
+      if (cleaned.length === 10) {
+        return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
+      }
+
+      if (cleaned.length >= 11) {
+        return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7, 11)}`;
+      }
     }
-  }, [profileData]);
+
+    if (cleaned.length < 4) return cleaned;
+    if (cleaned.length < 7) {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3)}`;
+    }
+    if (cleaned.length < 11) {
+      return `${cleaned.slice(0, 3)}-${cleaned.slice(3, cleaned.length - 4)}-${cleaned.slice(-4)}`;
+    }
+    return `${cleaned.slice(0, 3)}-${cleaned.slice(3, 7)}-${cleaned.slice(7, 11)}`;
+  };
+
+  const handlePhoneChange = (e) => {
+    const formattedPhone = formatPhoneNumber(e.target.value);
+    setInput((prev) => ({
+      ...prev,
+      phoneNumber: formattedPhone,
+    }));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setInput((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  useEffect(() => {
+    if (!accessToken) return;
+
+    const fetchMyProfile = async () => {
+      try {
+        const response = await profileApi.getMyProfile();
+        const data = response.data.data;
+        setInput((prev) => ({
+          ...prev,
+          phoneNumber: data.phoneNumber || '',
+          ...(data.birthDate
+            ? (() => {
+                const [year, month, day] = data.birthDate.split('-');
+                return { year, month, day };
+              })()
+            : { year: '', month: '', day: '' }),
+        }));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchMyProfile();
+  }, [accessToken]);
 
   const validatePhoneNumber = (phoneNumber) => {
     const phoneRegex = /^[0-9]{3}-[0-9]{3,4}-[0-9]{4}$/;
@@ -37,120 +100,137 @@ export default function StudentSetting() {
     return passwordRegex.test(password);
   };
 
-  const handleSubmit = (e) => {
+  const phoneError =
+    input.phoneNumber && !validatePhoneNumber(input.phoneNumber)
+      ? '전화번호 형식이 올바르지 않습니다.'
+      : '';
+  const passwordError =
+    input.password && !validatePassword(input.password)
+      ? '비밀번호는 8자 이상, 대소문자, 숫자, 특수문자를 포함해야 합니다.'
+      : '';
+  const confirmPasswordError =
+    input.password && input.confirmPassword && input.password !== input.confirmPassword
+      ? '비밀번호가 일치하지 않습니다.'
+      : '';
+  const currentPasswordError =
+    input.currentPassword === '' ? '현재 비밀번호는 필수 입력값입니다.' : '';
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-  };
-
-  useEffect(() => {
-    if (!accessToken) return;
-
-    const fetchMyProfile = async () => {
-      try {
-        const response = await profileApi.getMyProfile();
-        setProfileData((prev) => ({
-          ...prev,
-          ...response.data.data,
-        }));
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    fetchMyProfile();
-  }, []);
-
-  useEffect(() => {
-    if (!validatePhoneNumber(input.phoneNumber)) {
-      setError('연락처를 다시 입력해주세요.');
-    } else if (!validatePassword(input.password)) {
-      setError('비밀번호는 8자 이상, 대소문자, 숫자, 특수문자를 포함해야 합니다.');
-    } else {
-      setError('');
-      alert('개인정보가 수정 되었습니다.');
+    if (phoneError || passwordError || confirmPasswordError || currentPasswordError) {
+      alert('입력값을 확인해 주세요.');
+      return;
     }
-  }, [input.phoneNumber, input.password]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setInput((preInput) => ({
-      ...preInput,
-      [name]: value,
-    }));
+    const updateData = {
+      currentPassword: input.currentPassword,
+    };
+
+    if (input.phoneNumber) {
+      updateData.phoneNumber = input.phoneNumber;
+    }
+
+    if (input.year && input.month && input.day) {
+      updateData.birthDate = `${input.year}-${input.month}-${input.day}`;
+    }
+
+    if (input.password) {
+      updateData.newPassword = input.password;
+    }
+
+    try {
+      await profileApi.updateMyProfile(updateData);
+      alert('개인정보가 수정 되었습니다.');
+    } catch (error) {
+      console.error(error);
+      alert('수정에 실패했습니다.');
+    }
   };
 
   return (
     <form className={styles.studentSetting} onSubmit={handleSubmit}>
       <InputBox
+        name="phoneNumber"
         type="text"
         title="연락처"
         disabled={false}
-        onChange={handleChange}
+        onChange={handlePhoneChange}
         label="연락처"
         isSelect="(선택)"
-        value={profileData.phoneNumber}
-      ></InputBox>
+        value={input.phoneNumber}
+        content={phoneError}
+      />
 
       <div className={styles.smallInputBox}>
         <InputBox
+          name="year"
           type="text"
           title="년도"
           disabled={false}
           onChange={handleChange}
           label="생년월일"
           isSelect="(선택)"
-          value={year}
-        ></InputBox>
-
+          value={input.year}
+          content=""
+        />
         <InputBox
+          name="month"
           type="text"
           title="월"
           disabled={false}
           onChange={handleChange}
-          value={month}
-        ></InputBox>
-
+          value={input.month}
+          content=""
+        />
         <InputBox
+          name="day"
           type="text"
           title="일"
           disabled={false}
           onChange={handleChange}
-          value={day}
-        ></InputBox>
+          value={input.day}
+          content=""
+        />
       </div>
 
       <InputBox
+        name="password"
         type="password"
         title="비밀번호"
         disabled={false}
         onChange={handleChange}
         label="비밀번호 변경"
         isSelect="(선택)"
-        content="비밀번호는 8자리이상입니다."
-      ></InputBox>
+        value={input.password}
+        content={passwordError}
+      />
 
       <div className={styles.noneInputBox}>
         <InputBox
+          name="confirmPassword"
           type="password"
           title="비밀번호 확인"
           disabled={false}
           onChange={handleChange}
           isSelect={true}
-          content="비밀번호가 일치하지 않습니다."
-        ></InputBox>
+          value={input.confirmPassword}
+          content={confirmPasswordError}
+        />
       </div>
 
       <InputBox
+        name="currentPassword"
         type="password"
         title="현재 비밀번호"
         disabled={false}
         onChange={handleChange}
         label="현재 비밀번호"
         isSelect="(필수)"
-        content="현재 비밀번호는 필수 입력값입니다."
-      ></InputBox>
+        value={input.currentPassword}
+        content={currentPasswordError}
+      />
 
-      {error && <div style={{ color: 'red' }}></div>}
-
-      <MainButton title="수정"></MainButton>
+      <MainButton title="수정" handleClick={handleSubmit} isEnable={true} />
     </form>
   );
 }
