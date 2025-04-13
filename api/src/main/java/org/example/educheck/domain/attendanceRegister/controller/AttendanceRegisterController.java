@@ -2,6 +2,7 @@ package org.example.educheck.domain.attendanceRegister.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.attendanceRegister.dto.response.StudentAttendanceOverviewDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
 import org.example.educheck.domain.attendanceRegister.service.AttendanceRegisterService;
@@ -52,7 +53,6 @@ public class AttendanceRegisterController {
             size = 8
     ) Pageable pageable)
      {
-
         return ResponseEntity.ok(ApiResponse.ok(
                 "수강생 세부 출결 현황 조회 성공",
                 "OK",

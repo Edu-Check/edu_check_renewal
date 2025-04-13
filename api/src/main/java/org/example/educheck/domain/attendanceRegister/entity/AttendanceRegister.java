@@ -45,6 +45,9 @@ public class AttendanceRegister {
     @Column(name = "lecture_end_time")
     private LocalTime lectureEndTime;
 
+    @Column(name = "lecture_title")
+    private String lectureTitle;
+
     @Column(name = "course_participation_status")
     private String courseParticipationStatus;
 
