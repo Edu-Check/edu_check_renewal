@@ -1,6 +1,5 @@
 import React from 'react';
 import styles from './TabButton.module.css';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 export default function TabButton({ index, item, isActive }) {
