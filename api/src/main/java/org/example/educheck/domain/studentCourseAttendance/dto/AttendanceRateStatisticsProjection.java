@@ -1,4 +1,4 @@
-package org.example.educheck.domain.attendanceRegister.dto.response;
+package org.example.educheck.domain.studentCourseAttendance.dto;
 
 import java.math.BigDecimal;
 

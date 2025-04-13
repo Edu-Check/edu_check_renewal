@@ -5,6 +5,7 @@ import lombok.*;
 import org.example.educheck.domain.member.staff.entity.Staff;
 import org.example.educheck.domain.member.student.entity.Student;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
+import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Objects;
 
 
@@ -81,16 +83,29 @@ public class Member implements UserDetails {
         return role == Role.MIDDLE_ADMIN;
     }
 
+    public boolean isNotMiddleAdmin() {
+        return role != Role.MIDDLE_ADMIN;
+    }
+
     public boolean canAccessCourse(Long courseId, StaffCourseRepository repository) {
         return repository.existsByStaffIdAndCourseId(this.staff.getId(), courseId);
     }
 
+    public void validateStaffAccessToCourse(Long courseId, StaffCourseRepository staffCourseRepository) {
+        if (isNotMiddleAdmin()) {
+            throw new ForbiddenException("관리자 권한이 없습니다.");
+        }
+
+        Optional.ofNullable(this.staff)
+                .filter(staff -> staff.hasAccessToCourse(courseId, staffCourseRepository))
+                .orElseThrow(() -> new ForbiddenException("해당 과정에 대한 접근 권한이 없습니다."));
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Member member = (Member) o;
-        return Objects.equals(id, member.id);
+        return 
+          .equals(id, member.id);
     }
 
     @Override

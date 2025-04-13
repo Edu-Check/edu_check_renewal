@@ -21,4 +21,5 @@ public class TodayLectureAttendanceResponseDto {
                 .summary(TodayLectureAttendanceSummary.from(attendanceStatusList))
                 .build();
     }
+
 }

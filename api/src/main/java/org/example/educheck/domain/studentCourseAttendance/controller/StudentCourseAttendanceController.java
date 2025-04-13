@@ -5,8 +5,8 @@
 //import org.example.educheck.domain.attendance.dto.response.MyAttendanceRecordListResponseDto;
 //import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
 //import org.example.educheck.domain.member.entity.Member;
-//import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceRecordListResponseDto;
-//import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceStatsResponseDto;
+//import org.example.educheck.domain.studentCourseAttendance.entity.dto.AttendanceRecordListResponseDto;
+//import org.example.educheck.domain.studentCourseAttendance.entity.dto.AttendanceStatsResponseDto;
 //import org.example.educheck.domain.studentCourseAttendance.service.StudentCourseAttendanceService;
 //import org.example.educheck.global.common.dto.ApiResponse;
 //import org.springframework.data.domain.PageRequest;
