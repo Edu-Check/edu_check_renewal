@@ -2,8 +2,8 @@ package org.example.educheck.domain.attendanceRegister.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.example.educheck.domain.attendanceRegister.dto.response.StudentAttendanceOverviewDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.StudentAttendanceOverviewDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
 import org.example.educheck.domain.attendanceRegister.service.AttendanceRegisterService;
 import org.example.educheck.domain.course.repository.CourseRepository;
@@ -62,15 +62,14 @@ public class AttendanceRegisterController {
 
     @PreAuthorize("hasAnyAuthority('STUDENT')")
     @GetMapping("/my/course/{courseId}/attendances/stats")
-    public void getAttendancesStats(@AuthenticationPrincipal Member member,
-                                    @PathVariable Long courseId) {
+    public ResponseEntity<ApiResponse<MyAttendanceStaticsResponseDto>> getAttendancesStats(@AuthenticationPrincipal Member member,
+                                                                                           @PathVariable Long courseId) {
 
         return ResponseEntity.ok(
                 ApiResponse.ok(
                         "내 출석률 및 결석 현황 조회 성공",
                         "OK",
                         attendanceRegisterService.getAttendanceDashboardData(member, courseId)
-
                 )
         );
     }
