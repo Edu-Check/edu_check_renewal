@@ -3,11 +3,14 @@ import styles from './StudentSetting.module.css';
 import InputBox from '../../components/inputBox/InputBox';
 import MainButton from '../../components/buttons/mainButton/MainButton';
 import { profileApi } from '../../api/profileApi';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { logout } from '../../store/slices/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 export default function StudentSetting() {
   const accessToken = useSelector((state) => state.auth.accessToken);
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [input, setInput] = useState({
     phoneNumber: '',
     password: '',
@@ -140,7 +143,9 @@ export default function StudentSetting() {
 
     try {
       await profileApi.updateMyProfile(updateData);
-      alert('개인정보가 수정 되었습니다.');
+      alert('개인정보가 수정 되었습니다.\n다시 로그인 해주세요.');
+      dispatch(logout());
+      navigate('/');
     } catch (error) {
       console.error(error);
       alert('수정에 실패했습니다.');

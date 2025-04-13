@@ -54,4 +54,11 @@
   border: 1px solid var(--text-300);
   border-radius: var(--border-radius-10);
   background-color: var(--bg-200);
+  margin-top: var(--margin-small);
+  float:right;
+  transition: var(--transition-basic);
+}
+
+.button:hover {
+  box-shadow: var(--box-shadow-medium);
 }
