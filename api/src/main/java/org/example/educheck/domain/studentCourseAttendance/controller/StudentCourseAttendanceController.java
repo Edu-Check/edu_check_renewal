@@ -25,29 +25,6 @@
 //
 //    private final StudentCourseAttendanceService studentCourseAttendanceService;
 //
-//    private static Pageable createPageable(int page, int size) {
-//        return PageRequest.of(page, size, Sort.by(Sort.Order.asc("lectureDate")));
-//    }
-//
-//    @PreAuthorize("hasAnyAuthority('MIDDLE_ADMIN')")
-//    @GetMapping("/courses/{courseId}/students/{studentId}/attendances")
-//    public ResponseEntity<ApiResponse<AttendanceRecordListResponseDto>>
-//    getStudentAttendances(
-//            @AuthenticationPrincipal Member member,
-//            @PathVariable Long courseId,
-//            @PathVariable Long studentId,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "8") int size
-//    ) {
-//
-//        Pageable pageable = createPageable(page, size);
-//
-//        return ResponseEntity.ok(ApiResponse.ok(
-//                "특정 학생 세부 출결 현황 페이지 데이터 조회 성공",
-//                "OK",
-//                studentCourseAttendanceService.getStudentAttendanceRecordLists(member, studentId, courseId, pageable)
-//        ));
-//    }
 //
 //    @PreAuthorize("hasAuthority('STUDENT')")
 //    @GetMapping("/my/courses/{courseId}/attendances")
@@ -83,17 +60,5 @@
 //        );
 //    }
 //
-//    @PreAuthorize("hasAuthority('MIDDLE_ADMIN')")
-//    @GetMapping("/courses/{courseId}/attendances/today/v2")
-//    public ResponseEntity<ApiResponse<TodayLectureAttendanceResponseDto>> getTodayAttendances(
-//            @PathVariable Long courseId,
-//            @AuthenticationPrincipal Member member
-//    ) {
-//        return ResponseEntity.ok(ApiResponse.ok(
-//                "금일 출석 현황 조회 성공",
-//                "OK",
-//                studentCourseAttendanceService.getTodayAttendances(courseId, member)
-//        ));
-//    }
 //
 //}

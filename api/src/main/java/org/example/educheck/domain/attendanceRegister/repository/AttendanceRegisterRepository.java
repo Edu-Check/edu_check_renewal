@@ -1,8 +1,9 @@
 package org.example.educheck.domain.attendanceRegister.repository;
 
 
-import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceRateProjection;
-import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceRecordResponseDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.AttendanceRateProjection;
+import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.AttendanceRecordResponseDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsProjection;
 import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,13 +34,12 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
             WHERE ar.student_id = :studentId AND ar.course_id = :courseId
             )
             SELECT
-                IF(
-                        lecture_count_until_today > 0,
-                        ROUND(
-                                ((attendance_count_until_today - adjusted_absent_by_late_or_early_leave) / lecture_count_until_today) * 100,
-                                2
-                        ),
-                        NULL
+                IF(lecture_count_until_today > 0,
+                    ROUND(
+                        ((attendance_count_until_today - adjusted_absent_by_late_or_early_leave) / lecture_count_until_today) * 100,
+                        2
+                    ),
+                    NULL
                 ) AS attendance_rate_until_today,
                 IF(
                     total_lecture_count > 0,
@@ -53,4 +53,34 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
             FROM attendance_count;
             """, nativeQuery = true)
     AttendanceRateProjection findAttendanceStatsByStudentIdAndCourseId(Long studentId, Long courseId);
+
+
+    @Query(value = """
+    WITH attendance_count AS (
+        SELECT
+            student_id, course_id,
+            SUM(IF(attendance_status = 'LATE' AND lecture_date <= CURDATE(), 1, 0)) AS late_count_until_today,
+            SUM(IF(attendance_status = 'EARLY_LEAVE' AND lecture_date <= CURDATE(), 1, 0)) AS early_late_count_until_today,
+            SUM(IF(attendance_status = 'ABSENCE' AND lecture_date <= CURDATE(), 1, 0)) AS absence_count_until_today,
+            COUNT(lecture_id) AS total_lecture_count,
+            FLOOR(SUM(IF(attendance_status IN ('LATE', 'EARLY_LEAVE') AND lecture_date <= CURDATE(), 1, 0)) / 3) AS adjusted_absent_by_late_or_early_leave
+        FROM attendance_register ar
+        WHERE ar.student_id = :studentId AND ar.course_id = :courseId
+    )
+    SELECT
+        IF(
+            total_lecture_count > 0,
+            ROUND(
+                    ((late_count_until_today + early_late_count_until_today +absence_count_until_today - adjusted_absent_by_late_or_early_leave) / total_lecture_count) * 100,
+                    2
+                ),
+                NULL
+        ) AS total_attendance_rate,
+        late_count_until_today,
+        early_late_count_until_today,
+        absence_count_until_today,
+        FLOOR((late_count_until_today + early_late_count_until_today + absence_count_until_today) / 3) AS adjusted_absence_count
+    FROM attendance_count;
+    """, nativeQuery = true)
+    MyAttendanceStaticsProjection findAttendanceSummaryByStudentIdAndCourseId(Long studentId, Long courseId);
 }

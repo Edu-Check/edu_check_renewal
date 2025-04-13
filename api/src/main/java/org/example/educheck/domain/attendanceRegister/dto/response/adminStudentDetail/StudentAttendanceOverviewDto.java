@@ -1,9 +1,8 @@
-package org.example.educheck.domain.attendanceRegister.dto.response;
+package org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail;
 
 import lombok.Builder;
 import lombok.Getter;
 import org.example.educheck.domain.member.entity.Member;
-import org.example.educheck.domain.member.student.entity.Student;
 import org.springframework.data.domain.Page;
 
 @Builder
