@@ -2,7 +2,7 @@ package org.example.educheck.domain.attendanceRegister.controller;
 
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.example.educheck.domain.attendanceRegister.dto.response.StudentAttendanceOverviewDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
 import org.example.educheck.domain.attendanceRegister.service.AttendanceRegisterService;
 import org.example.educheck.domain.course.repository.CourseRepository;
@@ -42,7 +42,7 @@ public class AttendanceRegisterController {
 
     @PreAuthorize("hasAnyAuthority('MIDDLE_ADMIN')")
     @GetMapping("/courses/{courseId}/students/{studentId}/attendances")
-    public ResponseEntity<ApiResponse<Void>>
+    public ResponseEntity<ApiResponse<StudentAttendanceOverviewDto>>
     getStudentAttendances(
             @AuthenticationPrincipal Member member,
             @PathVariable Long courseId,
@@ -52,12 +52,11 @@ public class AttendanceRegisterController {
             size = 8
     ) Pageable pageable)
      {
-         attendanceRegisterService.getStudentAttendanceRecordLists(member, studentId, courseId, pageable);
 
         return ResponseEntity.ok(ApiResponse.ok(
                 "수강생 세부 출결 현황 조회 성공",
                 "OK",
-                null
+                attendanceRegisterService.getStudentAttendanceRecordLists(member, studentId, courseId, pageable)
         ));
     }
 }

@@ -1,7 +1,7 @@
 package org.example.educheck.domain.attendanceRegister.repository;
 
 
-import org.example.educheck.domain.attendanceRegister.dto.AttendanceRateProjection;
+import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceRateProjection;
 import org.example.educheck.domain.attendanceRegister.dto.response.AttendanceRecordResponseDto;
 import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 import org.springframework.data.domain.Page;
@@ -33,7 +33,6 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
             WHERE ar.student_id = :studentId AND ar.course_id = :courseId
             )
             SELECT
-                attendance_count.student_id AS student_id,
                 IF(
                         lecture_count_until_today > 0,
                         ROUND(
