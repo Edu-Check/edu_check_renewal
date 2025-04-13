@@ -44,10 +44,7 @@ export default function StudentAttendanceAbsence() {
   });
 
   const modalContent = currentItem ? (
-    <AttendanceAbsenceDetail
-      courseId={courseId}
-      id={currentItem.absenceAttendanceId}
-    />
+    <AttendanceAbsenceDetail courseId={courseId} id={currentItem.absenceAttendanceId} />
   ) : null;
 
   const resetFormFields = () => {
@@ -217,10 +214,19 @@ export default function StudentAttendanceAbsence() {
   );
 
   const handleOnChange = (name, value) => {
-    setUploadData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setUploadData((prev) => {
+      let updated = { ...prev, [name]: value };
+
+      if (name === 'startDate' && !prev.endDate) {
+        updated.endDate = value;
+      }
+
+      if (name === 'endDate' && !prev.startDate) {
+        updated.startDate = value;
+      }
+
+      return updated;
+    });
   };
 
   const handleSubmit = async (event) => {
@@ -334,7 +340,7 @@ export default function StudentAttendanceAbsence() {
         isClickable={false}
         status={statusText}
         children={modifiedItem}
-        handleClick ={() => handleTagChange(item)}
+        handleClick={() => handleTagChange(item)}
         onEdit={handleEdit}
         onDelete={() => handleDelete(item)}
       />
@@ -363,7 +369,7 @@ export default function StudentAttendanceAbsence() {
                   className={styles.dateInput}
                   locale={ko}
                   placeholderText="시작일"
-                  maxDate={endDate}
+                  maxDate={uploadData.endDate}
                   utcOffset={0}
                 />
                 <span className={styles.dateSeparator}>~</span>
@@ -374,7 +380,7 @@ export default function StudentAttendanceAbsence() {
                   className={styles.dateInput}
                   locale={ko}
                   placeholderText="종료일"
-                  minDate={startDate}
+                  minDate={uploadData.startDate}
                   utcOffset={0}
                 />
               </div>

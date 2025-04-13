@@ -14,10 +14,13 @@ export const attendanceApi = {
     );
     return response.data;
   },
-  submitCheckOut: async () => {
+  submitCheckOut: async (latitude, longitude) => {
     const response = await apiInstance.patch(
       '/checkout',
-      {},
+      {
+        longitude,
+        latitude,
+      },
       {
         withCredentials: true,
       },

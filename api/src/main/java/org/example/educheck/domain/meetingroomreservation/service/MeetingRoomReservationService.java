@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -40,22 +39,17 @@ public class MeetingRoomReservationService {
 
     @Transactional
     public MeetingRoomReservationResponseDto createReservation(Member member, Long campusId, MeetingRoomReservationRequestDto requestDto) {
-
+        LocalDateTime now = systemTimeProvider.nowDateTime();
         LocalDateTime startTime = requestDto.getStartTime();
         LocalDateTime endTime = requestDto.getEndTime();
-        Long memberId = member.getId();
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(requestDto.getMeetingRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 회의실이 존재하지 않습니다."));
 
         meetingRoom.validateBelongsToCampus(campusId);
-        meetingRoomReservationPolicy.validateReservableTime(meetingRoom, startTime, endTime);
 
-        memberReservationPolicy.validateDailyReservationLimit(memberId, startTime, endTime);
-        memberReservationPolicy.validateReservedAtSameTime(memberId, startTime, endTime);
-
-        MeetingRoomReservationTime reservationTime = MeetingRoomReservationTime.of(startTime, endTime);
-        MeetingRoomReservation meetingRoomReservation = MeetingRoomReservation.create(member, meetingRoom, reservationTime);
+        MeetingRoomReservationTime reservationTime = MeetingRoomReservationTime.create(startTime, endTime, now);
+        MeetingRoomReservation meetingRoomReservation = MeetingRoomReservation.create(member, meetingRoom, reservationTime, meetingRoomReservationPolicy, memberReservationPolicy);
 
         return MeetingRoomReservationResponseDto.from(meetingRoomReservationRepository.save(meetingRoomReservation));
     }
@@ -73,7 +67,7 @@ public class MeetingRoomReservationService {
     @Transactional
     public void cancelReservation(Member member, Long meetingRoomReservationId) {
 
-        LocalDateTime now = systemTimeProvider.now();
+        LocalDateTime now = systemTimeProvider.nowDateTime();
 
         MeetingRoomReservation meetingRoomReservation = meetingRoomReservationRepository.findByStatusAndById(meetingRoomReservationId, ReservationStatus.ACTIVE)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 예약 내역이 존재하지 않습니다."));
@@ -93,7 +87,7 @@ public class MeetingRoomReservationService {
             meetingRoomDtoMap.putIfAbsent(meetingRoomId, createEmptyMeetingRoomDto(projection));
 
             if (projection.getMeetingRoomReservationId() != null) {
-                ReservationDto reservationDto = toReservationDto(projection);
+                ReservationDto reservationDto = ReservationDto.from(projection);
                 meetingRoomDtoMap.get(meetingRoomId).getReservations().add(reservationDto);
             }
         }
@@ -105,13 +99,4 @@ public class MeetingRoomReservationService {
         return new MeetingRoomDto(projection.getMeetingRoomId(), projection.getMeetingRoomName(), new ArrayList<>());
     }
 
-    private ReservationDto toReservationDto(MeetingRoomReservationsProjection projection) {
-        return new ReservationDto(
-                projection.getMeetingRoomReservationId(),
-                projection.getMemberId(),
-                projection.getMemberName(),
-                projection.getStartTime(),
-                projection.getEndTime()
-        );
-    }
 }

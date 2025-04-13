@@ -16,6 +16,10 @@ import java.time.LocalDateTime;
 @Component
 public class MemberReservationPolicy {
 
+    private static final int DAILY_RESERVATION_LIMIT_MINUTES = 120;
+    private static final String DAILY_RESERVATION_LIMIT_MESSAGE =
+            String.format("하루에 총 %d분 예약할 수 있습니다.", DAILY_RESERVATION_LIMIT_MINUTES);
+
     private final MeetingRoomReservationRepository meetingRoomReservationRepository;
 
     public void validateReservedAtSameTime(Long memberId, LocalDateTime startTime, LocalDateTime endTime) {
@@ -31,11 +35,12 @@ public class MemberReservationPolicy {
     public void validateDailyReservationLimit(Long memberId, LocalDateTime startTime, LocalDateTime endTime) {
         int todayReservedMinutes = meetingRoomReservationRepository.getTotalReservationMinutesForMember(memberId);
 
-        int totalMinAfterRequest = (int) Duration.between(startTime, endTime).toMinutes() + todayReservedMinutes;
-        int availableTime = 120 - todayReservedMinutes;
+        int requestMinutes = (int) Duration.between(startTime, endTime).toMinutes();
+        int totalMinAfterRequest = requestMinutes + todayReservedMinutes;
+        int availableTime = DAILY_RESERVATION_LIMIT_MINUTES - todayReservedMinutes;
 
-        if (totalMinAfterRequest > 120) {
-            throw new InvalidRequestException(String.format("하루에 총 2시간까지 예약할 수 있습니다. 오늘 가능한 시간은 %d분 입니다.", availableTime));
+        if (totalMinAfterRequest > DAILY_RESERVATION_LIMIT_MINUTES) {
+            throw new InvalidRequestException(String.format("%s 오늘 가능한 시간은 %d분 입니다.", DAILY_RESERVATION_LIMIT_MESSAGE, availableTime));
         }
     }
 }

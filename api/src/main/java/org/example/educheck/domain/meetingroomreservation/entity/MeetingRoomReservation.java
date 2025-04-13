@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.meetingroom.entity.MeetingRoom;
 import org.example.educheck.domain.meetingroomreservation.policy.MeetingRoomReservationPolicy;
+import org.example.educheck.domain.meetingroomreservation.policy.MemberReservationPolicy;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.global.common.entity.BaseTimeEntity;
 import org.example.educheck.global.common.exception.custom.common.ResourceOwnerMismatchException;
@@ -42,14 +43,32 @@ public class MeetingRoomReservation extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
 
-    private MeetingRoomReservation(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
+    private MeetingRoomReservation(Member member,
+                                   MeetingRoom meetingRoom,
+                                   MeetingRoomReservationTime reservationTime) {
+
         this.member = member;
         this.meetingRoom = meetingRoom;
         this.reservationTime = reservationTime;
         status = ReservationStatus.ACTIVE;
     }
 
-    public static MeetingRoomReservation create(Member member,  MeetingRoom meetingRoom, MeetingRoomReservationTime reservationTime) {
+    public static MeetingRoomReservation create(Member member,
+                                                MeetingRoom meetingRoom,
+                                                MeetingRoomReservationTime reservationTime,
+                                                MeetingRoomReservationPolicy meetingRoomReservationPolicy,
+                                                MemberReservationPolicy memberReservationPolicy) {
+
+        LocalDateTime startTime = reservationTime.getStartTime();
+        LocalDateTime endTime = reservationTime.getEndTime();
+        Long memberId = member.getId();
+
+        meetingRoomReservationPolicy.validateReservableTime(meetingRoom, startTime, endTime);
+
+        memberReservationPolicy.validateDailyReservationLimit(memberId, startTime, endTime);
+        memberReservationPolicy.validateReservedAtSameTime(memberId, startTime, endTime);
+
+
         return new MeetingRoomReservation(member, meetingRoom, reservationTime);
     }
 
@@ -60,8 +79,13 @@ public class MeetingRoomReservation extends BaseTimeEntity {
     }
 
     private void validateOwner(Member member) {
-        if (!this.member.getId().equals(member.getId())) {
-            throw new ResourceOwnerMismatchException();
+        if (isNotReservedBy(member)) {
+            throw new ResourceOwnerMismatchException("회의실 예약한 본인만 취소할 수 있습니다.");
         }
     }
+
+    private boolean isNotReservedBy(Member member) {
+        return !this.member.isSameMember(member);
+    }
 }
+

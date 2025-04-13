@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Objects;
 
 
 @Getter
@@ -68,6 +69,7 @@ public class Member implements UserDetails {
         return email;
     }
 
+    //TODO: 사용하는 로직 보고 수정할 것
     public Long getStudentId() {
         return student != null ? student.getId() : null;
     }
@@ -97,5 +99,21 @@ public class Member implements UserDetails {
         Optional.ofNullable(this.staff)
                 .filter(staff -> staff.hasAccessToCourse(courseId, staffCourseRepository))
                 .orElseThrow(() -> new ForbiddenException("해당 과정에 대한 접근 권한이 없습니다."));
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return 
+          .equals(id, member.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
+
+    public boolean isSameMember(Member member) {
+        return Objects.equals(this, member);
     }
 }
