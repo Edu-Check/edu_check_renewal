@@ -99,7 +99,7 @@ export default function StudentSetting() {
   };
 
   const validatePassword = (password) => {
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,16}$/;
+    const passwordRegex = /^.{8,}$/;
     return passwordRegex.test(password);
   };
 
@@ -109,7 +109,7 @@ export default function StudentSetting() {
       : '';
   const passwordError =
     input.password && !validatePassword(input.password)
-      ? '비밀번호는 8자 이상, 대소문자, 숫자, 특수문자를 포함해야 합니다.'
+      ? '비밀번호는 8자 이상이어야 합니다.'
       : '';
   const confirmPasswordError =
     input.password && input.confirmPassword && input.password !== input.confirmPassword
