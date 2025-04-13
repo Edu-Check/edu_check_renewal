@@ -5,7 +5,7 @@ import BaseListItem from '../../components/listItem/baseListItem/BaseListItem';
 import Modal from '../../components/modal/Modal';
 import { useSelector } from 'react-redux';
 import { studentManageApi } from '../../api/studentManageApi';
-import { getDaysInMonth } from 'date-fns';
+import { getDaysInMonth, set } from 'date-fns';
 
 export default function StaffStudentManage() {
   const courseId = useSelector((state) => state.auth.user.courseId);
@@ -13,6 +13,7 @@ export default function StaffStudentManage() {
   const courseName = useSelector((state) => state.auth.user.courseName);
   const [openModal, setOpenModal] = useState(false);
   const [students, setStudents] = useState([]);
+  const [refresh, setRefresh] = useState(false);
 
   
   const [newStudent, setNewStudent] = useState({
@@ -47,7 +48,7 @@ export default function StaffStudentManage() {
       }
     };
     fetchStudents();
-  }, [courseId]);
+  }, [courseId, refresh]);
 
   const [errors, setErrors] = useState({
     name: '',
@@ -123,6 +124,7 @@ export default function StaffStudentManage() {
         ...newStudent,
         birthDate: formattedBirthday,
       });
+      setRefresh((prev) => !prev);
       setOpenModal(false);
     } catch (error) {
       console.error(error);
