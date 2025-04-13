@@ -79,10 +79,6 @@ public class Member implements UserDetails {
         return role == Role.STUDENT;
     }
 
-    public boolean isMiddleAdmin() {
-        return role == Role.MIDDLE_ADMIN;
-    }
-
     public boolean isNotMiddleAdmin() {
         return role != Role.MIDDLE_ADMIN;
     }
@@ -99,13 +95,15 @@ public class Member implements UserDetails {
         Optional.ofNullable(this.staff)
                 .filter(staff -> staff.hasAccessToCourse(courseId, staffCourseRepository))
                 .orElseThrow(() -> new ForbiddenException("해당 과정에 대한 접근 권한이 없습니다."));
+
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Member member = (Member) o;
-        return 
-          .equals(id, member.id);
+        return Objects.equals(id, member.id);
     }
 
     @Override
