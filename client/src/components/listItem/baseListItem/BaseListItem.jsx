@@ -11,6 +11,7 @@ export default function BaseListItem({
   courseId,
   onTagChange,
   onClick,
+  lectureTitle,
 }) {
   return (
     <div className={styles.baseListItem} onClick={onClick}>
@@ -19,6 +20,7 @@ export default function BaseListItem({
         <p>{phone}</p>
         <p>{email}</p>
       </div>
+      <div>{lectureTitle}</div>
       <Tag title={tagTitle} studentId={studentId} courseId={courseId} onTagChange={onTagChange} />
     </div>
   );

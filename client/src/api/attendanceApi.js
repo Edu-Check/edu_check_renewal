@@ -64,13 +64,9 @@ export const attendanceApi = {
     return response.data.data;
   },
 
-  getStudentAttendances: async (courseId, studentId) => {
+  getStudentAttendances: async (courseId, studentId, page) => {
     const response = await apiInstance.get(
-      `/courses/${courseId}/students/${studentId}/attendances`,
-      {},
-      {
-        withCredentials: true,
-      },
+      `/courses/${courseId}/students/${studentId}/attendances?page=${page}`,
     );
     return response;
   },

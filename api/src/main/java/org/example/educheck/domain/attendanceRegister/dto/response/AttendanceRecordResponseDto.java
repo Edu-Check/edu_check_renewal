@@ -6,5 +6,6 @@ public interface AttendanceRecordResponseDto {
 
      LocalDate getLectureDate();
      int getLectureSession();
+     String getLectureTitle();
      String getAttendanceStatus();
 }
