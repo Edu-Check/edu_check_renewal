@@ -13,6 +13,7 @@ import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 import org.example.educheck.domain.attendanceRegister.repository.AttendanceRegisterRepository;
 import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.course.repository.CourseRepository;
+import org.example.educheck.domain.course.service.CourseService;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.student.entity.Student;
 import org.example.educheck.domain.member.student.service.StudentService;
@@ -33,7 +34,7 @@ public class AttendanceRegisterService {
     private final AttendanceRegisterRepository attendanceRegisterRepository;
     private final StaffCourseRepository staffCourseRepository;
     private final StudentService studentService;
-    private final CourseRepository courseRepository;
+    private final CourseService courseService;
 
 
     public TodayLectureAttendanceResponseDto getTodayLectureAttendances(Long courseId, Member member) {
@@ -67,11 +68,10 @@ public class AttendanceRegisterService {
 
     public MyAttendanceStaticsResponseDto getAttendanceDashboardData(Member member, Long courseId) {
 
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResourceNotFoundException("해당 강좌가 존재하지 않습니다."));
+        Course validCourse = courseService.getValidCourse(courseId);
         Student enrolledStudent = studentService.getEnrolledStudent(member.getStudentId(), courseId);
         MyAttendanceStaticsProjection projection = attendanceRegisterRepository.findAttendanceSummaryByStudentIdAndCourseId(enrolledStudent.getId(), courseId);
 
-        return MyAttendanceStaticsResponseDto.from(projection, course);
+        return MyAttendanceStaticsResponseDto.from(projection, validCourse);
     }
 }
