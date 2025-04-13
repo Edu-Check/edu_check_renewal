@@ -9,6 +9,7 @@ import org.example.educheck.domain.attendanceRegister.repository.AttendanceRegis
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.student.entity.Student;
 import org.example.educheck.domain.member.student.repository.StudentRepository;
+import org.example.educheck.domain.member.student.service.StudentService;
 import org.example.educheck.domain.registration.repository.RegistrationRepository;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Slf4j
+
 @Service
 @RequiredArgsConstructor
 public class AttendanceRegisterService {
@@ -27,6 +28,7 @@ public class AttendanceRegisterService {
     private final StaffCourseRepository staffCourseRepository;
     private final StudentRepository studentRepository;
     private final RegistrationRepository registrationRepository;
+    private final StudentService studentService;
 
     public TodayLectureAttendanceResponseDto getTodayLectureAttendances(Long courseId, Member member) {
         validateStaffAuthorizationInCourse(member, courseId);
@@ -47,9 +49,8 @@ public class AttendanceRegisterService {
 
     public void getStudentAttendanceRecordLists(Member member, Long studentId, Long courseId, Pageable pageable) {
         member.validateStaffAccessToCourse(courseId, staffCourseRepository);
-        Student student = studentRepository.findById(studentId)
-                .orElseThrow(() -> new ResourceNotFoundException("해당 학생이 존재하지 않습니다."));
-        student.validateEnrolledInCourse(courseId, registrationRepository);
+        Student enrolledStudent = studentService.getEnrolledStudent(studentId, courseId);
+
 
     }
 }
