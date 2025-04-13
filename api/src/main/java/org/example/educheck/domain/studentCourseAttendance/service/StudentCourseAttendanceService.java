@@ -3,9 +3,7 @@
 //import lombok.RequiredArgsConstructor;
 //import lombok.extern.slf4j.Slf4j;
 //import org.example.educheck.domain.attendance.dto.response.*;
-//import org.example.educheck.domain.attendanceRegister.dto.response.*;
 //import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
-//import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayAttendanceStatusV2;
 //import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceSummary;
 //import org.example.educheck.domain.course.entity.Course;
 //import org.example.educheck.domain.course.repository.CourseRepository;
@@ -14,7 +12,8 @@
 //import org.example.educheck.domain.member.repository.MemberRepository;
 //import org.example.educheck.domain.registration.repository.RegistrationRepository;
 //import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
-//import org.example.educheck.domain.studentCourseAttendance.entity.StudentCourseAttendanceV2;
+//import org.example.educheck.domain.studentCourseAttendance.dto.*;
+//import org.example.educheck.domain.studentCourseAttendance.entity.*;
 //import org.example.educheck.domain.studentCourseAttendance.repository.StudentCourseAttendanceRepository;
 //import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
 //import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;

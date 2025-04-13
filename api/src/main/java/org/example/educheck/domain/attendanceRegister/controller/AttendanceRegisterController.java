@@ -40,23 +40,24 @@ public class AttendanceRegisterController {
         ));
     }
 
-        @PreAuthorize("hasAnyAuthority('MIDDLE_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('MIDDLE_ADMIN')")
     @GetMapping("/courses/{courseId}/students/{studentId}/attendances")
-    public ResponseEntity<ApiResponse<AttendanceRecordListResponseDto>>
+    public ResponseEntity<ApiResponse<Void>>
     getStudentAttendances(
             @AuthenticationPrincipal Member member,
             @PathVariable Long courseId,
             @PathVariable Long studentId,
-            @PageableDefault(sort = "lectureDate",
+            @PageableDefault(sort = {"lectureDate", "lectureSession"},
             direction = Sort.Direction.ASC,
             size = 8
-    ) Pageable pageable
+    ) Pageable pageable)
      {
+         attendanceRegisterService.getStudentAttendanceRecordLists(member, studentId, courseId, pageable);
 
         return ResponseEntity.ok(ApiResponse.ok(
                 "수강생 세부 출결 현황 조회 성공",
                 "OK",
-                attendanceRegisterService.getStudentAttendanceRecordLists(member, studentId, courseId, pageable)
+                null
         ));
     }
 }
