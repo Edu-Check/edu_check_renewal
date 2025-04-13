@@ -15,16 +15,16 @@ public class StudentAttendanceOverviewDto {
     private String studentPhoneNumber;
     private String studentEmail;
     private AttendanceRateProjection attendanceRate;
-    private Page<AttendanceRecordResponseDto> attendanceRecordResponseDtos;
+    private PagedAttendanceRecordDto attendanceRecords;
 
-    public static StudentAttendanceOverviewDto from(Member member, AttendanceRateProjection attendanceRate, Page<AttendanceRecordResponseDto> attendanceRecordResponseDto) {
+    public static StudentAttendanceOverviewDto from(Member member, AttendanceRateProjection attendanceRate, Page<AttendanceRecordResponseDto> page) {
         return StudentAttendanceOverviewDto.builder()
                 .studentId(member.getId())
                 .studentName(member.getName())
                 .studentPhoneNumber(member.getPhoneNumber())
                 .studentEmail(member.getEmail())
                 .attendanceRate(attendanceRate)
-                .attendanceRecordResponseDtos(attendanceRecordResponseDto)
+                .attendanceRecords(PagedAttendanceRecordDto.from(page))
                 .build();
     }
 }
