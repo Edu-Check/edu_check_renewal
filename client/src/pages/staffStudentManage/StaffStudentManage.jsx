@@ -9,8 +9,12 @@ import { getDaysInMonth } from 'date-fns';
 
 export default function StaffStudentManage() {
   const courseId = useSelector((state) => state.auth.user.courseId);
+  const campusName = useSelector((state) => state.auth.user.campusName);
+  const courseName = useSelector((state) => state.auth.user.courseName);
   const [openModal, setOpenModal] = useState(false);
   const [students, setStudents] = useState([]);
+
+  
   const [newStudent, setNewStudent] = useState({
     name: '',
     phone: '',
@@ -194,6 +198,23 @@ export default function StaffStudentManage() {
             {errors.email}
           </p>
         )}
+        
+                <label>캠퍼스</label>
+                <input
+                  className={styles.smallInputBox}
+                  name="campusName"
+                  type="text"
+                  value={campusName}
+                  disabled={true}
+                />
+                <label>교육 과정</label>
+                <input
+                  className={styles.smallInputBox}
+                  name="courseName"
+                  type="text"
+                  value={courseName}
+                  disabled={true}
+                />
       </div>
       <div className={styles.MainButton}>
         <button type="submit" className={styles.button}>
