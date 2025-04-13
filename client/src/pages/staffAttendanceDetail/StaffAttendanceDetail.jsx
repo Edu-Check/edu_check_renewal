@@ -42,7 +42,6 @@ export default function StaffAttendanceDetail() {
     const fetchStudentAttendance = async () => {
       if (!courseId || !studentId || !accessToken) return;
       try {
-        console.log(`API 호출 : ${currentPage - 1}`);
         const response = await attendanceApi.getStudentAttendances(
           courseId,
           studentId,
@@ -60,7 +59,6 @@ export default function StaffAttendanceDetail() {
   }, [courseId, studentId, accessToken, currentPage]);
 
   const handlePageChange = (page) => {
-    console.log(`handlePageChange : ${page}`);
     setCurrentPage(page);
   };
 

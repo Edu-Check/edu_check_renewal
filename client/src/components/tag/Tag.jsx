@@ -9,6 +9,7 @@ export default function Tag({ title, studentId, courseId }) {
   const tagColors = getTagColors(currentTitle);
   const isClickable = getIsClickable(title);
 
+
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const statusMapper = {
@@ -18,19 +19,22 @@ export default function Tag({ title, studentId, courseId }) {
     '수강 중단': 'DROPPED',
   };
 
+  useEffect(() => {
+    setCurrentTitle(title);
+  }, [title]);
+
   const handleToggleDropBox = () => {
     setIsOpen((prev) => !prev);
   };
 
   const handleTagClick = (newTagTitle) => {
     const status = statusMapper[newTagTitle];
-    try{
+    try {
       studentManageApi.modifyStudentStatus(courseId, studentId, status);
       setCurrentTitle(newTagTitle);
     } catch (error) {
       console.error(error);
     }
-
 
     setIsOpen(false);
   };
