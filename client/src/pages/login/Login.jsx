@@ -16,7 +16,7 @@ export default function Login() {
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const lastLoginDate = useSelector((state) => state.auth.user.lastLoginDate);
-  const lastPasswordChangeDate = useSelector((state) => state.auth.user.lastPasswordChangeDate);
+  const lastPasswordChangeDateTime = useSelector((state) => state.auth.user.lastPasswordChangeDateTime);
   const { role } = useSelector((state) => state.auth.user);
   const [inputData, setInputData] = useState({
     email: '',
@@ -63,7 +63,7 @@ export default function Login() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      if (role === 'STUDENT' && !lastPasswordChangeDate) {
+      if (role === 'STUDENT' && !lastPasswordChangeDateTime) {
         const settingPath = URL_PATHS?.[role].SETTING;
         alert('초기 비밀번호를 변경하세요,');
         navigate(settingPath, { replace: true });
@@ -72,7 +72,7 @@ export default function Login() {
         navigate(mainPath, { replace: true });
       }
     }
-  }, [isLoggedIn, navigate, lastPasswordChangeDate]);
+  }, [isLoggedIn, navigate, lastPasswordChangeDateTime]);
 
   useEffect(() => {
     setIsLoginButtonEnable(
