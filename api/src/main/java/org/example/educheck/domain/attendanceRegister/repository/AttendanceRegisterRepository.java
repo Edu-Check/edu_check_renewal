@@ -59,6 +59,7 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
     WITH attendance_count AS (
         SELECT
             student_id, course_id,
+            SUM(IF(attendance_status = 'ATTENDANCE' AND lecture_date <= CURDATE(),1,0)) AS attendance_count_until_today,
             SUM(IF(attendance_status = 'LATE' AND lecture_date <= CURDATE(), 1, 0)) AS late_count_until_today,
             SUM(IF(attendance_status = 'EARLY_LEAVE' AND lecture_date <= CURDATE(), 1, 0)) AS early_late_count_until_today,
             SUM(IF(attendance_status = 'ABSENCE' AND lecture_date <= CURDATE(), 1, 0)) AS absence_count_until_today,
@@ -71,7 +72,7 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
         IF(
             total_lecture_count > 0,
             ROUND(
-                    ((late_count_until_today + early_late_count_until_today +absence_count_until_today - adjusted_absent_by_late_or_early_leave) / total_lecture_count) * 100,
+                    ((attendance_count_until_today + late_count_until_today + early_late_count_until_today  - adjusted_absent_by_late_or_early_leave) / total_lecture_count) * 100,
                     2
                 ),
                 NULL
