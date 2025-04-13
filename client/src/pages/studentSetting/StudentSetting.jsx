@@ -57,6 +57,14 @@ export default function StudentSetting() {
     }));
   };
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setInput((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   useEffect(() => {
     if (!accessToken) return;
 
@@ -107,22 +115,36 @@ export default function StudentSetting() {
   const currentPasswordError =
     input.currentPassword === '' ? '현재 비밀번호는 필수 입력값입니다.' : '';
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (phoneError || passwordError || confirmPasswordError || currentPasswordError) {
       alert('입력값을 확인해 주세요.');
       return;
     }
 
-    alert('개인정보가 수정 되었습니다.');
-  };
+    const updateData = {
+      currentPassword: input.currentPassword,
+    };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setInput((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    if (input.phoneNumber) {
+      updateData.phoneNumber = input.phoneNumber;
+    }
+
+    if (input.year && input.month && input.day) {
+      updateData.birthDate = `${input.year}-${input.month}-${input.day}`;
+    }
+
+    if (input.password) {
+      updateData.newPassword = input.password;
+    }
+
+    try {
+      await profileApi.updateMyProfile(updateData);
+      alert('개인정보가 수정 되었습니다.');
+    } catch (error) {
+      console.error(error);
+      alert('수정에 실패했습니다.');
+    }
   };
 
   return (
