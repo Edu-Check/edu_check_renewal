@@ -6,6 +6,7 @@ import DataBoard from '../../components/dataBoard/DataBoard';
 import { attendanceApi } from '../../api/attendanceApi';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import PaginationComponent from '../../components/paginationComponent/PaginationComponent';
 
 export default function StaffAttendanceDetail() {
   const { courseId, studentId } = useParams();
@@ -14,14 +15,16 @@ export default function StaffAttendanceDetail() {
     studentName: '',
     studentPhoneNumber: '',
     studentEmail: '',
-    attendanceRecords: [],
+    attendanceRecords: {
+      attendanceRecords: [],
+      pageInfo: {
+        pageNumber: 0,
+        totalPages: 1,
+      },
+    },
     attendanceRate: {},
   });
-  const [pageInfo, setPageInfo] = useState({
-    pageNumber: 0,
-    pageSize: 8,
-    totalPage: '',
-  });
+  const [currentPage, setCurrentPage] = useState(1);
 
   // 출석 상태 텍스트 변환 함수
   function getAttendanceStatusText(status) {
@@ -36,21 +39,30 @@ export default function StaffAttendanceDetail() {
   }
 
   useEffect(() => {
-    const studentAttendanceById = async () => {
+    const fetchStudentAttendance = async () => {
       if (!courseId || !studentId || !accessToken) return;
       try {
-        const response = await attendanceApi.getStudentAttendances(courseId, studentId);
+        console.log(`API 호출 : ${currentPage - 1}`);
+        const response = await attendanceApi.getStudentAttendances(
+          courseId,
+          studentId,
+          currentPage - 1,
+        );
         const studentAttendanceData = response.data.data;
         console.log(studentAttendanceData);
         setStudentAttendance(studentAttendanceData);
-        setPageInfo(studentAttendanceData.attendanceRecords.pageInfo);
       } catch (error) {
         console.error('수강생 출결 현황 조회 실패:', error);
       }
     };
 
-    studentAttendanceById();
-  }, [courseId, studentId, accessToken, pageInfo.pageNumber]);
+    fetchStudentAttendance();
+  }, [courseId, studentId, accessToken, currentPage]);
+
+  const handlePageChange = (page) => {
+    console.log(`handlePageChange : ${page}`);
+    setCurrentPage(page);
+  };
 
   return (
     <div className={styles.container}>
@@ -92,6 +104,13 @@ export default function StaffAttendanceDetail() {
                 />
               </div>
             ))}
+        </div>
+        {/* 페이지네이션 컴포넌트 */}
+        <div className={styles.paginationWrapper}>
+          <PaginationComponent
+            totalPages={studentAttendance.attendanceRecords.pageInfo.totalPages}
+            onPageChange={handlePageChange}
+          />
         </div>
       </div>
     </div>
