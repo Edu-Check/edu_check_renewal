@@ -15,8 +15,8 @@ export default function StudentAttendance() {
     attendanceRate: 0,
     lateCount: 0,
     earlyLeaveCount: 0,
-    absentCount: 0,
-    accumulatedAbsence: 0,
+    absenceCount: 0,
+    adjustedAbsenceCount: 0,
     startDate: ' ',
     endDate: ' ',
   });
@@ -38,16 +38,16 @@ export default function StudentAttendance() {
       try {
         setIsLoading(true);
         const response = await attendanceApi.getAbsenceAttendanceAndRate(courseId);
-
-        if (response && response.data) {
+        console.log(response);
+        if (response) {
           setAttendanceStats({
-            attendanceRate: Math.round(response.data.attendanceRate) || 0,
-            lateCount: response.data.lateCount || 0,
-            earlyLeaveCount: response.data.earlyLeaveCount || 0,
-            absentCount: response.data.absentCount || 0,
-            accumulatedAbsence: response.data.accumulatedAbsence || 0,
-            startDate: response.data.startDate,
-            endDate: response.data.endDate,
+            attendanceRate: Math.round(response.attendanceRate) || 0,
+            lateCount: response.lateCount || 0,
+            earlyLeaveCount: response.earlyLeaveCount || 0,
+            absenceCount: response.absenceCount || 0,
+            adjustedAbsenceCount: response.adjustedAbsenceCount || 0,
+            startDate: response.startDate,
+            endDate: response.endDate,
           });
         }
       } catch (err) {
@@ -108,11 +108,11 @@ export default function StudentAttendance() {
             <div className={styles.headerContainer}>
               <p className="subTitle">출석률 {attendanceStats.attendanceRate}%</p>
               <MainButton
-              title={"출석부 확인"}
-              isEnable={true}
-              handleClick={() => {
-                window.open('/attendanceSheet', '_blank');
-              }}
+                title={'출석부 확인'}
+                isEnable={true}
+                handleClick={() => {
+                  window.open('/attendanceSheet', '_blank');
+                }}
               />
             </div>
             <div className={styles.progressBarBottom}>
@@ -128,12 +128,12 @@ export default function StudentAttendance() {
           <DashBoardItem width="100%">
             <p className="subTitle">결석 현황</p>
             <div className={styles.attendanceType}>
-              <DataBoard title="지각" data={`${attendanceStats.lateCount}회`}></DataBoard>
-              <DataBoard title="조퇴" data={`${attendanceStats.earlyLeaveCount}회`}></DataBoard>
-              <DataBoard title="결석" data={`${attendanceStats.absentCount}회`}></DataBoard>
+              <DataBoard title="지각" data={`${attendanceStats.lateCount} 회`}></DataBoard>
+              <DataBoard title="조퇴" data={`${attendanceStats.earlyLeaveCount} 회`}></DataBoard>
+              <DataBoard title="결석" data={`${attendanceStats.absenceCount} 회`}></DataBoard>
               <DataBoard
                 title="누적 결석"
-                data={`${attendanceStats.accumulatedAbsence}회`}
+                data={`${attendanceStats.adjustedAbsenceCount} 회`}
               ></DataBoard>
             </div>
           </DashBoardItem>
