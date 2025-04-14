@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styles from "./PaginationComponent.module.css";
 
-export default function PaginationComponent({ totalPages, onPageChange }) {
+export default function PaginationComponent({ totalPages, onPageChange, goToPreviousPage }) {
   const [currentPage, setCurrentPage] = useState(1);
 
   const handleInputChange = (e) => {
@@ -14,13 +14,6 @@ export default function PaginationComponent({ totalPages, onPageChange }) {
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && currentPage >= 1 && currentPage <= totalPages) {
       onPageChange(currentPage);
-    }
-  };
-
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage((prev) => prev - 1);
-      onPageChange(currentPage - 1);
     }
   };
 

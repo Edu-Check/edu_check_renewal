@@ -73,26 +73,27 @@ export default function StudentAttendanceAbsence() {
         page,
       );
 
-      if (response.data && response.data.data && response.data.data.content) {
-        setAbsenceList(response.data.data.content);
-        setTotalPages(response.data.data.totalPages || 1);
+      console.log(response);
+
+      if (response) {
+        setAbsenceList(response.lists);
+        setTotalPages(response.pageInfo.totalPages);
       } else {
         setAbsenceList([]);
-        setTotalPages(1);
       }
       setLoading(false);
     } catch (err) {
-      console.error('유고 결석 데이터 조회 실패:', err);
-      setError('유고 결석 데이터를 불러오는데 실패했습니다.');
+      console.error('유고 결석 신청 목록 데이터 조회 실패:', err);
+      setError('유고 결석 신청 목록 데이터를 불러오는데 실패했습니다.');
       setLoading(false);
     }
   };
 
   useEffect(() => {
     if (courseId) {
-      fetchAbsenceList(courseId, currentPage - 1);
+      fetchAbsenceList(courseId, 0);
     }
-  }, [courseId, currentPage]);
+  }, [courseId]);
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -150,43 +151,6 @@ export default function StudentAttendanceAbsence() {
         alert('유고 결석 삭제 중 오류가 발생했습니다.');
       }
     }
-  };
-
-  const handleInfoEdit = (item) => {
-    if (!startDate || !endDate) {
-      alert('시작일과 종료일을 입력해주세요.');
-      return;
-    }
-
-    const formatDate = (date) => {
-      return date
-        .toLocaleDateString('ko-KR', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        })
-        .replace(/\. /g, '-')
-        .replace(/\./g, '');
-    };
-
-    const updatedItem = {
-      ...currentItem,
-      startDate: formatDate(startDate),
-      endDate: formatDate(endDate),
-      category: categoryMap[editActiveIndex],
-      reason: reason,
-    };
-
-    setAbsenceList((prevList) =>
-      prevList.map((item) =>
-        item.absenceAttendanceId === currentItem.absenceAttendanceId ? updatedItem : item,
-      ),
-    );
-
-    setOpenModal(false);
-    setCurrentItem(null);
-
-    alert('수정이 완료되었습니다.');
   };
 
   const inputBox = (
@@ -356,8 +320,22 @@ export default function StudentAttendanceAbsence() {
   });
 
   const handlePageChange = (page) => {
-    setCurrentPage(page);
+    if (courseId) {
+      fetchAbsenceList(courseId, page - 1);
+    }
   };
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+      fetchAbsenceList(courseId, newPage - 1);
+    }
+  };
+
+  // const handleNextPage = () => {
+  //   if ()
+  // }
 
   return (
     <>
@@ -367,7 +345,12 @@ export default function StudentAttendanceAbsence() {
           <div className={styles.absenceAttendanceList}>{absenceListItems}</div>
           {/* 페이지네이션 컴포넌트 */}
           <div className={styles.paginationWrapper}>
-            <PaginationComponent totalPages={totalPages} onPageChange={handlePageChange} />
+            <PaginationComponent
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              // goToPreviousPage={handlePrevPage}
+              goToNextPage={handleNextPage}
+            />
           </div>
         </div>
 
