@@ -19,7 +19,14 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
 
     @Query("SELECT ar FROM AttendanceRegister ar " +
             "WHERE ar.id.courseId = :courseId " +
-            "AND ar.lectureDate = CURRENT DATE")
+            "AND ar.lectureDate = CURRENT DATE " +
+            "ORDER BY " +
+            "   CASE ar.attendanceStatus " +
+            "   WHEN org.example.educheck.domain.attendance.entity.AttendanceStatus.ABSENCE THEN 0 " +
+            "   WHEN org.example.educheck.domain.attendance.entity.AttendanceStatus.NOT_CHECKIN THEN 1 " +
+            "   ELSE 2 " +
+            "END, " +
+            "ar.studentName ASC")
     List<AttendanceRegister> findByCourseIdAndLectureDateIsToday(Long courseId);
 
     Page<AttendanceRecordResponseDto> findById_StudentIdAndId_CourseId(Long studentId, Long courseId, Pageable pageable);

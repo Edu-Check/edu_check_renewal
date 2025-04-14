@@ -1,4 +1,4 @@
-package org.example.educheck.domain.attendanceRegister.dto.response;
+package org.example.educheck.global.common.dto;
 
 import lombok.Builder;
 import lombok.Getter;

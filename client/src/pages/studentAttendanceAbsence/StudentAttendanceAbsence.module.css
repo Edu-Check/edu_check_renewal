@@ -122,3 +122,14 @@
   margin-left: 0;
   margin-right: auto;
 }
+
+.paginationWrapper {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.paginationWrapper > div {
+  background-color: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}

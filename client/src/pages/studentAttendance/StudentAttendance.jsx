@@ -38,7 +38,6 @@ export default function StudentAttendance() {
       try {
         setIsLoading(true);
         const response = await attendanceApi.getAbsenceAttendanceAndRate(courseId);
-        console.log(response);
         if (response) {
           setAttendanceStats({
             attendanceRate: Math.round(response.attendanceRate) || 0,
@@ -76,7 +75,6 @@ export default function StudentAttendance() {
           currentMonth,
         );
 
-        console.log(response);
         if (response && response.data) {
           setCourseInfo({
             name: response.data.courseName,

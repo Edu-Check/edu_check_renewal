@@ -20,12 +20,12 @@ public interface AbsenceAttendanceRepository extends JpaRepository<AbsenceAttend
             "FROM AbsenceAttendance a " +
             "WHERE a.course.id = :courseId AND a.student.id = :studentId " +
             "AND a.deletionRequestedAt IS NULL " +
-            "ORDER BY a.createdAt DESC",
+            "ORDER BY " +
+            "   CASE WHEN a.isApprove IS NULL THEN 0 ELSE 1 END, " +
+            "   a.startTime DESC",
             countQuery = "SELECT COUNT(a) FROM AbsenceAttendance a " +
                     "WHERE a.course.id = :courseId AND a.student.id = :studentId")
     Page<MyAbsenceAttendanceResponseDto> findByStudentIdAndCourseId(@Param("studentId") Long studentId, @Param("courseId") Long courseId, Pageable pageable);
-
-    boolean existsByStudentAndCourseAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(Student student, Course course, LocalDate endDate, LocalDate startDate);
 
     boolean existsByStudentAndCourseAndStartTimeLessThanEqualAndEndTimeGreaterThanEqualAndDeletionRequestedAtIsNull(
             Student student, Course course, LocalDate endDate, LocalDate startDate

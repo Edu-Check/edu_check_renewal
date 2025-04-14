@@ -8,12 +8,12 @@ import NewInputBox from '../../components/inputBox/newInputBox/NewInputBox';
 import Modal from '../../components/modal/Modal';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
-import { fi, ko } from 'date-fns/locale';
+import { ko } from 'date-fns/locale';
 import { absenceAttendancesApi } from '../../api/absenceAttendancesApi';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { URL_PATHS } from '../../constants/urlPaths';
 import AttendanceAbsenceDetail from '../staffAttendanceAbsence/AttendanceAbsenceDetail';
+import PaginationComponent from '../../components/paginationComponent/PaginationComponent';
 
 export default function StudentAttendanceAbsence() {
   const courseId = useSelector((state) => state.auth.user.courseId);
@@ -47,6 +47,12 @@ export default function StudentAttendanceAbsence() {
     <AttendanceAbsenceDetail courseId={courseId} id={currentItem.absenceAttendanceId} />
   ) : null;
 
+  const [pageInfo, setPageInfo] = useState({
+    pageNumber: '',
+    totalPages: '',
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+
   const resetFormFields = () => {
     setUploadData({
       category: categoryMap[isActiveIndex],
@@ -62,29 +68,35 @@ export default function StudentAttendanceAbsence() {
     }
   };
 
-  const fetchAbsenceList = async (courseId) => {
+  const fetchAbsenceList = async (courseId, currentPage) => {
     try {
       setLoading(true);
-      const response = await absenceAttendancesApi.getAbsenceAttendanceListByStudent(courseId);
+      const response = await absenceAttendancesApi.getAbsenceAttendanceListByStudent(
+        courseId,
+        currentPage - 1,
+      );
 
-      if (response.data && response.data.data && response.data.data.content) {
-        setAbsenceList(response.data.data.content);
+      console.log(response);
+
+      if (response) {
+        setAbsenceList(response.lists);
+        setPageInfo(response.pageInfo);
       } else {
         setAbsenceList([]);
       }
       setLoading(false);
     } catch (err) {
-      console.error('유고 결석 데이터 조회 실패:', err);
-      setError('유고 결석 데이터를 불러오는데 실패했습니다.');
+      console.error('유고 결석 신청 목록 데이터 조회 실패:', err);
+      setError('유고 결석 신청 목록 데이터를 불러오는데 실패했습니다.');
       setLoading(false);
     }
   };
 
   useEffect(() => {
     if (courseId) {
-      fetchAbsenceList(courseId);
+      fetchAbsenceList(courseId, currentPage - 1);
     }
-  }, [courseId]);
+  }, [courseId, currentPage]);
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -142,43 +154,6 @@ export default function StudentAttendanceAbsence() {
         alert('유고 결석 삭제 중 오류가 발생했습니다.');
       }
     }
-  };
-
-  const handleInfoEdit = (item) => {
-    if (!startDate || !endDate) {
-      alert('시작일과 종료일을 입력해주세요.');
-      return;
-    }
-
-    const formatDate = (date) => {
-      return date
-        .toLocaleDateString('ko-KR', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        })
-        .replace(/\. /g, '-')
-        .replace(/\./g, '');
-    };
-
-    const updatedItem = {
-      ...currentItem,
-      startDate: formatDate(startDate),
-      endDate: formatDate(endDate),
-      category: categoryMap[editActiveIndex],
-      reason: reason,
-    };
-
-    setAbsenceList((prevList) =>
-      prevList.map((item) =>
-        item.absenceAttendanceId === currentItem.absenceAttendanceId ? updatedItem : item,
-      ),
-    );
-
-    setOpenModal(false);
-    setCurrentItem(null);
-
-    alert('수정이 완료되었습니다.');
   };
 
   const inputBox = (
@@ -267,7 +242,7 @@ export default function StudentAttendanceAbsence() {
         alert('유고 결석 신청이 완료되었습니다.');
         resetFormFields();
         if (courseId) {
-          fetchAbsenceList(courseId);
+          fetchAbsenceList(courseId, 1);
         }
       }
     } catch (error) {
@@ -347,12 +322,20 @@ export default function StudentAttendanceAbsence() {
     );
   });
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <>
       <div className={styles.LeftLineListItemDisplay}>
         <div className={styles.absenceLeftLineListItem}>
           <p className="subTitle">신청 내역</p>
           <div className={styles.absenceAttendanceList}>{absenceListItems}</div>
+          {/* 페이지네이션 컴포넌트 */}
+          <div className={styles.paginationWrapper}>
+            <PaginationComponent totalPages={pageInfo.totalPages} onPageChange={handlePageChange} />
+          </div>
         </div>
 
         <div className={styles.absenceDashBoardItem}>
