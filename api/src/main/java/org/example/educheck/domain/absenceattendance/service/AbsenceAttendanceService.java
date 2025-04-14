@@ -123,18 +123,23 @@ public class AbsenceAttendanceService {
     @Transactional
     public CreateAbsenceAttendanceResponseDto createAbsenceAttendance(Member member, Long courseId, CreateAbsenceAttendacneRequestDto requestDto, MultipartFile[] files) {
 
+        LocalDate startDate = requestDto.getStartDate();
+        LocalDate endDate = requestDto.getEndDate();
+        
         validateRegistrationCourse(member, courseId);
 
         Course course = getCourseById(courseId);
-        validateAbsenceAttendanceDate(requestDto.getStartDate(), requestDto.getEndDate(), course);
-        validateDuplicateAbsenceAttendance(member, course, requestDto.getStartDate(), requestDto.getEndDate());
+
+        course.validateAbsenceDateRange(startDate, endDate);
+        validateDuplicateAbsenceAttendance(member, course, startDate, endDate);
 
 
         AbsenceAttendance absenceAttendance = AbsenceAttendance.builder()
+                
                 .course(course)
                 .student(member.getStudent())
-                .startTime(requestDto.getStartDate())
-                .endTime(requestDto.getEndDate())
+                .startTime(startDate)
+                .endTime(endDate)
                 .reason(requestDto.getReason())
                 .category(requestDto.getCategory())
                 .build();
@@ -147,22 +152,11 @@ public class AbsenceAttendanceService {
     }
 
     private void validateDuplicateAbsenceAttendance(Member member, Course course, LocalDate startDate, LocalDate endDate) {
-//        boolean isDuplicate = absenceAttendanceRepository.existsByStudentAndCourseAndStartTimeLessThanEqualAndEndTimeGreaterThanEqual(
-//                member.getStudent(), course, endDate, startDate);
+
 
         boolean isDuplicate = absenceAttendanceRepository.existsByStudentAndCourseAndStartTimeLessThanEqualAndEndTimeGreaterThanEqualAndDeletionRequestedAtIsNull(member.getStudent(), course, endDate, startDate);
         if (isDuplicate) {
             throw new InvalidRequestException("해당 기간에 이미 유고결석 신청이 존재합니다.");
-        }
-    }
-
-    private void validateAbsenceAttendanceDate(LocalDate startDate, LocalDate endDate, Course course) {
-        if (startDate.isBefore(course.getStartDate()) || endDate.isAfter(course.getEndDate())) {
-            throw new InvalidRequestException("유고결석 신청 기간은 교육 과정 기간 내에 있어야 합니다.");
-        }
-
-        if (startDate.isAfter(endDate)) {
-            throw new InvalidRequestException("유고결석 시작일은 종료일보다 이후일 수 없습니다.");
         }
     }
 
@@ -200,10 +194,6 @@ public class AbsenceAttendanceService {
     }
 
     private void validateRegistrationCourse(Member member, Long courseId) {
-
-        log.info("==============");
-        log.info("test", member.getStudent().getId());
-        log.info("================");
 
         Registration registration = registrationRepository.findByStudentIdAndCourseId(member.getStudent().getId(), courseId)
                 .orElseThrow(ResourceNotFoundException::new);

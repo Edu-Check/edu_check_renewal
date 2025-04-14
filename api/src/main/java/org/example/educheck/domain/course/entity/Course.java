@@ -48,7 +48,12 @@ public class Course {
         if (requestDate.isBefore(startMonth) || requestDate.isAfter(endMonth)) {
             throw new InvalidRequestException("해당 월은 과정 진행 중인 기간이 아닙니다.");
         }
+    }
 
+    public void validateAbsenceDateRange(LocalDate absenceStart, LocalDate absenceEnd) {
+        if(absenceStart.isBefore(startDate) || absenceEnd.isAfter(endDate)) {
+            throw new InvalidRequestException(String.format("결석 신청 기간은 교육 과정 기간 내여야 합니다.\n교육 기간은 %s 부터 %s입니다.", startDate, endDate));
+        }
     }
 
 
