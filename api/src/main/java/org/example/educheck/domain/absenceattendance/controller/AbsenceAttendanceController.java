@@ -9,7 +9,6 @@ import org.example.educheck.domain.absenceattendance.dto.response.*;
 import org.example.educheck.domain.absenceattendance.service.AbsenceAttendanceService;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.global.common.dto.ApiResponse;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -19,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -109,11 +109,10 @@ public class AbsenceAttendanceController {
 
     @PreAuthorize("hasAuthority('STUDENT')")
     @GetMapping("/my/course/{courseId}/absence-attendances")
-    public ResponseEntity<ApiResponse<Page<MyAbsenceAttendanceResponseDto>>> getMyAbsenceAttendances(@AuthenticationPrincipal Member member,
-                                                                                                     @PathVariable Long courseId,
-                                                                                                     @PageableDefault(sort = "createdAt",
-                                                                                                             direction = Sort.Direction.DESC,
-                                                                                                             size = 6) Pageable pageable) {
+    public ResponseEntity<ApiResponse<PagedMyAbsenceAttendanceResponseDto>> getMyAbsenceAttendances(@AuthenticationPrincipal Member member,
+                                                                                                    @PathVariable Long courseId,
+                                                                                                    @PageableDefault(
+                                                                                                             size = 5) Pageable pageable) {
 
         return ResponseEntity.ok(
                 ApiResponse.ok("유고 결석 신청 목록 조회 성공",

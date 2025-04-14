@@ -284,11 +284,12 @@ public class AbsenceAttendanceService {
         }
     }
 
-    public Page<MyAbsenceAttendanceResponseDto> getMyAbsenceAttendances(Member member, Long courseId, Pageable pageable) {
+    public PagedMyAbsenceAttendanceResponseDto getMyAbsenceAttendances(Member member, Long courseId, Pageable pageable) {
 
         validateRegistrationCourse(member, courseId);
 
-        return absenceAttendanceRepository.findByStudentIdAndCourseId(member.getStudentId(), courseId, pageable);
+        Page<MyAbsenceAttendanceResponseDto> responseDtoPage = absenceAttendanceRepository.findByStudentIdAndCourseId(member.getStudentId(), courseId, pageable);
+        return PagedMyAbsenceAttendanceResponseDto.from(responseDtoPage);
 
     }
 }

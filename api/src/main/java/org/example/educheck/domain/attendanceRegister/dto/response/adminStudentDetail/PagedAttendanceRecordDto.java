@@ -2,7 +2,7 @@ package org.example.educheck.domain.attendanceRegister.dto.response.adminStudent
 
 import lombok.Builder;
 import lombok.Getter;
-import org.example.educheck.domain.attendanceRegister.dto.response.PageInfo;
+import org.example.educheck.global.common.dto.PageInfo;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
