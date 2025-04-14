@@ -1,6 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { checkIn, completeAttendance, logout, resetAttendanceStatus } from '../../store/slices/authSlice';
+import {
+  checkIn,
+  completeAttendance,
+  logout,
+  resetAttendanceStatus,
+} from '../../store/slices/authSlice';
 import styles from './SideBar.module.css';
 import SideBarItem from './sidebarItem/SidebarItem';
 import MainButton from '../buttons/mainButton/MainButton';
@@ -15,7 +20,7 @@ export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const [isCheckoutMode, setIsCheckoutMode] = useState(false);
-  
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { name, role, courseName, phoneNumber, birthDate, email } = useSelector(
@@ -25,7 +30,6 @@ export default function SideBar() {
   const { attendanceDate } = useSelector((state) => state.auth.attendanceStatus);
 
   const today = new Date().toISOString().split('T')[0];
-
 
   const { coords, isGeolocationAvailable, error, getPosition } = useGeolocated({
     positionOptions: {
@@ -39,7 +43,6 @@ export default function SideBar() {
     isOptimisticGeolocationEnabled: false,
   });
 
-
   const getCookie = (cookieName) => {
     const nameEQ = cookieName + '=';
     const cookies = document.cookie.split(';');
@@ -50,39 +53,36 @@ export default function SideBar() {
     return null;
   };
 
-
   const handleAttendanceCheck = () => {
     const cookieValue = getCookie(email);
     if (cookieValue) {
-
       setIsCheckoutMode(true);
       getPosition();
     } else {
-
       setIsCheckoutMode(false);
       getPosition();
     }
   };
-
 
   const submitAttendanceAPI = async (latitude, longitude) => {
     try {
       const response = await attendanceApi.submitAttendance(latitude, longitude);
       alert(response.message);
       dispatch(checkIn());
-      const isCheckIn = response.data.data?.attendanceStatus;
+      console.log(response);
+      console.log(response.data.attendanceStatus);
+      const isCheckIn = response.data?.attendanceStatus;
       if (isCheckIn) {
         const expiryDate = new Date();
         expiryDate.setUTCDate(expiryDate.getUTCDate() + 1);
         expiryDate.setUTCHours(15, 0, 0, 0);
-        document.cookie = `${response.data.data.email}=checkIn; expires=${expiryDate.toUTCString()}; path=/`;
+        document.cookie = `${email}=checkIn; expires=${expiryDate.toUTCString()}; path=/`;
       }
     } catch (error) {
       console.error('출석 체크 오류:', error);
       alert('출석 체크에 실패했습니다: ' + (error.response?.data?.message || error.message));
     }
   };
-
 
   const submitCheckOutAPI = async (latitude, longitude) => {
     try {
@@ -94,7 +94,6 @@ export default function SideBar() {
       alert('퇴실 처리에 실패했습니다: ' + (error.response?.data?.message || error.message));
     }
   };
-
 
   useEffect(() => {
     if (coords) {
@@ -109,7 +108,6 @@ export default function SideBar() {
     }
   }, [coords, error, isCheckoutMode]);
 
-
   useEffect(() => {
     if (isLoggedIn) {
       const storedDate = attendanceDate;
@@ -119,7 +117,6 @@ export default function SideBar() {
       }
     }
   }, [isLoggedIn, attendanceDate, dispatch]);
-
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -131,13 +128,11 @@ export default function SideBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-
   const handleLogout = async () => {
     await authApi.logout();
     dispatch(logout());
     navigate('/');
   };
-
 
   const getButtonProps = () => {
     if (getCookie(email)) {
@@ -147,7 +142,6 @@ export default function SideBar() {
     }
   };
   const buttonProps = getButtonProps();
-
 
   const renderSidebarList = sidebarList[role];
   const compareUrl = (pathName, itemPath) => {
