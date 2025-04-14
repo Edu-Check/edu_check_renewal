@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.AttendanceRateProjection;
 import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.AttendanceRecordResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.StudentAttendanceOverviewDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceRecord.MyAttendanceRecordProjection;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceRecord.MyAttendanceRecordResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsProjection;
 import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
@@ -12,18 +14,18 @@ import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLe
 import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 import org.example.educheck.domain.attendanceRegister.repository.AttendanceRegisterRepository;
 import org.example.educheck.domain.course.entity.Course;
-import org.example.educheck.domain.course.repository.CourseRepository;
 import org.example.educheck.domain.course.service.CourseService;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.student.entity.Student;
 import org.example.educheck.domain.member.student.service.StudentService;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.example.educheck.global.common.exception.custom.common.ForbiddenException;
-import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.YearMonth;
 import java.util.List;
 
 @Slf4j
@@ -73,5 +75,12 @@ public class AttendanceRegisterService {
         MyAttendanceStaticsProjection projection = attendanceRegisterRepository.findAttendanceSummaryByStudentIdAndCourseId(enrolledStudent.getId(), courseId);
 
         return MyAttendanceStaticsResponseDto.from(projection, validCourse);
+    }
+
+    public MyAttendanceRecordResponseDto getMonthlyAttendance(Member member, Long courseId, Integer year, Integer month) {
+        LocalDate start = YearMonth.of(year, month).atDay(1);
+        LocalDate end = YearMonth.of(year, month).atEndOfMonth();
+        List<MyAttendanceRecordProjection> projection = attendanceRegisterRepository.findByStudentIdAndCourseIdAndDateYearAndDateMonth(member.getStudent().getId(), courseId, start, end);
+        return MyAttendanceRecordResponseDto.from(member.getStudent().getId(), courseId, projection);
     }
 }

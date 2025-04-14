@@ -3,6 +3,7 @@ package org.example.educheck.domain.attendanceRegister.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.StudentAttendanceOverviewDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceRecord.MyAttendanceRecordResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
 import org.example.educheck.domain.attendanceRegister.service.AttendanceRegisterService;
@@ -15,10 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
@@ -72,6 +70,22 @@ public class AttendanceRegisterController {
                         attendanceRegisterService.getAttendanceDashboardData(member, courseId)
                 )
         );
+    }
+
+    @PreAuthorize("hasAuthority('STUDENT')")
+    @GetMapping("/my/courses/{courseId}/attendances")
+    public ResponseEntity<ApiResponse<MyAttendanceRecordResponseDto>> getAttendances(@AuthenticationPrincipal Member member,
+                                                                                     @PathVariable Long courseId,
+                                                                                     @RequestParam(required = true) Integer year,
+                                                                                     @RequestParam(required = true) Integer month
+    ) {
+
+        return ResponseEntity.ok(ApiResponse.ok(
+                "월별 출석부 조회 성공",
+                "OK",
+                attendanceRegisterService.getMonthlyAttendance(member, courseId, year, month)
+
+        ));
     }
 
 }
