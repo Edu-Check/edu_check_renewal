@@ -83,9 +83,7 @@ https://dbdiagram.io/d/edu_check_renewal_erd-67fd5fb99cea640381b0dad0
 - 분량이 가장 많은 섹션이기 때문에 가능한 마지막에 작성한다.
 
 ## 👶팀원들
-## 👥 Team Members
 
-## 👥 팀 소개
 <table>
   <tbody>
     <tr>
