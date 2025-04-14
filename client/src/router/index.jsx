@@ -32,6 +32,14 @@ const router = createBrowserRouter([
         element: <Login />,
       },
       {
+        path: '/attendanceSheet',
+        element: <AttendanceSheet />,
+      },
+      {
+        path: '/notfound',
+        element: <NotFound />,
+      },
+      {
         element: <PrivateRoute />,
         children: [
           {
@@ -127,16 +135,7 @@ const router = createBrowserRouter([
               },
             ],
           },
-          {
-            path: '/attendanceSheet',
-            element: <AttendanceSheet />,
-          },
         ],
-      },
-
-      {
-        path: '/notfound',
-        element: <NotFound />,
       },
       // {
       //   path: '*',
