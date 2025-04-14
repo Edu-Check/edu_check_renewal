@@ -8,12 +8,12 @@ import NewInputBox from '../../components/inputBox/newInputBox/NewInputBox';
 import Modal from '../../components/modal/Modal';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
-import { fi, ko } from 'date-fns/locale';
+import { ko } from 'date-fns/locale';
 import { absenceAttendancesApi } from '../../api/absenceAttendancesApi';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { URL_PATHS } from '../../constants/urlPaths';
 import AttendanceAbsenceDetail from '../staffAttendanceAbsence/AttendanceAbsenceDetail';
+import PaginationComponent from '../../components/paginationComponent/PaginationComponent';
 
 export default function StudentAttendanceAbsence() {
   const courseId = useSelector((state) => state.auth.user.courseId);
@@ -47,6 +47,9 @@ export default function StudentAttendanceAbsence() {
     <AttendanceAbsenceDetail courseId={courseId} id={currentItem.absenceAttendanceId} />
   ) : null;
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
   const resetFormFields = () => {
     setUploadData({
       category: categoryMap[isActiveIndex],
@@ -62,15 +65,20 @@ export default function StudentAttendanceAbsence() {
     }
   };
 
-  const fetchAbsenceList = async (courseId) => {
+  const fetchAbsenceList = async (courseId, page = 0) => {
     try {
       setLoading(true);
-      const response = await absenceAttendancesApi.getAbsenceAttendanceListByStudent(courseId);
+      const response = await absenceAttendancesApi.getAbsenceAttendanceListByStudent(
+        courseId,
+        page,
+      );
 
       if (response.data && response.data.data && response.data.data.content) {
         setAbsenceList(response.data.data.content);
+        setTotalPages(response.data.data.totalPages || 1);
       } else {
         setAbsenceList([]);
+        setTotalPages(1);
       }
       setLoading(false);
     } catch (err) {
@@ -82,9 +90,9 @@ export default function StudentAttendanceAbsence() {
 
   useEffect(() => {
     if (courseId) {
-      fetchAbsenceList(courseId);
+      fetchAbsenceList(courseId, currentPage - 1);
     }
-  }, [courseId]);
+  }, [courseId, currentPage]);
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -347,12 +355,20 @@ export default function StudentAttendanceAbsence() {
     );
   });
 
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   return (
     <>
       <div className={styles.LeftLineListItemDisplay}>
         <div className={styles.absenceLeftLineListItem}>
           <p className="subTitle">신청 내역</p>
           <div className={styles.absenceAttendanceList}>{absenceListItems}</div>
+          {/* 페이지네이션 컴포넌트 */}
+          <div className={styles.paginationWrapper}>
+            <PaginationComponent totalPages={totalPages} onPageChange={handlePageChange} />
+          </div>
         </div>
 
         <div className={styles.absenceDashBoardItem}>

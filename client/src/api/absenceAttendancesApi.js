@@ -12,8 +12,8 @@ export const absenceAttendancesApi = {
   getAbsenceAttendance: async (courseId, absenceAttendancedId) =>
     await apiInstance.get(`/course/${courseId}/absence-attendances/${absenceAttendancedId}`),
 
-  getAbsenceAttendanceListByStudent: async (courseId) =>
-    await apiInstance.get(`/my/course/${courseId}/absence-attendances`),
+  getAbsenceAttendanceListByStudent: async (courseId, page) =>
+    await apiInstance.get(`/my/course/${courseId}/absence-attendances?page=${page}`),
 
   submitAbsenceAttendance: async (courseId, data) => {
     const response = await apiInstance.post(`/my/course/${courseId}/absence-attendances`, data, {
