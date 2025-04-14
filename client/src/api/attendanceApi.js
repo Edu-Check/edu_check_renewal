@@ -40,9 +40,8 @@ export const attendanceApi = {
   getAttendanceRecordsByYearMonth: async (courseId, year, month) => {
     const response = await apiInstance.get(
       `/my/courses/${courseId}/attendances?year=${year}&month=${month}`,
-
     );
-    return response.data;
+    return response.data.data;
   },
 
   // STAFF

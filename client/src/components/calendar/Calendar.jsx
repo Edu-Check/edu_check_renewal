@@ -7,45 +7,41 @@ import { fetchHolidays } from '../../api/holidayApi';
 
 const localizer = momentLocalizer(moment);
 
-export default function Calendar({ attendanceData }) {
+export default function Calendar({ attendanceData, onMonthChange }) {
   const [holidays, setHolidays] = useState([]);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [view, setView] = useState('month');
 
+  const [currentYM, setCurrentYM] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${now.getMonth() + 1}`;
+  });
+
   // 공휴일 데이터 가져오기
   useEffect(() => {
     const getHolidays = async () => {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
-
+      const [year, month] = currentYM.split('-').map(Number);
       const holidayList = await fetchHolidays(year, month);
       setHolidays(holidayList);
     };
     getHolidays();
-  }, [currentDate]);
+  }, [currentYM]);
 
   // 커스텀 툴바 컴포넌트
   const CustomToolbar = ({ date, onNavigate }) => {
     return (
       <div className={styles.toolbar}>
-        <button
-          onClick={() => {
-            onNavigate('PREV');
-          }}
-        >
+        <button onClick={() => onNavigate('PREV')}>
           <img src="/assets/arrowBackIcon.svg" alt="arrowPrev" />
         </button>
         <span>{moment(date).format('YYYY.MM')}</span>
-        <button
-          onClick={() => {
-            onNavigate('NEXT');
-          }}
-        >
+        <button onClick={() => onNavigate('NEXT')}>
           <img src="/assets/arrowBackIcon.svg" alt="arrowNext" className={styles.arrowNext} />
         </button>
       </div>
     );
   };
+
   // 커스텀 날짜 헤더 컴포넌트
   const CustomDateHeader = ({ label, date }) => {
     const formattedDate = moment(date).format('YYYY-MM-DD');
@@ -53,7 +49,6 @@ export default function Calendar({ attendanceData }) {
     const holiday = holidays.find((item) => item.date === formattedDate);
 
     let className = '';
-
     if (holiday || day === 0) {
       className = styles.holidayHeader;
     } else if (day === 6) {
@@ -63,16 +58,27 @@ export default function Calendar({ attendanceData }) {
     return <span className={className}>{label}</span>;
   };
 
-  // 날짜 스타일링 함수
+  // 데이터
   const customDayPropGetter = (date) => {
     const formattedDate = moment(date).format('YYYY-MM-DD');
-    const attendance = attendanceData.find((item) => item.date === formattedDate);
+    const attendance = attendanceData.find((item) => item.lectureDate === formattedDate);
     const holiday = holidays.find((item) => item.date === formattedDate);
 
     if (attendance) {
-      if (attendance.status === 'ABSENCE') return { className: styles.absenceDay };
-      if (attendance.status === 'EARlY_LEAVE') return { className: styles.earlyLeaveDay };
-      if (attendance.status === 'LATE') return { className: styles.lateDay };
+      switch (attendance.attendanceStatus) {
+        case 'ABSENCE':
+          return { className: styles.absenceDay };
+        case 'EARLY_LEAVE':
+          return { className: styles.earlyLeaveDay };
+        case 'LATE':
+          return { className: styles.lateDay };
+        case 'ATTENDANCE':
+          return { className: styles.attendanceDay };
+        case 'NOT_CHECKIN':
+          return { className: styles.notCheckinDay };
+        default:
+          break;
+      }
     }
 
     if (holiday) {
@@ -89,12 +95,23 @@ export default function Calendar({ attendanceData }) {
     end: new Date(holiday.date),
     allDay: true,
   }));
+
   const formats = {
     monthHeaderFormat: 'YYYY MMMM',
     dayHeaderFormat: 'dddd',
     dayRangeHeaderFormat: ({ start, end }) =>
       `${moment(start).format('YYYY.MM.DD')} - ${moment(end).format('YYYY.MM.DD')}`,
   };
+
+  const handleNavigate = (date) => {
+    setCurrentDate(date);
+    const newYM = `${date.getFullYear()}-${date.getMonth() + 1}`;
+    if (newYM !== currentYM) {
+      setCurrentYM(newYM);
+      onMonthChange?.(date.getFullYear(), date.getMonth() + 1);
+    }
+  };
+
   return (
     <div className={styles.calendarContainer}>
       <BigCalendar
@@ -104,9 +121,7 @@ export default function Calendar({ attendanceData }) {
         endAccessor="end"
         defaultView="month"
         date={currentDate}
-        onNavigate={(date) => {
-          setCurrentDate(date);
-        }}
+        onNavigate={handleNavigate}
         dayPropGetter={customDayPropGetter}
         components={{
           toolbar: CustomToolbar,

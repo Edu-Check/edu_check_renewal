@@ -21,11 +21,7 @@ export default function StudentAttendance() {
     endDate: ' ',
   });
 
-  const [courseInfo, setCourseInfo] = useState({
-    name: '',
-  });
-
-  const [attendanceData, setAttendanceData] = useState([]);
+  const [attendanceCalendarData, setAttendanceCalendarData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -33,12 +29,19 @@ export default function StudentAttendance() {
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth() + 1;
 
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+  const handleMonthChange = (year, month) => {
+    setSelectedYear(year);
+    setSelectedMonth(month);
+  };
+
   useEffect(() => {
     const fetchAttendanceStats = async () => {
       try {
         setIsLoading(true);
         const response = await attendanceApi.getAbsenceAttendanceAndRate(courseId);
-        console.log(response);
         if (response) {
           setAttendanceStats({
             attendanceRate: Math.round(response.attendanceRate) || 0,
@@ -72,26 +75,16 @@ export default function StudentAttendance() {
         setIsLoading(true);
         const response = await attendanceApi.getAttendanceRecordsByYearMonth(
           courseId,
-          currentYear,
-          currentMonth,
+          selectedYear,
+          selectedMonth,
         );
 
-        console.log(response);
-        if (response && response.data) {
-          setCourseInfo({
-            name: response.data.courseName,
-          });
-
-          const formattedData = response.data.attendanceList.map((item) => ({
-            date: item.lectureDate,
-            status: item.attendanceStatus,
-          }));
-
-          setAttendanceData(formattedData);
+        if (response) {
+          setAttendanceCalendarData(response.records);
         }
-      } catch (err) {
-        console.error('월별 출석 기록 데이터를 가져오는 중 오류 발생:', err);
-        console.error('에러 상세 정보:', err.response?.data || err);
+      } catch (error) {
+        const errorMessage = error.response?.data?.message ?? '오류가 발생했습니다.';
+        alert(errorMessage);
       } finally {
         setIsLoading(false);
       }
@@ -100,7 +93,7 @@ export default function StudentAttendance() {
     if (courseId) {
       fetchAttendanceRecordsByYearMonth();
     }
-  }, [courseId]);
+  }, [courseId, selectedYear, selectedMonth]);
 
   // if (!courseId) return <div>코스 정보를 불러올 수 없습니다.</div>;
   // if (isLoading) return <div>로딩 중...</div>;
@@ -164,7 +157,10 @@ export default function StudentAttendance() {
               </div>
             </div>
             <div className={styles.calendarWrapper}>
-              <Calendar attendanceData={attendanceData}></Calendar>
+              <Calendar
+                attendanceData={attendanceCalendarData}
+                onMonthChange={handleMonthChange}
+              ></Calendar>
             </div>
           </DashBoardItem>
         </div>
