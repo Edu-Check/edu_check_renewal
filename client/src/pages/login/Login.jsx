@@ -16,7 +16,9 @@ export default function Login() {
 
   const isLoggedIn = useSelector((state) => state.auth.isLoggedIn);
   const lastLoginDate = useSelector((state) => state.auth.user.lastLoginDate);
-  const lastPasswordChangeDateTime = useSelector((state) => state.auth.user.lastPasswordChangeDateTime);
+  const lastPasswordChangeDateTime = useSelector(
+    (state) => state.auth.user.lastPasswordChangeDateTime,
+  );
   const { role } = useSelector((state) => state.auth.user);
   const [inputData, setInputData] = useState({
     email: '',

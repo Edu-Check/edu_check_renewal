@@ -79,8 +79,17 @@ export default function StudentAttendance() {
           selectedMonth,
         );
 
-        if (response) {
-          setAttendanceCalendarData(response.records);
+        if (response && response.data) {
+          setCourseInfo({
+            name: response.data.courseName,
+          });
+
+          const formattedData = response.data.attendanceList.map((item) => ({
+            date: item.lectureDate,
+            status: item.attendanceStatus,
+          }));
+
+          setAttendanceData(formattedData);
         }
       } catch (error) {
         const errorMessage = error.response?.data?.message ?? '오류가 발생했습니다.';
