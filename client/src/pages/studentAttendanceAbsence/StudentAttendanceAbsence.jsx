@@ -242,7 +242,7 @@ export default function StudentAttendanceAbsence() {
         alert('유고 결석 신청이 완료되었습니다.');
         resetFormFields();
         if (courseId) {
-          fetchAbsenceList(courseId);
+          fetchAbsenceList(courseId, 1);
         }
       }
     } catch (error) {
