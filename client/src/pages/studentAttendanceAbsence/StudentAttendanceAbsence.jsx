@@ -47,8 +47,11 @@ export default function StudentAttendanceAbsence() {
     <AttendanceAbsenceDetail courseId={courseId} id={currentItem.absenceAttendanceId} />
   ) : null;
 
+  const [pageInfo, setPageInfo] = useState({
+    pageNumber: '',
+    totalPages: '',
+  });
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
 
   const resetFormFields = () => {
     setUploadData({
@@ -65,19 +68,19 @@ export default function StudentAttendanceAbsence() {
     }
   };
 
-  const fetchAbsenceList = async (courseId, page = 0) => {
+  const fetchAbsenceList = async (courseId, currentPage) => {
     try {
       setLoading(true);
       const response = await absenceAttendancesApi.getAbsenceAttendanceListByStudent(
         courseId,
-        page,
+        currentPage - 1,
       );
 
       console.log(response);
 
       if (response) {
         setAbsenceList(response.lists);
-        setTotalPages(response.pageInfo.totalPages);
+        setPageInfo(response.pageInfo);
       } else {
         setAbsenceList([]);
       }
@@ -91,9 +94,9 @@ export default function StudentAttendanceAbsence() {
 
   useEffect(() => {
     if (courseId) {
-      fetchAbsenceList(courseId, 0);
+      fetchAbsenceList(courseId, currentPage - 1);
     }
-  }, [courseId]);
+  }, [courseId, currentPage]);
 
   const handleFileChange = (e) => {
     const selectedFiles = Array.from(e.target.files);
@@ -320,22 +323,8 @@ export default function StudentAttendanceAbsence() {
   });
 
   const handlePageChange = (page) => {
-    if (courseId) {
-      fetchAbsenceList(courseId, page - 1);
-    }
+    setCurrentPage(page);
   };
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      const newPage = currentPage - 1;
-      setCurrentPage(newPage);
-      fetchAbsenceList(courseId, newPage - 1);
-    }
-  };
-
-  // const handleNextPage = () => {
-  //   if ()
-  // }
 
   return (
     <>
@@ -345,12 +334,7 @@ export default function StudentAttendanceAbsence() {
           <div className={styles.absenceAttendanceList}>{absenceListItems}</div>
           {/* 페이지네이션 컴포넌트 */}
           <div className={styles.paginationWrapper}>
-            <PaginationComponent
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-              // goToPreviousPage={handlePrevPage}
-              goToNextPage={handleNextPage}
-            />
+            <PaginationComponent totalPages={pageInfo.totalPages} onPageChange={handlePageChange} />
           </div>
         </div>
 
