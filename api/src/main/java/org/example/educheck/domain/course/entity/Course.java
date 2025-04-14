@@ -6,8 +6,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.campus.Campus;
+import org.example.educheck.domain.course.repository.CourseRepository;
+import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
 
 import java.time.LocalDate;
+import java.time.Year;
+import java.time.YearMonth;
 
 @Getter
 @Entity
@@ -36,6 +40,15 @@ public class Course {
         this.startDate = startDate;
         this.endDate = endDate;
         this.status = status;
+    }
+
+    public void validateInProgressAt(YearMonth requestDate) {
+        YearMonth startMonth = YearMonth.from(this.startDate);
+        YearMonth endMonth = YearMonth.from(this.endDate);
+        if (requestDate.isBefore(startMonth) || requestDate.isAfter(endMonth)) {
+            throw new InvalidRequestException("해당 월은 과정 진행 중인 기간이 아닙니다.");
+        }
+
     }
 
 

@@ -37,13 +37,10 @@ export const attendanceApi = {
     );
     return response.data;
   },
-  getAttendanceRecordsByYearMonth: async (courseId, year, month, page = 0, size = 10) => {
+  getAttendanceRecordsByYearMonth: async (courseId, year, month) => {
     const response = await apiInstance.get(
-      `/my/courses/${courseId}/attendances?year=${year}&month=${month}&page=${page}&size=${size}`,
-      {},
-      {
-        withCredentials: true,
-      },
+      `/my/courses/${courseId}/attendances?year=${year}&month=${month}`,
+
     );
     return response.data;
   },

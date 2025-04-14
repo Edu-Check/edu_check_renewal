@@ -3,6 +3,7 @@ package org.example.educheck.domain.attendanceRegister.repository;
 
 import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.AttendanceRateProjection;
 import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.AttendanceRecordResponseDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceRecord.MyAttendanceRecordProjection;
 import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsProjection;
 import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 import org.springframework.data.domain.Page;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -84,4 +86,10 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
     FROM attendance_count;
     """, nativeQuery = true)
     MyAttendanceStaticsProjection findAttendanceSummaryByStudentIdAndCourseId(Long studentId, Long courseId);
+
+    @Query("SELECT ar FROM AttendanceRegister ar " +
+            "WHERE ar.id.studentId = :studentId " +
+            "AND ar.id.courseId = :courseId " +
+            "AND ar.lectureDate BETWEEN :start AND :end")
+    List<MyAttendanceRecordProjection> findByStudentIdAndCourseIdAndDateYearAndDateMonth(Long studentId, Long courseId, LocalDate start, LocalDate end);
 }

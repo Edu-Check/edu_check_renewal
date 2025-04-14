@@ -65,12 +65,18 @@ export default function StudentAttendance() {
     }
   }, [courseId]);
 
+  // 달력 월별 데이터
   useEffect(() => {
-    const fetchAttendanceRecords = async () => {
+    const fetchAttendanceRecordsByYearMonth = async () => {
       try {
         setIsLoading(true);
-        const response = await attendanceApi.getAttendanceRecords(courseId);
+        const response = await attendanceApi.getAttendanceRecordsByYearMonth(
+          courseId,
+          currentYear,
+          currentMonth,
+        );
 
+        console.log(response);
         if (response && response.data) {
           setCourseInfo({
             name: response.data.courseName,
@@ -84,7 +90,7 @@ export default function StudentAttendance() {
           setAttendanceData(formattedData);
         }
       } catch (err) {
-        console.error('출석 기록 데이터를 가져오는 중 오류 발생:', err);
+        console.error('월별 출석 기록 데이터를 가져오는 중 오류 발생:', err);
         console.error('에러 상세 정보:', err.response?.data || err);
       } finally {
         setIsLoading(false);
@@ -92,7 +98,7 @@ export default function StudentAttendance() {
     };
 
     if (courseId) {
-      fetchAttendanceRecords();
+      fetchAttendanceRecordsByYearMonth();
     }
   }, [courseId]);
 
