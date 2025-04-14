@@ -99,8 +99,6 @@ export default function StudentAttendance() {
   // if (isLoading) return <div>로딩 중...</div>;
   // if (error) return <div>{error}</div>;
 
-  console.log(attendanceCalendarData);
-  
   return (
     <>
       <div className={styles.dashBoardItemDiv}>
