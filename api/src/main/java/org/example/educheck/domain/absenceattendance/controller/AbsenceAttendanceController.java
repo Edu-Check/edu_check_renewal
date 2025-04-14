@@ -20,7 +20,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -62,7 +61,6 @@ public class AbsenceAttendanceController {
                                                                                                   @RequestPart(value = "files", required = false) MultipartFile[] files
 
     ) {
-        log.info("files: {}", files);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("유고 결석 신청 성공",
                         "CREATED",
@@ -115,7 +113,7 @@ public class AbsenceAttendanceController {
                                                                                                      @PathVariable Long courseId,
                                                                                                      @PageableDefault(sort = "createdAt",
                                                                                                              direction = Sort.Direction.DESC,
-                                                                                                             size = 4) Pageable pageable) {
+                                                                                                             size = 6) Pageable pageable) {
 
         return ResponseEntity.ok(
                 ApiResponse.ok("유고 결석 신청 목록 조회 성공",
