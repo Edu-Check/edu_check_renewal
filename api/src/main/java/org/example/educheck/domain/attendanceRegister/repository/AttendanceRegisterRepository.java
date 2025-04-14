@@ -59,11 +59,12 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
     WITH attendance_count AS (
         SELECT
             student_id, course_id,
+            SUM(IF(attendance_status = 'ATTENDANCE' AND lecture_date <= CURDATE(),1,0)) AS attendance_count_until_today,
             SUM(IF(attendance_status = 'LATE' AND lecture_date <= CURDATE(), 1, 0)) AS late_count_until_today,
             SUM(IF(attendance_status = 'EARLY_LEAVE' AND lecture_date <= CURDATE(), 1, 0)) AS early_late_count_until_today,
             SUM(IF(attendance_status = 'ABSENCE' AND lecture_date <= CURDATE(), 1, 0)) AS absence_count_until_today,
             COUNT(lecture_id) AS total_lecture_count,
-            FLOOR(SUM(IF(attendance_status IN ('LATE', 'EARLY_LEAVE') AND lecture_date <= CURDATE(), 1, 0)) / 3) AS adjusted_absent_by_late_or_early_leave
+            FLOOR(SUM(IFNULL(IF(attendance_status IN ('LATE', 'EARLY_LEAVE') AND lecture_date <= CURDATE(), 1, 0), 0)) / 3) AS adjusted_absent_by_late_or_early_leave
         FROM attendance_register ar
         WHERE ar.student_id = :studentId AND ar.course_id = :courseId
     )
@@ -71,7 +72,7 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
         IF(
             total_lecture_count > 0,
             ROUND(
-                    ((late_count_until_today + early_late_count_until_today +absence_count_until_today - adjusted_absent_by_late_or_early_leave) / total_lecture_count) * 100,
+                    ((attendance_count_until_today + late_count_until_today + early_late_count_until_today  - adjusted_absent_by_late_or_early_leave) / total_lecture_count) * 100,
                     2
                 ),
                 NULL
@@ -79,7 +80,7 @@ public interface AttendanceRegisterRepository extends JpaRepository<AttendanceRe
         late_count_until_today,
         early_late_count_until_today,
         absence_count_until_today,
-        FLOOR((late_count_until_today + early_late_count_until_today + absence_count_until_today) / 3) AS adjusted_absence_count
+        FLOOR((late_count_until_today + early_late_count_until_today ) / 3) + absence_count_until_today AS adjusted_absence_count
     FROM attendance_count;
     """, nativeQuery = true)
     MyAttendanceStaticsProjection findAttendanceSummaryByStudentIdAndCourseId(Long studentId, Long courseId);
