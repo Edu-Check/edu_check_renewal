@@ -99,6 +99,8 @@ export default function StudentAttendance() {
   // if (isLoading) return <div>로딩 중...</div>;
   // if (error) return <div>{error}</div>;
 
+  console.log(attendanceCalendarData);
+  
   return (
     <>
       <div className={styles.dashBoardItemDiv}>
@@ -142,6 +144,10 @@ export default function StudentAttendance() {
           <DashBoardItem width={'100%'}>
             <div className={styles.legendContainer}>
               <div className={styles.legend}>
+                <div className={styles.legendItem}>
+                  <span className={styles.attendanceIndicator}></span>
+                  <span>출석</span>
+                </div>
                 <div className={styles.legendItem}>
                   <span className={styles.lateIndicator}></span>
                   <span>지각</span>
