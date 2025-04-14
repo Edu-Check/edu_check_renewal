@@ -80,7 +80,10 @@ public class AttendanceRegisterService {
     public MyAttendanceRecordResponseDto getMonthlyAttendance(Member member, Long courseId, Integer year, Integer month) {
         LocalDate start = YearMonth.of(year, month).atDay(1);
         LocalDate end = YearMonth.of(year, month).atEndOfMonth();
-        List<MyAttendanceRecordProjection> projection = attendanceRegisterRepository.findByStudentIdAndCourseIdAndDateYearAndDateMonth(member.getStudent().getId(), courseId, start, end);
+        Long studentId = member.getStudentId();
+
+        Student enrolledStudent = studentService.getEnrolledStudent(studentId, courseId);
+        List<MyAttendanceRecordProjection> projection = attendanceRegisterRepository.findByStudentIdAndCourseIdAndDateYearAndDateMonth(studentId, courseId, start, end);
         return MyAttendanceRecordResponseDto.from(member.getStudent().getId(), courseId, projection);
     }
 }
