@@ -11,7 +11,7 @@
 .lateDay {
   position: relative;
 }
-
+.attendanceDay:after,
 .absenceDay:after,
 .earlyLeaveDay:after,
 .lateDay:after {
@@ -20,22 +20,26 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 20px;
-  height: 20px;
+  width: 9px;
+  height: 9px;
   border-radius: var(--border-radius-30);
   z-index: 1;
 }
 
+.attendanceDay:after {
+  background-color: var(--attendance-400);
+}
+
 .absenceDay:after {
-  background-color: var(--border-100);
+  background-color: var(--attendance-100);
 }
 
 .earlyLeaveDay:after {
-  background-color: var(--primary-100);
+  background-color: var(--attendance-200);
 }
 
 .lateDay:after {
-  background-color: var(--primary-200);
+  background-color: var(--attendance-300);
 }
 
 .holidayHeader {
@@ -81,11 +85,11 @@
 }
 
 .absenceIndicator {
-  background-color: var(--border-100);
+  background-color: var(--primarty-500);
 }
 
 .earlyLeaveIndicator {
-  background-color: var(--primary-100);
+  background-color: var(--primary-300);
 }
 
 .lateIndicator {
@@ -108,7 +112,7 @@
 }
 
 :global(.rbc-off-range-bg) {
-  background-color: var(--bg-100);
+  background-color: white;
 }
 
 :global(.rbc-today) {

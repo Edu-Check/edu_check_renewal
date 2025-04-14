@@ -80,6 +80,7 @@
   font-size: var(--font-size-14);
 }
 
+.attendanceIndicator,
 .earlyLeaveIndicator,
 .absentIndicator,
 .lateIndicator {
@@ -90,17 +91,22 @@
   border-radius: 50%;
 }
 
-.earlyLeaveIndicator {
-  background-color: var(--primary-100);
-}
-
-.absentIndicator {
-  background-color: var(--border-100);
+.attendanceIndicator {
+  background-color: var(--attendance-400);
 }
 
 .lateIndicator {
-  background-color: var(--primary-200);
+  background-color: var(--attendance-300);
 }
+
+.earlyLeaveIndicator {
+  background-color: var(--attendance-200);
+}
+
+.absentIndicator {
+  background-color: var(--attendance-100);
+}
+
 
 .headerContainer {
   display: flex;
