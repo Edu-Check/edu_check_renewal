@@ -28,7 +28,8 @@ INSERT INTO registration (id, student_id, course_id, completion_date, drop_date)
 
 -- 출결 정보 (지각 2, 조퇴 1, 결석1, 미출석2)
 INSERT INTO attendance (id, student_id, lecture_id, check_in_timestamp, check_out_timestamp, attendance_status) VALUES
-(6001, 4001, 2001, '2024-04-10 10:01:00', '2024-04-10 12:00:00', 'LATE'),
+(6001, 4001, 2001, '2024-04-10 10:01:00', '2024-04-10 12:00:00', 'EARLY_LEAVE'),
 (6002, 4001, 2002, '2024-04-11 10:20:00', '2024-04-11 12:00:00', 'LATE'),
-(6003, 4001, 2003, '2024-04-12 10:20:00', '2024-04-11 11:00:00', 'EARLY_LATE');
+(6003, 4001, 2003, '2024-04-12 10:20:00', '2024-04-11 11:00:00', 'EARLY_LEAVE'),
+(6004, 4001, 2004, '2024-04-12 10:00:00', '2024-04-11 12:00:00', 'ATTENDANCE');
 
