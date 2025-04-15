@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface MemberRepository extends JpaRepository<Member, Long> {
 
+    @Query("SELECT m FROM Member m LEFT JOIN FETCH m.student LEFT JOIN FETCH m.staff WHERE m.email = :email")
     Optional<Member> findByEmail(String email);
 
     boolean existsByEmail(String email);
