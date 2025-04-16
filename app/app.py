@@ -33,7 +33,7 @@ def get_data_from_db(member_id, course_id):
         "ATTENDANCE": "출석",
         "LATE": "지각",
         "EARLY_LEAVE": "조퇴",
-        "ABSENT": "결석",
+        "ABSENCE": "결석",
     }
 
     conn = cnxpool.get_connection()
