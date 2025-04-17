@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-
 import styles from './Login.module.css';
 import { authApi } from '../../api/authApi';
 import { login } from '../../store/slices/authSlice';
-
 import InputBox from '../../components/inputBox/InputBox';
 import MainButton from '../../components/buttons/mainButton/MainButton';
 import { BASE_PATHS, URL_PATHS } from '../../constants/urlPaths';
+import { demoAuthApi } from '../../api/demoAuthApi';
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -36,26 +35,31 @@ export default function Login() {
     }));
   };
 
+  const handleLoginSuccess = (response) => {
+    const accessToken = response.headers?.authorization ?? '';
+    const userData = response.data?.data;
+
+    dispatch(
+      login({
+        ...userData,
+        accessToken,
+      }),
+    );
+
+    if (userData?.isCheckIn) {
+      const expiryDate = new Date();
+      expiryDate.setUTCDate(expiryDate.getUTCDate() + 1);
+      expiryDate.setUTCHours(15, 0, 0, 0);
+      document.cookie = `${userData.email}=checkIn; expires=${expiryDate.toUTCString()}; path=/`;
+    }
+  };
+
   const handleLoginButtonClick = async (event) => {
     event.preventDefault();
     setIsLoginButtonEnable(false);
     try {
       const response = await authApi.login(inputData.email, inputData.password);
-      const accessToken = response.headers?.authorization ?? '';
-      dispatch(
-        login({
-          ...response.data.data,
-          accessToken: accessToken,
-        }),
-      );
-      const isCheckIn = response.data?.data?.isCheckIn;
-
-      if (isCheckIn) {
-        const expiryDate = new Date();
-        expiryDate.setUTCDate(expiryDate.getUTCDate() + 1);
-        expiryDate.setUTCHours(15, 0, 0, 0);
-        document.cookie = `${response.data.data.email}=checkIn; expires=${expiryDate.toUTCString()}; path=/`;
-      }
+      handleLoginSuccess(response);
     } catch (error) {
       console.error(error);
       alert('로그인에 실패했습니다. 아이디 혹은 비밀번호를 확인하세요');
@@ -82,11 +86,27 @@ export default function Login() {
     );
   }, [inputData]);
 
-  const handleDemonMiddleAdminLogin = () => {
-    console.log('클릭');
+  const handleDemonMiddleAdminLogin = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await demoAuthApi.demoMiddleAdminLogin();
+      handleLoginSuccess(response);
+    } catch (error) {
+      console.error(error);
+      alert('데모 관리자 로그인에 실패했습니다.');
+    }
   };
-  const handleDemoStudentLogin = () => {};
 
+  const handleDemoStudentLogin = async (event) => {
+    event.preventDefault();
+    try {
+      const response = await demoAuthApi.demoStudentLogin();
+      handleLoginSuccess(response);
+    } catch (error) {
+      console.error(error);
+      alert('데모 수강생 로그인에 실패했습니다.');
+    }
+  };
   return (
     <>
       <form onSubmit={(e) => e.preventDefault()}>
