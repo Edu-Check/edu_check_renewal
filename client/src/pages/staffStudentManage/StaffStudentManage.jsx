@@ -244,16 +244,18 @@ export default function StaffStudentManage() {
             />
           </div>
           {students.map((student) => (
-            <BaseListItem
-              key={student.memberId}
-              content={student.studentName}
-              phone={student.studentPhoneNumber}
-              email={student.studentEmail}
-              tagTitle={statusMap[student.registrationStatus] || ' '}
-              studentId={student.memberId}
-              courseId={courseId}
-              onClick={() => handleNavigateToAttendanceDetail(student.memberId)}
-            />
+            <div className={styles.itemWrapper} key={student.memberId}>
+              <BaseListItem
+                key={student.memberId}
+                content={student.studentName}
+                phone={student.studentPhoneNumber}
+                email={student.studentEmail}
+                tagTitle={statusMap[student.registrationStatus] || ' '}
+                studentId={student.memberId}
+                courseId={courseId}
+                onClick={() => handleNavigateToAttendanceDetail(student.memberId)}
+              />
+            </div>
           ))}
         </div>
       </div>
