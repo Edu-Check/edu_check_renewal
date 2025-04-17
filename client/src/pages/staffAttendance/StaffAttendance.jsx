@@ -24,6 +24,20 @@ export default function StaffAttendance() {
     content: '페이지를 확인할 수 없습니다.',
   });
 
+  const tag = {
+    ATTENDANCE: '출석',
+    EARLY_LEAVE: '조퇴',
+    LATE: '지각',
+    ABSENCE: '결석',
+    EXCUSED: '유고결석',
+    NOT_CHECKIN: '미출석',
+  };
+
+  const isLectureDay = students.some((item) => {
+    const summary = item.summary;
+    return Object.values(summary).some((value) => value > 0);
+  });
+
   useEffect(() => {
     if (isMultiSelect && dataList.length > 0) {
       setIsActiveIndex(dataList.map((_, index) => index));
@@ -88,23 +102,12 @@ export default function StaffAttendance() {
         title={item.label}
         content={item.value}
         handleActiveFilter={handleActiveFilter}
-       />
+      />
     );
   });
 
   const studentsList = students
     .map((item, index) => {
-      const tag = {
-        ATTENDANCE: '출석',
-        EARLY_LEAVE: '조퇴',
-        LATE: '지각',
-        ABSENCE: '결석',
-        EXCUSED: '유고결석',
-        NOT_CHECKIN: '미출석',
-      };
-
-      console.log(item);
-
       //dataList(집계 처리한 부분을 기준으로 조건에 맞는 항목만 필터링해서 UI에 랜더링)
       const isFiltered =
         (Array.isArray(isActiveIndex) &&
@@ -138,8 +141,13 @@ export default function StaffAttendance() {
           </>
         </DashBoardItem>
       </div>
-
-      <div className={styles.studentsBox}>{studentsList}</div>
+      {!isLectureDay ? (
+        <div className={styles.studentsBox}>
+          <BaseListItem content={`강의가 없는 날은 출결 현황이 제공되지 않습니다.`}></BaseListItem>
+        </div>
+      ) : (
+        <div className={styles.studentsBox}>{studentsList}</div>
+      )}
     </div>
   );
 }
