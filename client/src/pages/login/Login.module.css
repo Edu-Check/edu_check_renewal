@@ -33,3 +33,11 @@
 .login p span {
   display: none;
 }
+
+.demoButtonWrapper {
+  width: 100%;
+  margin-top: var(--margin-basic);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}

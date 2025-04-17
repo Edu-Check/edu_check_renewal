@@ -33,6 +33,7 @@ export default function AttendanceSheet() {
   useEffect(() => {
     const fetchData = async () => {
       const response = await attendanceSheetApi.getStudentAttendanceSheet(courseId, memberId);
+      console.log(response.data);
       setSheetData(response.data);
     };
     courseId && memberId && fetchData();
@@ -44,7 +45,7 @@ export default function AttendanceSheet() {
         <button className={styles.button} onClick={handleDownload}>
           다운로드
         </button>
-        <button className={styles.button} onClick={()=>window.close()}>
+        <button className={styles.button} onClick={() => window.close()}>
           x
         </button>
       </div>
