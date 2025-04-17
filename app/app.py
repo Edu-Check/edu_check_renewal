@@ -33,7 +33,7 @@ def get_data_from_db(member_id, course_id):
         "ATTENDANCE": "출석",
         "LATE": "지각",
         "EARLY_LEAVE": "조퇴",
-        "ABSENT": "결석",
+        "ABSENCE": "결석",
     }
 
     conn = cnxpool.get_connection()
@@ -79,7 +79,7 @@ def get_student_name(member_id):
 
 
 @app.route("/app/courses/<int:course_id>/members/<int:member_id>", methods=["GET"])
-def data(member_id, course_id):
+def data(course_id, member_id):
     df = get_data_from_db(member_id, course_id)
 
     json_str = json.dumps(df.to_dict(orient="records"), ensure_ascii=False)
@@ -90,7 +90,7 @@ def data(member_id, course_id):
 @app.route(
     "/app/courses/<int:course_id>/members/<int:member_id>/download", methods=["GET"]
 )
-def download(member_id, course_id):
+def download(course_id,member_id):
     data = get_data_from_db(member_id, course_id)
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
