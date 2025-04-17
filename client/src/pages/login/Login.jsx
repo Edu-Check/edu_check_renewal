@@ -39,6 +39,9 @@ export default function Login() {
     const accessToken = response.headers?.authorization ?? '';
     const userData = response.data?.data;
 
+    console.log(accessToken);
+    console.log(userData);
+
     dispatch(
       login({
         ...userData,
