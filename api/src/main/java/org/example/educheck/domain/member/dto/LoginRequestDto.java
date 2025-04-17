@@ -12,4 +12,11 @@ import lombok.NoArgsConstructor;
 public class LoginRequestDto {
     private String email;
     private String password;
+
+    public static LoginRequestDto createDemoLoginRequest(String email, String password) {
+        return LoginRequestDto.builder()
+                .email(email)
+                .password(password)
+                .build();
+    }
 }

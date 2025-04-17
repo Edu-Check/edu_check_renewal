@@ -7,6 +7,8 @@ public class SecurityPathConfig {
             "/api/auth/signup",
             "/api/auth/refresh",
             "/api/auth/email-check",
+            "/api/auth/demo-middle-admin-login",
+            "/api/auth/demo-student-login"
     };
 
     public static final String[] PUBLIC_GET_URLS = {
