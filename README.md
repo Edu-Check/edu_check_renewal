@@ -41,8 +41,8 @@ LMS 통합 시스템 하나로 편리하게 시작하세요! 🖥️✨
 > 서비스 데모 : https://educheck.io.kr
 
 개발 기간 :
-- 1차 개발 : 2025. 03. 10 ~ 2025. 04. 03 (5인)  [GitHub 저장소 바로가기 🔗](https://github.com/EC-EduCheck/edu_check)
-- 2차 개발 : 2025. 04. 07 ~ 2025. 04. 15 (2인) [GitHub 저장소 바로가기 🔗](https://github.com/Edu-Check/edu_check_renewal)
+- 1차 개발 : 2025. 03. 10 ~ 2025. 04. 03 (5인)  [GitHub 저장소 바로가기🔗](https://github.com/EC-EduCheck/edu_check)
+- 2차 개발 : 2025. 04. 07 ~ 2025. 04. 15 (2인) [GitHub 저장소 바로가기🔗](https://github.com/Edu-Check/edu_check_renewal)
 
 
 ## ⚒️기술 스택
@@ -57,30 +57,35 @@ LMS 통합 시스템 하나로 편리하게 시작하세요! 🖥️✨
 
 ## 🏛️ERD
 
-![edu_check_renewal_erd](https://github.com/user-attachments/assets/ab906c83-d17b-4a4e-91c2-41d3a0564de3)
-https://dbdiagram.io/d/edu_check_renewal_erd-67fd5fb99cea640381b0dad0
+![ERD](https://github.com/user-attachments/assets/ab906c83-d17b-4a4e-91c2-41d3a0564de3)
+[ERD 링크🔗](https://dbdiagram.io/d/edu_check_renewal_erd-67fd5fb99cea640381b0dad0)
 
 
 ## 🏗️서비스 아키텍처
 
-![Image](https://github.com/user-attachments/assets/f135b387-bde9-4461-aa0a-6bda9bfb43d9)
+![서비스 아키텍처](https://github.com/user-attachments/assets/c381503a-9adc-465a-b74f-3740664c2dab)
 
 
 ## 🏗️CI/CD 아키텍처
-![Image](https://github.com/user-attachments/assets/ba7f4fb9-273f-4ae4-b622-51f220a403aa)
 
-
-## ⚙️설치 및 실행 방법
-
-- 로컬 실행 환경과 운영 실행 환경을 구분해서 환경 변수 작성 및 설명
-- 로컬 실행 방법 설명
-- 프로젝트 실행을 위한 필요한 프로그램(도커 등)
+![CI/CD 아키텍처](https://github.com/user-attachments/assets/c51a1d5a-1690-4dd7-b90d-664cf9faccac)
 
 
 ## 주요 기능
 
-- 핵심 기능 설명과 이미지(또는 GIF)
-- 분량이 가장 많은 섹션이기 때문에 가능한 마지막에 작성한다.
+## API 명세
+
+- API 명세서 : [Notion 링크🔗](https://www.notion.so/dev-yejin/EduCheck-API-1d9880988ec78005a71ef85832c77db3?pvs=4)
+- 분류 :  수강생 기능, 관리자 기능, 공통 기능(로그인, 회의실 예약 관련 API)
+- 개수 : 31개
+
+## 와이어프레임
+
+- 와이어프레임 : [Figma 링크🔗](https://www.figma.com/design/EoExOmM4iWU679xge8rFnO/EduCheck?node-id=3002-173&t=qYovYrubWpJJfPW1-1)
+- 분류 : 수강생 화면, 관리자 화면, 공통 화면(로그인, 회의실 예약)
+
+## ⚙️설치 및 실행 방법
+
 
 ## 👶팀원들
 
