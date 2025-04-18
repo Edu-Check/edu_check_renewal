@@ -5,7 +5,9 @@ import BaseListItem from '../../components/listItem/baseListItem/BaseListItem';
 import Modal from '../../components/modal/Modal';
 import { useSelector } from 'react-redux';
 import { studentManageApi } from '../../api/studentManageApi';
-import { getDaysInMonth, set } from 'date-fns';
+import { getDaysInMonth } from 'date-fns';
+import { URL_PATHS } from '../../constants/urlPaths';
+import { useNavigate } from 'react-router-dom';
 
 export default function StaffStudentManage() {
   const courseId = useSelector((state) => state.auth.user.courseId);
@@ -14,8 +16,8 @@ export default function StaffStudentManage() {
   const [openModal, setOpenModal] = useState(false);
   const [students, setStudents] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const navigate = useNavigate();
 
-  
   const [newStudent, setNewStudent] = useState({
     name: '',
     phone: '',
@@ -200,23 +202,23 @@ export default function StaffStudentManage() {
             {errors.email}
           </p>
         )}
-        
-                <label>캠퍼스</label>
-                <input
-                  className={styles.smallInputBox}
-                  name="campusName"
-                  type="text"
-                  value={campusName}
-                  disabled={true}
-                />
-                <label>교육 과정</label>
-                <input
-                  className={styles.smallInputBox}
-                  name="courseName"
-                  type="text"
-                  value={courseName}
-                  disabled={true}
-                />
+
+        <label>캠퍼스</label>
+        <input
+          className={styles.smallInputBox}
+          name="campusName"
+          type="text"
+          value={campusName}
+          disabled={true}
+        />
+        <label>교육 과정</label>
+        <input
+          className={styles.smallInputBox}
+          name="courseName"
+          type="text"
+          value={courseName}
+          disabled={true}
+        />
       </div>
       <div className={styles.MainButton}>
         <button type="submit" className={styles.button}>
@@ -225,6 +227,10 @@ export default function StaffStudentManage() {
       </div>
     </form>
   );
+
+  const handleNavigateToAttendanceDetail = (studentId) => {
+    navigate(URL_PATHS.MIDDLE_ADMIN.ATTENDANCE.DETAIL(courseId, studentId));
+  };
 
   return (
     <>
@@ -238,15 +244,18 @@ export default function StaffStudentManage() {
             />
           </div>
           {students.map((student) => (
-            <BaseListItem
-              key={student.memberId}
-              content={student.studentName}
-              phone={student.studentPhoneNumber}
-              email={student.studentEmail}
-              tagTitle={statusMap[student.registrationStatus] || ' '}
-              studentId={student.memberId}
-              courseId={courseId}
-            />
+            <div className={styles.itemWrapper} key={student.memberId}>
+              <BaseListItem
+                key={student.memberId}
+                content={student.studentName}
+                phone={student.studentPhoneNumber}
+                email={student.studentEmail}
+                tagTitle={statusMap[student.registrationStatus] || ' '}
+                studentId={student.memberId}
+                courseId={courseId}
+                onClick={() => handleNavigateToAttendanceDetail(student.memberId)}
+              />
+            </div>
           ))}
         </div>
       </div>

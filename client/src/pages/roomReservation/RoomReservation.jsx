@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSelector } from 'react-redux';
 import { reservationApi } from '../../api/reservationApi';
 import Modal from '../../components/modal/Modal';
 import moment from 'moment';
 import 'moment/locale/ko';
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar';
-
 import styles from './RoomReservation.module.css';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './calendar.css';
@@ -25,6 +24,13 @@ const RoomReservation = () => {
   const campusId = useSelector((state) => state.auth.user.campusId);
   const courseId = useSelector((state) => state.auth.user.courseId);
   const memberId = useSelector((state) => state.auth.user.memberId);
+  const modalRef = useRef(null);
+
+  useEffect(() => {
+    if (modalData && modalRef.current) {
+      modalRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [modalData]);
 
   useEffect(() => {
     if (!campusId) return;
@@ -265,7 +271,9 @@ const RoomReservation = () => {
 
   return (
     <>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} {...modalData}></Modal>
+      <div ref={modalRef}>
+        <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} {...modalData}></Modal>
+      </div>
       <div className={styles.reservationContainer}>
         <div className={styles.info}>
           <h2 className="subTitle">회의실 예약 현황</h2>
