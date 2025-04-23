@@ -34,7 +34,7 @@ export default function StaffAttendance() {
   };
 
   const isLectureDay = students.some((item) => {
-    const summary = item.summary;
+    const summary = item.summary || {};
     return Object.values(summary).some((value) => value > 0);
   });
 
