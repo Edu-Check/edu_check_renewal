@@ -67,12 +67,13 @@ services:
     networks:
       - web-network
       - cache-network
+      - db-network
     ports:
       - "5000:5000"
     depends_on:
       redis:
         condition: service_healthy
-    
+
   redis:
     container_name: redis-container
     image: redis:latest
