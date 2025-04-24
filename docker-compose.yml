@@ -41,7 +41,7 @@ services:
       - .env
     environment:
       - DOMAIN=${DOMAIN}
-      - DOMAIN2={DOMAIN2}
+      - DOMAIN2=${DOMAIN2}
     volumes:
       - /etc/letsencrypt/live/${DOMAIN}/privkey.pem:/etc/letsencrypt/live/${DOMAIN}/privkey.pem:ro
       - /etc/letsencrypt/live/${DOMAIN}/fullchain.pem:/etc/letsencrypt/live/${DOMAIN}/fullchain.pem:ro
