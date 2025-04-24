@@ -49,7 +49,7 @@ public class AttendanceRegister {
     private String lectureTitle;
 
     @Column(name = "course_participation_status")
-    private String courseParticipationStatus;
+    private char courseParticipationStatus;
 
     @Column(name = "check_in_timestamp")
     private LocalDateTime checkInTimestamp;
