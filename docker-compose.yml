@@ -43,8 +43,8 @@ services:
       - DOMAIN=${DOMAIN}
       - DOMAIN2=${DOMAIN2}
     volumes:
-      - /etc/letsencrypt/live/${DOMAIN}/privkey.pem:/etc/letsencrypt/live/${DOMAIN}/privkey.pem:ro
-      - /etc/letsencrypt/live/${DOMAIN}/fullchain.pem:/etc/letsencrypt/live/${DOMAIN}/fullchain.pem:ro
+      - /etc/letsencrypt/live/${DOMAIN2}/privkey.pem:/etc/letsencrypt/live/${DOMAIN2}/privkey.pem:ro
+      - /etc/letsencrypt/live/${DOMAIN2}/fullchain.pem:/etc/letsencrypt/live/${DOMAIN2}/fullchain.pem:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
       - "80:80"
