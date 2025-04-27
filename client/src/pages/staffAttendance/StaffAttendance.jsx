@@ -33,11 +33,6 @@ export default function StaffAttendance() {
     NOT_CHECKIN: '미출석',
   };
 
-  const isLectureDay = students.some((item) => {
-    const summary = item.summary || {};
-    return Object.values(summary).some((value) => value > 0);
-  });
-
   useEffect(() => {
     if (isMultiSelect && dataList.length > 0) {
       setIsActiveIndex(dataList.map((_, index) => index));
@@ -47,6 +42,7 @@ export default function StaffAttendance() {
   const getAttendances = async () => {
     try {
       const response = await attendanceApi.getTodayAttendances(courseId);
+      console.log(response);
       const {
         totalAttendance,
         totalEarlyLeave,
@@ -129,6 +125,8 @@ export default function StaffAttendance() {
       return null;
     })
     .filter(Boolean);
+
+  const isLectureDay = students.length > 0;
 
   return (
     <div className={styles.container}>
