@@ -117,7 +117,7 @@ export default function StaffAttendance() {
               content={item.studentName}
               phone={item.studentPhoneNumber}
               tagTitle={tag[item.attendanceStatus]}
-              onClick={() => handleStudentClick(item.memberId)}
+              onClick={() => handleStudentClick(item.studentId)}
             />
           </div>
         );
