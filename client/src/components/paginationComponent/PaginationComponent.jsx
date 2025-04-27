@@ -17,7 +17,7 @@ export default function PaginationComponent({
   const handleInputChange = (e) => {
     const value = parseInt(e.target.value, 10);
     if (!isNaN(value) && value >= 1 && value <= totalPages) {
-      setCurrentPage(value);
+      // setCurrentPage(value);
     }
   };
 
@@ -26,13 +26,6 @@ export default function PaginationComponent({
       onPageChange(currentPage);
     }
   };
-
-  // const goToNextPage = () => {
-  //   if (currentPage < totalPages) {
-  //     setCurrentPage((prev) => prev + 1);
-  //     onPageChange(currentPage + 1);
-  //   }
-  // };
 
   return (
     <div className={styles.container}>
