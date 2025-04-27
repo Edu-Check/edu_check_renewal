@@ -42,7 +42,6 @@ export default function StaffAttendance() {
   const getAttendances = async () => {
     try {
       const response = await attendanceApi.getTodayAttendances(courseId);
-      console.log(response);
       const {
         totalAttendance,
         totalEarlyLeave,

@@ -24,6 +24,7 @@ export default function StaffAttendanceDetail() {
     },
     attendanceRate: {},
   });
+
   const [currentPage, setCurrentPage] = useState(1);
 
   // 출석 상태 텍스트 변환 함수
@@ -58,8 +59,18 @@ export default function StaffAttendanceDetail() {
     fetchStudentAttendance();
   }, [courseId, studentId, accessToken, currentPage]);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+    }
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < studentAttendance.attendanceRecords.pageInfo.totalPages) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+    }
   };
 
   return (
@@ -107,7 +118,10 @@ export default function StaffAttendanceDetail() {
         <div className={styles.paginationWrapper}>
           <PaginationComponent
             totalPages={studentAttendance.attendanceRecords.pageInfo.totalPages}
-            onPageChange={handlePageChange}
+            // onPageChange={handlePageChange}
+            goToPreviousPage={goToPreviousPage}
+            goToNextPage={goToNextPage}
+            currentPage={currentPage}
           />
         </div>
       </div>

@@ -1,8 +1,18 @@
-import React, { useState } from "react";
-import styles from "./PaginationComponent.module.css";
+import React, { useEffect, useState } from 'react';
+import styles from './PaginationComponent.module.css';
 
-export default function PaginationComponent({ totalPages, onPageChange, goToPreviousPage }) {
-  const [currentPage, setCurrentPage] = useState(1);
+export default function PaginationComponent({
+  totalPages,
+  onPageChange,
+  goToPreviousPage,
+  goToNextPage,
+  currentPage,
+}) {
+  const [inputPage, setInputPage] = useState(currentPage);
+
+  useEffect(() => {
+    setInputPage(currentPage);
+  }, [currentPage]);
 
   const handleInputChange = (e) => {
     const value = parseInt(e.target.value, 10);
@@ -12,17 +22,17 @@ export default function PaginationComponent({ totalPages, onPageChange, goToPrev
   };
 
   const handleKeyPress = (e) => {
-    if (e.key === "Enter" && currentPage >= 1 && currentPage <= totalPages) {
+    if (e.key === 'Enter' && currentPage >= 1 && currentPage <= totalPages) {
       onPageChange(currentPage);
     }
   };
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage((prev) => prev + 1);
-      onPageChange(currentPage + 1);
-    }
-  };
+  // const goToNextPage = () => {
+  //   if (currentPage < totalPages) {
+  //     setCurrentPage((prev) => prev + 1);
+  //     onPageChange(currentPage + 1);
+  //   }
+  // };
 
   return (
     <div className={styles.container}>
@@ -33,13 +43,13 @@ export default function PaginationComponent({ totalPages, onPageChange, goToPrev
         <input
           className={styles.input}
           type="number"
-          value={currentPage}
+          value={inputPage}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
           min="1"
           max={totalPages}
         />
-        <span className={styles.pageCount}>/ {totalPages}</span>
+        <span className={styles.pageCount}> / {totalPages}</span>
       </div>
       <button
         className={styles.button}
