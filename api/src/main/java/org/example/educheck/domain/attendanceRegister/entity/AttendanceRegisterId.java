@@ -3,11 +3,13 @@ package org.example.educheck.domain.attendanceRegister.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+@Getter
 @Embeddable
 @AllArgsConstructor
 @NoArgsConstructor
