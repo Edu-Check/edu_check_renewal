@@ -10,6 +10,7 @@ import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
 public class TodayLectureAttendanceStatus {
 
     private final Long memberId;
+    private final Long studentId;
     private final String studentName;
     private final String studentPhoneNumber;
     private AttendanceStatus attendanceStatus;
@@ -17,6 +18,7 @@ public class TodayLectureAttendanceStatus {
     public static TodayLectureAttendanceStatus from (AttendanceRegister attendanceRegister) {
         return TodayLectureAttendanceStatus.builder()
                 .memberId(attendanceRegister.getMemberId())
+                .studentId(attendanceRegister.getId().getStudentId())
                 .studentName(attendanceRegister.getStudentName())
                 .studentPhoneNumber(attendanceRegister.getStudentPhoneNumber())
                 .attendanceStatus(attendanceRegister.getAttendanceStatus())
