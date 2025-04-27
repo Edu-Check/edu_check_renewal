@@ -73,13 +73,14 @@ export default function StudentAttendanceAbsence() {
       setLoading(true);
       const response = await absenceAttendancesApi.getAbsenceAttendanceListByStudent(
         courseId,
-        currentPage - 1,
+        currentPage,
       );
 
       console.log(response);
 
       if (response) {
         setAbsenceList(response.lists);
+        console.log(response.pageInfo);
         setPageInfo(response.pageInfo);
       } else {
         setAbsenceList([]);
@@ -322,10 +323,21 @@ export default function StudentAttendanceAbsence() {
     );
   });
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      const newPage = currentPage - 1;
+      setCurrentPage(newPage);
+    }
   };
 
+  const goToNextPage = () => {
+    if (currentPage < pageInfo.totalPages) {
+      const newPage = currentPage + 1;
+      setCurrentPage(newPage);
+    }
+  };
+
+  console.log(pageInfo.totalPages);
   return (
     <>
       <div className={styles.LeftLineListItemDisplay}>
@@ -334,7 +346,12 @@ export default function StudentAttendanceAbsence() {
           <div className={styles.absenceAttendanceList}>{absenceListItems}</div>
           {/* 페이지네이션 컴포넌트 */}
           <div className={styles.paginationWrapper}>
-            <PaginationComponent totalPages={pageInfo.totalPages} onPageChange={handlePageChange} />
+            <PaginationComponent
+              totalPages={pageInfo.totalPages}
+              goToPreviousPage={goToPreviousPage}
+              goToNextPage={goToNextPage}
+              currentPage={currentPage}
+            />
           </div>
         </div>
 

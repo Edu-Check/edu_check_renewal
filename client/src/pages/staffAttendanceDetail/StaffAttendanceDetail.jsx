@@ -118,7 +118,6 @@ export default function StaffAttendanceDetail() {
         <div className={styles.paginationWrapper}>
           <PaginationComponent
             totalPages={studentAttendance.attendanceRecords.pageInfo.totalPages}
-            // onPageChange={handlePageChange}
             goToPreviousPage={goToPreviousPage}
             goToNextPage={goToNextPage}
             currentPage={currentPage}
