@@ -7,7 +7,7 @@ export const fullWidthTitle = ['퇴근', '출석하기', '로그인', '퇴실하
 export const tagList = ['수강중', '수료', '수강 중단'];
 
 const tagColors = {
-  green: ['출석', '수강중'],
+  green: ['출석', '수강중', '유고결석'],
   yellow: ['지각', '조퇴', '수료'],
   red: ['결석', '수강 중단'],
 };
@@ -17,7 +17,7 @@ export const getTagColors = (menuType) => {
 };
 
 const clickableList = {
-  false: ['출석', '지각', '조퇴', '결석'],
+  false: ['출석', '지각', '조퇴', '결석', '유고결석'],
   true: ['수강중', '수료', '수강 중단'],
 };
 
