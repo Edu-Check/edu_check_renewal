@@ -94,7 +94,7 @@ def data(course_id, member_id):
 def download(course_id,member_id):
     data = get_data_from_db(member_id, course_id)
     output = io.BytesIO()
-    with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+    with pd.ExcelWriter(output) as writer:
         data.to_excel(writer, index=False, sheet_name="Data")
     output.seek(0)
     member_name = get_student_name(member_id)
