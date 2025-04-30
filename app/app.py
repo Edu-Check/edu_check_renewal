@@ -6,7 +6,6 @@ import mysql.connector
 from mysql.connector import pooling
 from dotenv import load_dotenv
 import os
-import xlsxwriter
 import json
 
 load_dotenv()
