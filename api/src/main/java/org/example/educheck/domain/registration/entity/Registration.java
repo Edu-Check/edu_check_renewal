@@ -28,10 +28,20 @@ public class Registration {
     private LocalDate completionDate;
 
 
-
     @Builder
     public Registration(Student student, Course course) {
         this.student = student;
         this.course = course;
+    }
+
+    public void updateStatusDates(LocalDate dropDate, LocalDate completionDate) {
+
+        if (dropDate != null) {
+            this.dropDate = dropDate;
+            this.completionDate = null;
+        } else if (completionDate != null) {
+            this.dropDate = null;
+            this.completionDate = completionDate;
+        }
     }
 }
