@@ -48,7 +48,6 @@ public class StaffService {
 
         Member studentMember = memberRepository.findByStudent_Id(studentId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 학생을 찾을 수 없습니다."));
-        Student student = studentMember.getStudent();
 
         Registration registration = registrationRepository.findByStudentIdAndCourseId(studentId, courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 학생의 수강 정보를 찾을 수 없습니다."));
