@@ -18,12 +18,23 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     Optional<Registration> findByStudentIdAndCourseId(Long id, Long courseId);
 
     boolean existsByStudentIdAndCourseId(Long studentId, Long courseId);
-    
-    @Query("SELECT new org.example.educheck.domain.member.student.dto.response.StudentInfoResponseDto(" +
-            "m.id, s.id, m.name, m.email, m.phoneNumber) " +
-            "FROM Registration r " +
-            "JOIN r.student s " +
-            "JOIN s.member m " +
-            "WHERE r.course.id = :courseId")
+
+    @Query("""
+            SELECT new org.example.educheck.domain.member.student.dto.response.StudentInfoResponseDto(
+                        m.id,
+                        s.id,
+                        m.name,
+                        m.email,
+                        m.phoneNumber,
+                        CASE
+                        WHEN r.dropDate IS NOT NULL THEN 'DROPPED'
+                        WHEN r.completionDate IS NOT NULL THEN 'COMPLETED'
+                        ELSE 'ACTIVE'
+                        END)
+                        FROM Registration r
+                        JOIN r.student s
+                        JOIN s.member m
+                        WHERE r.course.id = :courseId
+            """)
     List<StudentInfoResponseDto> findByCourseIdWithStudentAndMember(@Param("courseId") Long courseId);
 }
