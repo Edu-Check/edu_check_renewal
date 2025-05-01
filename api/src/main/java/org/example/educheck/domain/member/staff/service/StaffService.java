@@ -12,7 +12,6 @@ import org.example.educheck.domain.member.staff.dto.response.GetStudentsResponse
 import org.example.educheck.domain.member.staff.dto.response.UpdateStudentRegistrationStatusResponseDto;
 import org.example.educheck.domain.member.staff.entity.Staff;
 import org.example.educheck.domain.member.student.dto.response.StudentInfoResponseDto;
-import org.example.educheck.domain.member.student.entity.Student;
 import org.example.educheck.domain.registration.entity.Registration;
 import org.example.educheck.domain.registration.repository.RegistrationRepository;
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
@@ -36,7 +35,11 @@ public class StaffService {
     private final StaffCourseRepository staffCourseRepository;
 
     @Transactional
-    public UpdateStudentRegistrationStatusResponseDto updateStudentRegistrationStatus(Member member, Long courseId, Long studentId, UpdateStudentRegistrationStatusRequestDto requestDto) {
+    public UpdateStudentRegistrationStatusResponseDto updateStudentRegistrationStatus(
+            Member member,
+            Long courseId,
+            Long studentId,
+            UpdateStudentRegistrationStatusRequestDto requestDto) {
 
         Staff staff = staffRepository.findByMember(member)
                 .orElseThrow(() -> new ResourceNotFoundException("관리자 정보를 찾을 수 없습니다."));
@@ -52,13 +55,10 @@ public class StaffService {
         Registration registration = registrationRepository.findByStudentIdAndCourseId(studentId, courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 학생의 수강 정보를 찾을 수 없습니다."));
 
-        if (requestDto.getDropDate() != null) {
-            registration.setDropDate(requestDto.getDropDate());
-            registration.setCompletionDate(null);
-        } else if (requestDto.getCompletionDate() != null) {
-            registration.setDropDate(null);
-            registration.setCompletionDate(requestDto.getCompletionDate());
-        }
+        registration.updateStatusDates(
+                requestDto.getDropDate(),
+                requestDto.getCompletionDate()
+        );
 
         return UpdateStudentRegistrationStatusResponseDto.from(
                 studentId,
