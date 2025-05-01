@@ -21,7 +21,7 @@ public class StaffController {
     private final StaffService staffService;
 
     @PreAuthorize("hasAuthority('MIDDLE_ADMIN')")
-    @PutMapping("/course/{courseId}/students/{studentId}")
+    @PatchMapping("/course/{courseId}/students/{studentId}")
     public ResponseEntity<ApiResponse<UpdateStudentRegistrationStatusResponseDto>> updateStudentRegistrationStatus(
             @AuthenticationPrincipal Member member,
             @PathVariable Long courseId,
@@ -46,6 +46,4 @@ public class StaffController {
                         "OK",
                         staffService.getStudentsByCourse(member, courseId)));
     }
-
-
 }
