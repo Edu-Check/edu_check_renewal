@@ -17,5 +17,6 @@ public class StudentInfoResponseDto {
     private String studentName;
     private String studentEmail;
     private String studentPhoneNumber;
+    private String registrationStatus;
 
 }

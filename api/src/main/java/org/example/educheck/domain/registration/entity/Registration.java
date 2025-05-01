@@ -29,9 +29,11 @@ public class Registration {
 
 
     @Builder
-    public Registration(Student student, Course course) {
+    public Registration(Student student, Course course, LocalDate dropDate, LocalDate completionDate) {
         this.student = student;
         this.course = course;
+        this.dropDate = dropDate;
+        this.completionDate = completionDate;
     }
 
     public void updateStatusDates(LocalDate dropDate, LocalDate completionDate) {
