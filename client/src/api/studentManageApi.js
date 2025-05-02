@@ -9,7 +9,7 @@ export const studentManageApi = {
     switch (status) {
       case 'COMPLETED':
         return await apiInstance.patch(`/course/${courseId}/students/${studentId}`, {
-          completionDate: new Date(),
+          completionDate: new Date(Date.now() + 9 * 60 * 60 * 1000),
         });
       case 'ACTIVE':
         return await apiInstance.patch(`/course/${courseId}/students/${studentId}`, {
@@ -19,7 +19,7 @@ export const studentManageApi = {
       case 'DROPPED':
         return await apiInstance.patch(`/course/${courseId}/students/${studentId}`, {
           completionDate: null,
-          dropDate: new Date(),
+          dropDate: new Date(Date.now() + 9 * 60 * 60 * 1000),
         });
     }
   },
