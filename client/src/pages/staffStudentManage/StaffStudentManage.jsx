@@ -32,8 +32,7 @@ export default function StaffStudentManage() {
   });
 
   const statusMap = {
-    PREVIOUS: '등록전',
-    PROGRESS: '수강중',
+    ACTIVE: '수강중',
     COMPLETED: '수료',
     DROPPED: '수강 중단',
   };
@@ -69,6 +68,11 @@ export default function StaffStudentManage() {
           (_, i) => `${i + 1}`,
         )
       : [];
+
+      const handleTagChange = (item) => {
+        setCurrentItem(item);
+        setOpenModal(true);
+      };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -251,9 +255,10 @@ export default function StaffStudentManage() {
                 phone={student.studentPhoneNumber}
                 email={student.studentEmail}
                 tagTitle={statusMap[student.registrationStatus] || ' '}
-                studentId={student.memberId}
+                studentId={student.studentId}
                 courseId={courseId}
-                onClick={() => handleNavigateToAttendanceDetail(student.memberId)}
+                onClick={() => handleNavigateToAttendanceDetail(student.studentId)}
+                onTagChange={handleTagChange}
               />
             </div>
           ))}

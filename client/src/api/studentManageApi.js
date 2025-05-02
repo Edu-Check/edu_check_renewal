@@ -5,6 +5,24 @@ export const studentManageApi = {
 
   registerNewStudent: async (studentData) => await apiInstance.post('/auth/signup', studentData),
 
-  modifyStudentStatus: async (courseId, studentId, status) =>
-    await apiInstance.put(`/course/${courseId}/students/${studentId}`, { status: status }),
+  modifyStudentStatus: async (courseId, studentId, status) => {
+    console.log(status);
+    
+    switch (status) {
+      case 'COMPLETED':
+        return await apiInstance.patch(`/course/${courseId}/students/${studentId}`, {
+          completionDate: new Date(),
+        });
+      case 'ACTIVE':
+        return await apiInstance.patch(`/course/${courseId}/students/${studentId}`, {
+          completionDate: null,
+          dropDate: null,
+        });
+      case 'DROPPED':
+        return await apiInstance.patch(`/course/${courseId}/students/${studentId}`, {
+          completionDate: null,
+          dropDate: new Date(),
+        });
+    }
+  },
 };
