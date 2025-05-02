@@ -44,6 +44,9 @@ public class Registration {
         } else if (completionDate != null) {
             this.dropDate = null;
             this.completionDate = completionDate;
+        } else if (dropDate == null && completionDate == null) {
+            this.dropDate = null;
+            this.completionDate = null;
         }
     }
 }
