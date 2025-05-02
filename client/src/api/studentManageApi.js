@@ -6,8 +6,6 @@ export const studentManageApi = {
   registerNewStudent: async (studentData) => await apiInstance.post('/auth/signup', studentData),
 
   modifyStudentStatus: async (courseId, studentId, status) => {
-    console.log(status);
-    
     switch (status) {
       case 'COMPLETED':
         return await apiInstance.patch(`/course/${courseId}/students/${studentId}`, {
