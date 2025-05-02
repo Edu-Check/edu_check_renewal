@@ -12,8 +12,7 @@ export default function Tag({ title, studentId, courseId }) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const statusMapper = {
-    등록전: 'PREVIOUS',
-    수강중: 'PROGRESS',
+    수강중: 'ACTIVE',
     수료: 'COMPLETED',
     '수강 중단': 'DROPPED',
   };
