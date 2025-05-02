@@ -32,8 +32,7 @@ export default function StaffStudentManage() {
   });
 
   const statusMap = {
-    PREVIOUS: '등록전',
-    PROGRESS: '수강중',
+    ACTIVE: '수강중',
     COMPLETED: '수료',
     DROPPED: '수강 중단',
   };
