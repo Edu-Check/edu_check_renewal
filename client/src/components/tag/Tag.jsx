@@ -9,7 +9,6 @@ export default function Tag({ title, studentId, courseId }) {
   const tagColors = getTagColors(currentTitle);
   const isClickable = getIsClickable(title);
 
-
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const statusMapper = {
@@ -23,7 +22,8 @@ export default function Tag({ title, studentId, courseId }) {
     setCurrentTitle(title);
   }, [title]);
 
-  const handleToggleDropBox = () => {
+  const handleToggleDropBox = (event) => {
+    event.stopPropagation();
     setIsOpen((prev) => !prev);
   };
 
@@ -40,7 +40,14 @@ export default function Tag({ title, studentId, courseId }) {
   };
 
   const dropBoxButtonList = tagList.map((item, index) => (
-    <DropBoxButton key={index} title={item} handleClick={() => handleTagClick(item)} />
+    <DropBoxButton
+      key={index}
+      title={item}
+      handleClick={(event) => {
+        event.stopPropagation();
+        handleTagClick(item);
+      }}
+    />
   ));
 
   useEffect(() => {

@@ -69,6 +69,11 @@ export default function StaffStudentManage() {
         )
       : [];
 
+      const handleTagChange = (item) => {
+        setCurrentItem(item);
+        setOpenModal(true);
+      };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     let errorMessage = '';
@@ -250,9 +255,10 @@ export default function StaffStudentManage() {
                 phone={student.studentPhoneNumber}
                 email={student.studentEmail}
                 tagTitle={statusMap[student.registrationStatus] || ' '}
-                studentId={student.memberId}
+                studentId={student.studentId}
                 courseId={courseId}
-                onClick={() => handleNavigateToAttendanceDetail(student.memberId)}
+                onClick={() => handleNavigateToAttendanceDetail(student.studentId)}
+                onTagChange={handleTagChange}
               />
             </div>
           ))}
