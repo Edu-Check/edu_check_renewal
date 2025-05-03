@@ -61,7 +61,7 @@
 }
 
 .itemWrapper > div:active {
-  transform: scale(0.98);
+  transform: scale(0.98) translateZ(1);
   box-shadow: var(--box-shadow-small);
 }
 
