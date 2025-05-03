@@ -87,7 +87,7 @@ public class AttendanceService {
         LocalDateTime currentTime = LocalDateTime.now();
         validateStudent(member);
 
-        Student student = studentRepository.findByMemberId(member.getStudentId())
+        Student student = studentRepository.findByMemberId(member.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("학생 정보를 찾을 수 없습니다."));
 
         Attendance attendance = attendanceRepository.findByStudentIdTodayCheckInDate(student.getId())
