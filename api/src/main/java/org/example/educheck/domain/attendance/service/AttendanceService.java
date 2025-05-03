@@ -55,6 +55,8 @@ public class AttendanceService {
 
         Registration currentRegistration = student.getRegistrations().stream()
                 .filter(reg -> reg.getCourse().getStatus() != CourseStatus.FINISH)
+                .filter(reg -> reg.getDropDate() != null)
+                .filter(reg -> reg.getCompletionDate() != null)
                 .findFirst()
                 .orElseThrow(() -> new ResourceMismatchException("현재 과정에 참여 중이지 않은 학생입니다."));
 
@@ -87,7 +89,7 @@ public class AttendanceService {
         LocalDateTime currentTime = LocalDateTime.now();
         validateStudent(member);
 
-        Student student = studentRepository.findByMemberId(member.getStudentId())
+        Student student = studentRepository.findByMemberId(member.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("학생 정보를 찾을 수 없습니다."));
 
         Attendance attendance = attendanceRepository.findByStudentIdTodayCheckInDate(student.getId())
