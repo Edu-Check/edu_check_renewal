@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 import org.hibernate.annotations.Immutable;
-import org.springframework.data.annotation.Id;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
