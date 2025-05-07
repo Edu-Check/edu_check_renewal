@@ -55,8 +55,8 @@ public class AttendanceService {
 
         Registration currentRegistration = student.getRegistrations().stream()
                 .filter(reg -> reg.getCourse().getStatus() != CourseStatus.FINISH)
-                .filter(reg -> reg.getDropDate() != null)
-                .filter(reg -> reg.getCompletionDate() != null)
+                .filter(reg -> reg.getDropDate() == null)
+                .filter(reg -> reg.getCompletionDate() == null)
                 .findFirst()
                 .orElseThrow(() -> new ResourceMismatchException("현재 과정에 참여 중이지 않은 학생입니다."));
 
