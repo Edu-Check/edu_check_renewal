@@ -47,6 +47,8 @@ dependencies {
     implementation 'software.amazon.awssdk:s3:2.20.12'
     implementation 'net.datafaker:datafaker:2.4.2'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.apache.commons:commons-lang3:3.17.0'
+
 
 }
 

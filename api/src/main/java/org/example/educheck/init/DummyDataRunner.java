@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @RequiredArgsConstructor
 public class DummyDataRunner implements CommandLineRunner {
@@ -16,10 +18,10 @@ public class DummyDataRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-//        if (!initDummyData) {
-//            return;
-//        }
 
         generatorService.generateDummyData();
+//        List<Long> campuseIds = generatorService.insertCampus();
+//        List<Long> longs = generatorService.insertCourses(campuseIds);
+//        generatorService.insertCourseWithCampus(campuseIds);
     }
 }
