@@ -294,6 +294,11 @@ web_modules/
 
 application-copy.properties
 
+/src/main/java/org/example/educheck/init/
+src/test/java/org/example/educheck/AttendanceTestDataGeneratorTest.java
+
+
+
 # parcel-bundler cache (https://parceljs.org/)
 .cache
 .parcel-cache
