@@ -295,7 +295,7 @@ web_modules/
 application-copy.properties
 
 /src/main/java/org/example/educheck/init/
-src/test/java/org/example/AttendanceTestDataGeneratorTest.java
+src/test/java/org/example/educheck/AttendanceTestDataGeneratorTest.java
 
 
 
