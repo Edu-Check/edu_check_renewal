@@ -31,4 +31,4 @@ ENV JAVA_OPTS="-Duser.timezone=Asia/Seoul"
 
 EXPOSE 8080
 
-CMD ["java", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
+CMD ["java", "-Dspring.profiles.active=prod", "-Duser.timezone=Asia/Seoul", "-jar", "app.jar"]
