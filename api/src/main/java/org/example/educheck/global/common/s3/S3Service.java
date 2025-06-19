@@ -14,11 +14,15 @@ import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static jdk.internal.jrtfs.JrtFileAttributeView.AttrID.extension;
 
 @Slf4j
 @Service
@@ -68,6 +72,58 @@ public class S3Service {
         }
 
         return result;
+    }
+
+    public Map<String, String> createPresignedUrl(String fileExtension) {
+        String fileName = UUID.randomUUID().toString().replace("-", "") + "." + fileExtension;
+        String keyName = FILE_PATH_PREFIX + fileName; // attendance-absences/abc1234.png 처럼 S3내 파일이 저장될 위치 생성
+
+        String contentType = getContentType(fileExtension);
+
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(keyName)
+                .contentType(contentType)
+                .build();
+
+        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(10))
+                .putObjectRequest(putObjectRequest)
+                .build();
+
+        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+        String uploadUrl = presignedRequest.url().toString();
+
+        String publicUrl = String.format(IMAGE_URL_FORMAT, bucketName, region, keyName);
+
+        Map<String, String> result  = new ConcurrentHashMap<>();
+        result.put("uploadUrl", uploadUrl);
+        result.put("publicUrl", publicUrl);
+        return result;
+    }
+
+    private String getContentType(String fileExtension) {
+        switch (fileExtension.toLowerCase()) {
+            case "png":
+                return "image/png";
+            case "jpg":
+            case "jpeg":
+                return "image/jpeg";
+            case "gif":
+                return "image/gif";
+            case "pdf":
+                return "application/pdf";
+            case "txt":
+                return "text/plain";
+            case "doc":
+                return "application/msword";
+            case "docx":
+                return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+            case "xlsx":
+                return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            default:
+                return "application/octet-stream"; // 기본 바이너리
+        }
     }
 
     public void deleteFile(String s3Key) {
