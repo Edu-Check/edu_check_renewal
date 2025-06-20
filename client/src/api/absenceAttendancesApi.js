@@ -20,11 +20,7 @@ export const absenceAttendancesApi = {
   },
 
   submitAbsenceAttendance: async (courseId, data) => {
-    const response = await apiInstance.post(`/my/course/${courseId}/absence-attendances`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiInstance.post(`/my/course/${courseId}/absence-attendances`, data);
     return response;
   },
 
@@ -32,9 +28,18 @@ export const absenceAttendancesApi = {
     await apiInstance.delete(`/my/course/${courseId}/absence-attendances/${absenceAttendancesId}`);
   },
 
-  getPresignedUrls: async (fileNames) => {
+  getPresignedUrls: async (fileNames, courseId) => {
     const response = await apiInstance.get(`/my/course/${courseId}/presigned-upload`, {
-      params: { fileNames },
+      params: { 
+        fileNames: fileNames 
+      },
+      paramsSerializer: params => {
+        return Object.keys(params)
+          .map(key => 
+            params[key].map(value => `${key}=${encodeURIComponent(value)}`).join('&')
+          )
+          .join('&');
+      }
     });
     return response.data.data;
   },

@@ -14,6 +14,7 @@ import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import AttendanceAbsenceDetail from '../staffAttendanceAbsence/AttendanceAbsenceDetail';
 import PaginationComponent from '../../components/paginationComponent/PaginationComponent';
+import axios from 'axios';
 
 export default function StudentAttendanceAbsence() {
   const courseId = useSelector((state) => state.auth.user.courseId);
@@ -207,13 +208,13 @@ export default function StudentAttendanceAbsence() {
 
   const getPresignedUrl = async (files) => {
     try {
-      const fileNames = files.map(file => file.name);
+      const fileNames = files.map((file) => file.name);
       return await absenceAttendancesApi.getPresignedUrls(fileNames);
     } catch (error) {
       console.error('Presigned URL 가져오기 실패:', error);
       throw error;
     }
-  }
+  };
 
   const uploadFileToPresignedUrl = async (presignedUrl, file) => {
     try {
@@ -228,51 +229,83 @@ export default function StudentAttendanceAbsence() {
     }
   };
 
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const formData = new FormData();
-
-    const formatDate = (date) => {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
-    };
+    console.log('handleSubmit 클릭');
 
     const jsonData = {
       startDate: formatDate(uploadData.startDate),
       endDate: formatDate(uploadData.endDate),
       category: uploadData.category,
       reason: uploadData.reason,
+      fileUrls: [], // 업로드된 파일의 URL 저장할 배열
     };
+
+    if (files && files.length > 0) {
+      try {
+        const presignedUrls = await absenceAttendancesApi.getPresignedUrls(
+          files.map((file) => file.name),
+          courseId,
+        );
+
+        console.log('Received Presigned URL Response:', presignedUrls);
+
+        const uploadPromises = files.map(async (file, index) => {
+          const presignedUrl = presignedUrls[index];
+
+          try {
+            const uploadResponse = await axios.put(presignedUrl, file, {
+              headers: {
+                'Content-Type': file.type,
+              },
+            });
+
+            const eTag = uploadResponse.headers.etag.replace(/"/g, '');
+            return {
+              fileName: file.name,
+              eTag:eTag
+            }
+          } catch (uploadError) {
+            console.error(`File ${file.name} upload error:`, uploadError);
+            throw uploadError;          }
+        });
+
+        const uploadedFiles = await Promise.all(uploadPromises); //모든 파일 업로드 완료 대기 및 ETag 정보 수집
+        jsonData.files = uploadedFiles;
+    
 
     if (new Date(jsonData.endDate) < new Date(jsonData.startDate)) {
       alert('유고결석 종료일이 시작일 이전일 수 없습니다.');
       return;
     }
 
-    formData.append('data', new Blob([JSON.stringify(jsonData)], { type: 'application/json' }));
-
-    if (files && files.length > 0) {
-      files.forEach((file) => {
-        formData.append('files', file);
-      });
-    }
-
-    try {
-      const response = await absenceAttendancesApi.submitAbsenceAttendance(courseId, formData);
-      if (response.status === 200 || response.status === 201) {
-        alert('유고 결석 신청이 완료되었습니다.');
-        resetFormFields();
-        if (courseId) {
-          fetchAbsenceList(courseId, 1);
+      try {
+        const response = await absenceAttendancesApi.submitAbsenceAttendance(courseId, jsonData);
+        if (response.status === 200 || response.status === 201) {
+          alert('유고 결석 신청이 완료되었습니다.');
+          resetFormFields();
+          if (courseId) {
+            fetchAbsenceList(courseId, 1);
+          }
         }
+      } catch (error) {
+        alert(error.response?.data?.message || error.message);
       }
+
     } catch (error) {
-      alert(error.response?.data?.message || error.message);
+      console.error('파일 업로드 중 전체 에러:', error);
+      alert('파일 업로드 중 오류가 발생했습니다.');
     }
-  };
+  }
+};
 
   const list = ['결석', '조퇴', '지각'];
 
