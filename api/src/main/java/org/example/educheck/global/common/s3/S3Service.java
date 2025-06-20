@@ -6,15 +6,19 @@ import org.example.educheck.global.common.exception.ErrorCode;
 import org.example.educheck.global.common.exception.custom.common.ServerErrorException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
 
@@ -102,7 +106,6 @@ public class S3Service {
     /**
      * S3 URL에서 Key 추출
      * ex. https://bucket.s3.amazonaws.com/attendance-absences/abc1234.png -> attendance-absences/abc1234.png
-     * @param s3Key
      */
     private String extractKeyFromUrl(String url) {
         int index = url.indexOf(".amazonaws.com/") + ".amazonaws.com/".length();
@@ -122,6 +125,57 @@ public class S3Service {
             log.error(e.getMessage());
             throw new ServerErrorException(ErrorCode.FILE_DELETE_ERROR);
         }
+    }
+
+    public List<Map<String, String>> uploadFiles(MultipartFile[] files) {
+
+        if (files.length > 5) {
+            return Arrays.stream(files)
+                    .parallel()
+                    .map(this::uploadFile)
+                    .toList();
+        } else {
+            return Arrays.stream(files)
+                    .map(this::uploadFile)
+                    .toList();
+        }
+
+    }
+
+    private Map<String, String> uploadFile(MultipartFile file) {
+        String s3Key = FILE_PATH_PREFIX + UUID.randomUUID() + "_" + file.getOriginalFilename();
+        log.info("s3Key : {}", s3Key);
+
+        uploadFileToS3(file, s3Key);
+
+        String fileUrl = String.format(IMAGE_URL_FORMAT, bucketName, region, s3Key);
+
+        return Map.of(
+                "fileUrl", fileUrl,
+                "s3Key", s3Key
+        );
+    }
+
+    private void uploadFileToS3(MultipartFile file, String s3Key) {
+
+        try {
+            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(s3Key)
+                    .contentType(file.getContentType())
+                    .contentLength(file.getSize())
+                    .build();
+
+            s3Client.putObject(putObjectRequest,
+                    RequestBody.fromInputStream(file.getInputStream(), file.getSize()));
+        } catch (IOException | S3Exception e) {
+            log.error(e.getMessage());
+            throw new ServerErrorException(ErrorCode.FILE_UPLOAD_ERROR);
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new ServerErrorException(ErrorCode.FILE_UPLOAD_ERROR);
+        }
+
     }
 
 }

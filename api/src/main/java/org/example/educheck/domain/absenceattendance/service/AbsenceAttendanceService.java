@@ -29,6 +29,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -49,6 +50,10 @@ public class AbsenceAttendanceService {
     private final AbsenceAttendanceAttachmentFileRepository absenceAttendanceAttachmentFileRepository;
     private final RegistrationRepository registrationRepository;
     private final MemberRepository memberRepository;
+    @Value("${BUCKET_NAME}")
+    private String bucketName;
+    @Value("${REGION}")
+    private String region;
 
     private static void validateMatchApplicant(Member member, AbsenceAttendance absenceAttendance) {
 
@@ -149,6 +154,59 @@ public class AbsenceAttendanceService {
         saveAttachmentFiles(files, savedAbsenceAttendance);
 
         return CreateAbsenceAttendanceResponseDto.from(savedAbsenceAttendance);
+    }
+
+    // MultipartFile[] -> List<String> s3keys 이제는 s3키 목록을 받아서 처리
+    public CreateAbsenceAttendanceResponseDto createAbsenceAttendanceV2(Member member, Long courseId, CreateAbsenceAttendacneRequestDto requestDto, List<String> s3Keys) {
+
+        LocalDate startDate = requestDto.getStartDate();
+        LocalDate endDate = requestDto.getEndDate();
+
+        validateRegistrationCourse(member, courseId);
+
+        Course course = getCourseById(courseId);
+
+        course.validateAbsenceDateRange(startDate, endDate);
+        validateDuplicateAbsenceAttendance(member, course, startDate, endDate);
+
+
+        AbsenceAttendance absenceAttendance = AbsenceAttendance.builder()
+
+                .course(course)
+                .student(member.getStudent())
+                .startTime(startDate)
+                .endTime(endDate)
+                .reason(requestDto.getReason())
+                .category(requestDto.getCategory())
+                .build();
+
+        AbsenceAttendance savedAbsenceAttendance = absenceAttendanceRepository.save(absenceAttendance);
+
+        // 서버를 통한 첨부파일 저장 -> Presigned URL로 업로드된 파일 저장으로 변경
+        saveAttachmentFilesByS3Keys(s3Keys, savedAbsenceAttendance);
+
+        return CreateAbsenceAttendanceResponseDto.from(savedAbsenceAttendance);
+        
+    }
+
+    private void saveAttachmentFilesByS3Keys(List<String> s3Keys, AbsenceAttendance savedAbsenceAttendance) {
+        log.info("첨부파일 저장 로직 동작");
+        if (s3Keys != null && !s3Keys.isEmpty()) {
+            for (String s3Key : s3Keys) {
+                String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s", 
+                    bucketName, region, s3Key);
+
+                AbsenceAttendanceAttachmentFile attachmentFile = AbsenceAttendanceAttachmentFile.builder()
+                        .absenceAttendance(savedAbsenceAttendance)
+                        .url(fileUrl)
+                        .s3Key(s3Key)
+                        .originalName(s3Key.substring(s3Key.lastIndexOf("_") + 1))
+                        .mime("application/octet-stream")
+                        .build();
+
+                absenceAttendanceAttachmentFileRepository.save(attachmentFile);
+            }
+        }
     }
 
     private void validateDuplicateAbsenceAttendance(Member member, Course course, LocalDate startDate, LocalDate endDate) {
