@@ -268,11 +268,16 @@ export default function StudentAttendanceAbsence() {
               },
             });
 
-            const eTag = uploadResponse.headers.etag.replace(/"/g, '');
+            const urlParts = presignedUrl.split('?')[0].split('/');
+            const s3Key = urlParts.slice(3).join('/');
+
             return {
-              fileName: file.name,
-              eTag:eTag
-            }
+                originalName: file.name,
+                url: null,
+                s3Key: s3Key,
+                mime: file.type
+            };
+
           } catch (uploadError) {
             console.error(`File ${file.name} upload error:`, uploadError);
             throw uploadError;          }
