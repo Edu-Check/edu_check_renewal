@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @NoArgsConstructor
 @Setter
@@ -21,4 +22,14 @@ public class CreateAbsenceAttendacneRequestDto {
     private LocalDate endDate;
     @NotEmpty
     private AttendanceStatus category;
+    private List<FileUploadInfo> files;
+
+    @Getter
+    @Setter
+    public static class FileUploadInfo {
+        private String originalName;
+        private String url;
+        private String s3Key;
+        private String mime;
+    }
 }
