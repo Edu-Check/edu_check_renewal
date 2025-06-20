@@ -205,6 +205,29 @@ export default function StudentAttendanceAbsence() {
     });
   };
 
+  const getPresignedUrl = async (files) => {
+    try {
+      const fileNames = files.map(file => file.name);
+      return await absenceAttendancesApi.getPresignedUrls(fileNames);
+    } catch (error) {
+      console.error('Presigned URL 가져오기 실패:', error);
+      throw error;
+    }
+  }
+
+  const uploadFileToPresignedUrl = async (presignedUrl, file) => {
+    try {
+      await axios.put(presignedUrl, file, {
+        headers: {
+          'Content-Type': file.type,
+        },
+      });
+    } catch (error) {
+      console.error('파일 업로드 실패:', error);
+      throw error;
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
