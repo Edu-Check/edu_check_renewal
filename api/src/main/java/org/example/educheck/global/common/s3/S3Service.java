@@ -6,23 +6,17 @@ import org.example.educheck.global.common.exception.ErrorCode;
 import org.example.educheck.global.common.exception.custom.common.ServerErrorException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.exception.SdkException;
-import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static jdk.internal.jrtfs.JrtFileAttributeView.AttrID.extension;
 
 @Slf4j
 @Service
@@ -39,67 +33,27 @@ public class S3Service {
     @Value("${REGION}")
     private String region;
 
-    public List<Map<String, String>> generatePresignedUrls(String[] fileNames) {
-        List<Map<String, String>> result = new ArrayList<>();
+    public String generateUploadPresignedUrl(String originalFileName, String fileExtension) {
 
-        for (String fileName : fileNames) {
-            try {
-                String s3Key = FILE_PATH_PREFIX + UUID.randomUUID() + "_" + fileName;
-                log.info("s3Key : {}", s3Key);
-
-                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                        .bucket(bucketName)
-                        .key(s3Key)
-                        .build();
-
-                PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                        .signatureDuration(Duration.ofMinutes(10))
-                        .putObjectRequest(putObjectRequest)
-                        .build();
-
-                String presignedUrl = s3Presigner.presignPutObject(presignRequest).url().toString();
-                String fileUrl = String.format(IMAGE_URL_FORMAT, bucketName, region, s3Key);
-
-                result.add(Map.of(
-                        "fileUrl", fileUrl,
-                        "s3Key", s3Key,
-                        "presignedUrl", presignedUrl
-                ));
-            } catch (SdkException e) {
-                log.error("Failed to generate presigned url for file : {}", fileName, e);
-                throw new RuntimeException("Presigned URL 생성 중 에러 발생", e);
-            }
-        }
-
-        return result;
-    }
-
-    public Map<String, String> createPresignedUrl(String fileExtension) {
-        String fileName = UUID.randomUUID().toString().replace("-", "") + "." + fileExtension;
-        String keyName = FILE_PATH_PREFIX + fileName; // attendance-absences/abc1234.png 처럼 S3내 파일이 저장될 위치 생성
+        String fileName = UUID.randomUUID() + "-" + originalFileName;
+        String key = FILE_PATH_PREFIX + fileName; // /attendance-absences/abc1234.png 처럼 S3내 고유한 파일 경로 생성
 
         String contentType = getContentType(fileExtension);
 
+        // S3에 업로드할 파일 요청 정보
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
-                .key(keyName)
+                .key(key)
                 .contentType(contentType)
                 .build();
 
-        PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
-                .signatureDuration(Duration.ofMinutes(10))
-                .putObjectRequest(putObjectRequest)
-                .build();
+        // PresignedURL 발급 요청
+        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(request ->
+                request.putObjectRequest(putObjectRequest)
+                        .signatureDuration(Duration.ofMinutes(10))
+        );
 
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
-        String uploadUrl = presignedRequest.url().toString();
-
-        String publicUrl = String.format(IMAGE_URL_FORMAT, bucketName, region, keyName);
-
-        Map<String, String> result  = new ConcurrentHashMap<>();
-        result.put("uploadUrl", uploadUrl);
-        result.put("publicUrl", publicUrl);
-        return result;
+        return presignedRequest.url().toString();
     }
 
     private String getContentType(String fileExtension) {
@@ -125,6 +79,36 @@ public class S3Service {
                 return "application/octet-stream"; // 기본 바이너리
         }
     }
+
+    public String generateViewPresignedUrl(String key) {
+        //조회 요청 정보 생성
+        GetObjectRequest getObjectRequest = GetObjectRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        // Presigned GET URL 발급
+        GetObjectPresignRequest getObjectPresignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(10))
+                .getObjectRequest(getObjectRequest)
+                .build();
+
+        PresignedGetObjectRequest presignedGetObjectRequest = s3Presigner.presignGetObject(getObjectPresignRequest);
+
+        return presignedGetObjectRequest.url().toString();
+    }
+
+    //TODO: Delete 메서드 구현 및 사용
+    /**
+     * S3 URL에서 Key 추출
+     * ex. https://bucket.s3.amazonaws.com/attendance-absences/abc1234.png -> attendance-absences/abc1234.png
+     * @param s3Key
+     */
+    private String extractKeyFromUrl(String url) {
+        int index = url.indexOf(".amazonaws.com/") + ".amazonaws.com/".length();
+        return url.substring(index);
+    }
+
 
     public void deleteFile(String s3Key) {
         log.info("동작");
