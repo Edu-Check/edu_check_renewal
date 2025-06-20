@@ -32,9 +32,9 @@ export const absenceAttendancesApi = {
     await apiInstance.delete(`/my/course/${courseId}/absence-attendances/${absenceAttendancesId}`);
   },
 
-  getPresignedUrl: async (filename, extension, courseId) => {
+  getPresignedUrls: async (fileNames) => {
     const response = await apiInstance.get(`/my/course/${courseId}/presigned-upload`, {
-      params: { filename, extension },
+      params: { fileNames },
     });
     return response.data.data;
   },
