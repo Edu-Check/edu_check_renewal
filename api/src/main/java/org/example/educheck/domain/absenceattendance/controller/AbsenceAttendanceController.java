@@ -1,7 +1,6 @@
 package org.example.educheck.domain.absenceattendance.controller;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.absenceattendance.dto.request.CreateAbsenceAttendacneRequestDto;
 import org.example.educheck.domain.absenceattendance.dto.request.ProcessAbsenceAttendanceRequestDto;
 import org.example.educheck.domain.absenceattendance.dto.request.UpdateAbsenceAttendacneRequestDto;
@@ -9,6 +8,7 @@ import org.example.educheck.domain.absenceattendance.dto.response.*;
 import org.example.educheck.domain.absenceattendance.service.AbsenceAttendanceService;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.global.common.dto.ApiResponse;
+import org.example.educheck.global.common.s3.S3Service;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api")
 public class AbsenceAttendanceController {
     private final AbsenceAttendanceService absenceAttendanceService;
+    private final S3Service s3Service;
 
 
     @PatchMapping("/course/{courseId}/absence-attendances/{absesnceAttendancesId}")
@@ -66,6 +67,17 @@ public class AbsenceAttendanceController {
                         "CREATED",
                         absenceAttendanceService.createAbsenceAttendance(member, courseId, requestDto, files)))
                 ;
+    }
+
+    @GetMapping("/my/course/{courseId}/presigned-upload")
+    public ResponseEntity<ApiResponse<String>> getPresignedUrl(@AuthenticationPrincipal Member member,
+                                                               @RequestParam String fileName,
+                                                               @RequestParam String fileExtension) {
+        String presignedUrl = s3Service.generateUploadPresignedUrl(fileName, fileExtension);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok("Presinged URL 발급 성공",
+                        "OK",
+                        presignedUrl));
     }
 
     @PreAuthorize("hasAuthority('STUDENT')")
@@ -112,7 +124,7 @@ public class AbsenceAttendanceController {
     public ResponseEntity<ApiResponse<PagedMyAbsenceAttendanceResponseDto>> getMyAbsenceAttendances(@AuthenticationPrincipal Member member,
                                                                                                     @PathVariable Long courseId,
                                                                                                     @PageableDefault(
-                                                                                                             size = 5) Pageable pageable) {
+                                                                                                            size = 5) Pageable pageable) {
 
         return ResponseEntity.ok(
                 ApiResponse.ok("유고 결석 신청 목록 조회 성공",
