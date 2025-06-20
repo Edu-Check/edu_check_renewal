@@ -1,6 +1,9 @@
 package org.example.educheck.domain.absenceattendance.controller;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.example.educheck.domain.absenceattendance.dto.request.CreateAbsenceAttendacneRequestDto;
 import org.example.educheck.domain.absenceattendance.dto.request.ProcessAbsenceAttendanceRequestDto;
 import org.example.educheck.domain.absenceattendance.dto.request.UpdateAbsenceAttendacneRequestDto;
@@ -70,10 +73,9 @@ public class AbsenceAttendanceController {
     }
 
     @GetMapping("/my/course/{courseId}/presigned-upload")
-    public ResponseEntity<ApiResponse<String>> getPresignedUrl(@AuthenticationPrincipal Member member,
-                                                               @RequestParam String fileName,
-                                                               @RequestParam String fileExtension) {
-        String presignedUrl = s3Service.generateUploadPresignedUrl(fileName, fileExtension);
+    public ResponseEntity<ApiResponse<List<String>>> getPresignedUrl(@AuthenticationPrincipal Member member,
+                                                               @RequestParam List<String> fileNames) {
+        List<String> presignedUrls = s3Service.generateUploadPresignedUrl(fileNames);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("Presinged URL 발급 성공",
                         "OK",

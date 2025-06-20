@@ -21,6 +21,7 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequ
 import java.io.IOException;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,27 +38,34 @@ public class S3Service {
     @Value("${REGION}")
     private String region;
 
-    public String generateUploadPresignedUrl(String originalFileName, String fileExtension) {
+    public List<String> generateUploadPresignedUrl(List<String> originalFileNames) {
 
-        String fileName = UUID.randomUUID() + "-" + originalFileName;
-        String key = FILE_PATH_PREFIX + fileName; // /attendance-absences/abc1234.png 처럼 S3내 고유한 파일 경로 생성
+        return originalFileNames.stream()
+                .map(originalFileName -> {
+                    String fileExtension = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
 
-        String contentType = getContentType(fileExtension);
+                    String fileName = UUID.randomUUID() + "-" + originalFileName;
+                    String key = FILE_PATH_PREFIX + fileName; // /attendance-absences/abc1234.png 처럼 S3내 고유한 파일 경로 생성
 
-        // S3에 업로드할 파일 요청 정보
-        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucketName)
-                .key(key)
-                .contentType(contentType)
-                .build();
+                    String contentType = getContentType(fileExtension);
 
-        // PresignedURL 발급 요청
-        PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(request ->
-                request.putObjectRequest(putObjectRequest)
-                        .signatureDuration(Duration.ofMinutes(10))
-        );
+                    // S3에 업로드할 파일 요청 정보
+                    PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(key)
+                            .contentType(contentType)
+                            .build();
 
-        return presignedRequest.url().toString();
+                    // PresignedURL 발급 요청
+                    PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(request ->
+                            request.putObjectRequest(putObjectRequest)
+                                    .signatureDuration(Duration.ofMinutes(10))
+                    );
+
+                    return presignedRequest.url().toString();
+
+                })
+                .collect(Collectors.toList());
     }
 
     private String getContentType(String fileExtension) {
