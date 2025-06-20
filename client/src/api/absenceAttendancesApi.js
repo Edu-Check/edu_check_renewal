@@ -27,7 +27,15 @@ export const absenceAttendancesApi = {
     });
     return response;
   },
+
   deleteAbsenceAttendance: async (courseId, absenceAttendancesId) => {
     await apiInstance.delete(`/my/course/${courseId}/absence-attendances/${absenceAttendancesId}`);
+  },
+
+  getPresignedUrl: async (filename, extension, courseId) => {
+    const response = await apiInstance.get(`/my/course/${courseId}/presigned-upload`, {
+      params: { filename, extension },
+    });
+    return response.data.data;
   },
 };
