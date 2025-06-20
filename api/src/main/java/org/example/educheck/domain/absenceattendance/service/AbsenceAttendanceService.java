@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -126,7 +127,7 @@ public class AbsenceAttendanceService {
     }
 
     @Transactional
-    public CreateAbsenceAttendanceResponseDto createAbsenceAttendance(Member member, Long courseId, CreateAbsenceAttendacneRequestDto requestDto, MultipartFile[] files) {
+    public CreateAbsenceAttendanceResponseDto createAbsenceAttendance(Member member, Long courseId, CreateAbsenceAttendacneRequestDto requestDto) {
 
         LocalDate startDate = requestDto.getStartDate();
         LocalDate endDate = requestDto.getEndDate();
@@ -140,7 +141,7 @@ public class AbsenceAttendanceService {
 
 
         AbsenceAttendance absenceAttendance = AbsenceAttendance.builder()
-                
+
                 .course(course)
                 .student(member.getStudent())
                 .startTime(startDate)
@@ -151,7 +152,23 @@ public class AbsenceAttendanceService {
 
         AbsenceAttendance savedAbsenceAttendance = absenceAttendanceRepository.save(absenceAttendance);
 
-        saveAttachmentFiles(files, savedAbsenceAttendance);
+        List<AbsenceAttendanceAttachmentFile> attachmentFiles = requestDto.getFiles().stream()
+                .map(fileInfo -> {
+                    String accessUrl = s3Service.generateViewPresignedUrl(fileInfo.getS3Key());
+
+                    return AbsenceAttendanceAttachmentFile.builder()
+                            .absenceAttendance(absenceAttendance)
+                            .originalName(fileInfo.getOriginalName())
+                            .url(accessUrl)
+                            .s3Key(fileInfo.getS3Key())
+                            .mime(fileInfo.getMime())
+                            .build();
+                })
+                .collect(Collectors.toList());
+
+        if (!attachmentFiles.isEmpty()) {
+            absenceAttendanceAttachmentFileRepository.saveAll(attachmentFiles);
+        }
 
         return CreateAbsenceAttendanceResponseDto.from(savedAbsenceAttendance);
     }

@@ -42,6 +42,7 @@ public class S3Service {
 
         return originalFileNames.stream()
                 .map(originalFileName -> {
+                    //TODO 확장자 추출 메서드 분리
                     String fileExtension = originalFileName.substring(originalFileName.lastIndexOf(".") + 1);
 
                     String fileName = UUID.randomUUID() + "-" + originalFileName;

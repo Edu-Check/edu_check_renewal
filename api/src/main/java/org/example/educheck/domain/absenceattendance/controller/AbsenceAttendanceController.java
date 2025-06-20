@@ -61,25 +61,25 @@ public class AbsenceAttendanceController {
     @PostMapping("/my/course/{courseId}/absence-attendances")
     public ResponseEntity<ApiResponse<CreateAbsenceAttendanceResponseDto>> applyAttendanceAbsence(@AuthenticationPrincipal Member member,
                                                                                                   @PathVariable Long courseId,
-                                                                                                  @RequestPart(value = "data") CreateAbsenceAttendacneRequestDto requestDto,
-                                                                                                  @RequestPart(value = "files", required = false) MultipartFile[] files
+                                                                                                  @RequestBody CreateAbsenceAttendacneRequestDto requestDto
+
 
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.ok("유고 결석 신청 성공",
                         "CREATED",
-                        absenceAttendanceService.createAbsenceAttendance(member, courseId, requestDto, files)))
+                        absenceAttendanceService.createAbsenceAttendance(member, courseId, requestDto)))
                 ;
     }
 
     @GetMapping("/my/course/{courseId}/presigned-upload")
     public ResponseEntity<ApiResponse<List<String>>> getPresignedUrl(@AuthenticationPrincipal Member member,
-                                                               @RequestParam List<String> fileNames) {
+                                                               @RequestParam(name = "fileNames") List<String> fileNames) {
         List<String> presignedUrls = s3Service.generateUploadPresignedUrl(fileNames);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok("Presinged URL 발급 성공",
                         "OK",
-                        presignedUrl));
+                        presignedUrls));
     }
 
     @PreAuthorize("hasAuthority('STUDENT')")
