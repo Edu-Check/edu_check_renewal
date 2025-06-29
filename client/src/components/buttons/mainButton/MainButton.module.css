@@ -6,10 +6,25 @@
   border: 1px solid var(--bg-300);
   border-radius: var(--border-radius-10);
   transition: var(--transition-basic);
+  cursor: pointer;
 }
 
 .mainButton:hover {
   box-shadow: var(--box-shadow-medium);
+}
+
+.mainButton:disabled {
+  background-color: #f0f0f0;
+  color: #a0a0a0;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.mainButton.uploading {
+  background-color: #f0f0f0;
+  color: #a0a0a0;
+  cursor: wait;
+  box-shadow: none;
 }
 
 .fullWidth {
