@@ -30,17 +30,22 @@ export const absenceAttendancesApi = {
 
   getPresignedUrls: async (fileNames, courseId) => {
     const response = await apiInstance.get(`/my/course/${courseId}/presigned-upload`, {
-      params: { 
-        fileNames: fileNames 
+      params: {
+        fileNames: fileNames,
       },
-      paramsSerializer: params => {
+      paramsSerializer: (params) => {
         return Object.keys(params)
-          .map(key => 
-            params[key].map(value => `${key}=${encodeURIComponent(value)}`).join('&')
-          )
+          .map((key) => params[key].map((value) => `${key}=${encodeURIComponent(value)}`).join('&'))
           .join('&');
-      }
+      },
     });
     return response.data.data;
+  },
+
+  saveUploadedFiles: async (courseId, files) => {
+    const response = await apiInstance.post(`/my/course/${courseId}/absence-attendances/files`, {
+      files,
+    });
+    return response.data;
   },
 };

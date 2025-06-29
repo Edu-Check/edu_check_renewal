@@ -54,6 +54,10 @@ export default function StudentAttendanceAbsence() {
   });
   const [currentPage, setCurrentPage] = useState(1);
 
+  const [isS3UploadComplete, setIsS3UploadComplete] = useState(false);
+  const [isSubmitButtonEnabled, setIsSubmitButtonEnabled] = useState(false);
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+
   const resetFormFields = () => {
     setUploadData({
       category: categoryMap[isActiveIndex],
@@ -63,6 +67,8 @@ export default function StudentAttendanceAbsence() {
     });
     setFiles(null);
     setFileNames('');
+    setUploadedFiles([]);
+    setIsS3UploadComplete(false);
 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -100,12 +106,58 @@ export default function StudentAttendanceAbsence() {
     }
   }, [courseId, currentPage]);
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
+    setIsSubmitButtonEnabled(false);
+    setIsS3UploadComplete(false);
+
     const selectedFiles = Array.from(e.target.files);
     const names = selectedFiles.map((file) => file.name).join(',');
 
     setFiles(selectedFiles);
     setFileNames(names);
+
+    try {
+      const presignedUrls = await absenceAttendancesApi.getPresignedUrls(
+        selectedFiles.map((file) => file.name),
+        courseId,
+      );
+
+      const uploadPromises = selectedFiles.map(async (file, index) => {
+        const presignedUrl = presignedUrls[index];
+
+        try {
+          await axios.put(presignedUrl, file, {
+            headers: {
+              'Content-Type': file.type,
+            },
+          });
+
+          const urlParts = presignedUrl.split('?')[0].split('/');
+          const s3Key = urlParts.slice(3).join('/');
+
+          return {
+            originalName: file.name,
+            s3Key: s3Key,
+            mime: file.type,
+          };
+        } catch (uploadError) {
+          console.error(`File ${file.name} upload error:`, uploadError);
+          throw uploadError;
+        }
+      });
+
+      const uploadedFiles = await Promise.all(uploadPromises);
+
+      // 업로드된 파일 상태 업데이트
+      setUploadedFiles(uploadedFiles);
+      setIsS3UploadComplete(true);
+      setIsSubmitButtonEnabled(true);
+    } catch (error) {
+      console.error('파일 업로드 중 오류:', error);
+      alert('파일 업로드 중 오류가 발생했습니다.');
+      setIsS3UploadComplete(false);
+      setIsSubmitButtonEnabled(false);
+    }
   };
 
   const handleTagChange = (item) => {
@@ -239,78 +291,36 @@ export default function StudentAttendanceAbsence() {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log('handleSubmit 클릭');
-
     const jsonData = {
       startDate: formatDate(uploadData.startDate),
       endDate: formatDate(uploadData.endDate),
       category: uploadData.category,
       reason: uploadData.reason,
-      fileUrls: [], // 업로드된 파일의 URL 저장할 배열
+      files: uploadedFiles.map((file) => ({
+        originalName: file.originalName,
+        s3Key: file.s3Key,
+        mime: file.mime,
+      })),
     };
-
-    if (files && files.length > 0) {
-      try {
-        const presignedUrls = await absenceAttendancesApi.getPresignedUrls(
-          files.map((file) => file.name),
-          courseId,
-        );
-
-        console.log('Received Presigned URL Response:', presignedUrls);
-
-        const uploadPromises = files.map(async (file, index) => {
-          const presignedUrl = presignedUrls[index];
-
-          try {
-            const uploadResponse = await axios.put(presignedUrl, file, {
-              headers: {
-                'Content-Type': file.type,
-              },
-            });
-
-            const urlParts = presignedUrl.split('?')[0].split('/');
-            const s3Key = urlParts.slice(3).join('/');
-
-            return {
-                originalName: file.name,
-                url: null,
-                s3Key: s3Key,
-                mime: file.type
-            };
-
-          } catch (uploadError) {
-            console.error(`File ${file.name} upload error:`, uploadError);
-            throw uploadError;          }
-        });
-
-        const uploadedFiles = await Promise.all(uploadPromises); //모든 파일 업로드 완료 대기 및 ETag 정보 수집
-        jsonData.files = uploadedFiles;
-    
 
     if (new Date(jsonData.endDate) < new Date(jsonData.startDate)) {
       alert('유고결석 종료일이 시작일 이전일 수 없습니다.');
       return;
     }
 
-      try {
-        const response = await absenceAttendancesApi.submitAbsenceAttendance(courseId, jsonData);
-        if (response.status === 200 || response.status === 201) {
-          alert('유고 결석 신청이 완료되었습니다.');
-          resetFormFields();
-          if (courseId) {
-            fetchAbsenceList(courseId, 1);
-          }
+    try {
+      const response = await absenceAttendancesApi.submitAbsenceAttendance(courseId, jsonData);
+      if (response.status === 200 || response.status === 201) {
+        alert('유고 결석 신청이 완료되었습니다.');
+        resetFormFields();
+        if (courseId) {
+          fetchAbsenceList(courseId, 1);
         }
-      } catch (error) {
-        alert(error.response?.data?.message || error.message);
       }
-
     } catch (error) {
-      console.error('파일 업로드 중 전체 에러:', error);
-      alert('파일 업로드 중 오류가 발생했습니다.');
+      alert(error.response?.data?.message || error.message);
     }
-  }
-};
+  };
 
   const list = ['결석', '조퇴', '지각'];
 
@@ -467,7 +477,12 @@ export default function StudentAttendanceAbsence() {
               </div>
 
               <div className={styles.submitButton}>
-                <MainButton isEnable={true} title="신청" handleClick={handleSubmit} />
+                <MainButton
+                  isEnable={true}
+                  title="신청"
+                  handleClick={handleSubmit}
+                  isUploading={!isSubmitButtonEnabled}
+                />
               </div>
             </div>
           </DashBoardItem>
