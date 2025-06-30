@@ -51,7 +51,8 @@ dependencies {
     implementation 'net.datafaker:datafaker:2.4.2'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
     implementation 'org.apache.commons:commons-lang3:3.17.0'
-
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 
 
 }
