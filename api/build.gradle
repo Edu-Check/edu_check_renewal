@@ -35,7 +35,10 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework:spring-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.assertj:assertj-core'
+    testImplementation 'org.mockito:mockito-core'
     developmentOnly "org.springframework.boot:spring-boot-docker-compose"
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
@@ -44,6 +47,9 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
     testImplementation 'org.testcontainers:testcontainers:1.18.0'
     testImplementation 'org.testcontainers:junit-jupiter:1.18.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    testImplementation 'com.github.ben-manes.caffeine:caffeine'
     testImplementation 'org.testcontainers:mysql:1.18.0'
     implementation 'software.amazon.awssdk:s3:2.20.12'
     testCompileOnly 'org.projectlombok:lombok'
@@ -55,13 +61,9 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
 
 
+
 }
 
 tasks.named('test') {
     useJUnitPlatform()
-}
-
-test {
-    useJUnitPlatform()
-    systemProperty "spring.profiles.active", "prod"
 }
