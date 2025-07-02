@@ -10,6 +10,7 @@ import org.example.educheck.domain.member.entity.Role;
 import org.example.educheck.domain.member.repository.MemberRepository;
 import org.example.educheck.domain.member.student.entity.Student;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -84,6 +85,7 @@ class AbsenceAttendanceServiceTest {
     }
 
     @Test
+    @DisplayName("캐시 동작 여부 기본 테스트")
     void testCacheHitRate() {
         clearCache();
 
@@ -110,6 +112,75 @@ class AbsenceAttendanceServiceTest {
 
     private void clearCache() {
         cacheManager.getCache("absenceAttendanceCache").clear();
+    }
+
+    @Test
+    @DisplayName("첫 번째 조회 시 캐시 미스")
+    void 첫_번쨰_조회_시_캐시_미스_성공_test() {
+        clearCache();
+
+        Long absenceAttendanceId = 1L;
+        Long courseId = 1L;
+
+        absenceAttendanceService.getAbsenceAttendance(
+                mockMember, courseId, absenceAttendanceId
+        );
+
+        //레포 호출 횟수 확인
+        verify(absenceAttendanceRepository, times(1)).findById(absenceAttendanceId);
+        verify(memberRepository, times(1)).findByStudent_Id(mockStudent.getId());
+
+    }
+
+    @Test
+    @DisplayName("연속 조회 시 캐시 히트 확인")
+    void 연속_조회_시_캐시_히트_성공_test() {
+        clearCache();
+
+        Long absenceAttendanceId = 1L;
+        Long courseId = 1L;
+
+        absenceAttendanceService.getAbsenceAttendance(
+                mockMember, courseId, absenceAttendanceId
+        );
+
+        absenceAttendanceService.getAbsenceAttendance(
+                mockMember, courseId, absenceAttendanceId
+        );
+
+        verify(absenceAttendanceRepository, times(1)).findById(absenceAttendanceId);
+        verify(memberRepository, times(1)).findByStudent_Id(mockStudent.getId());
+    }
+
+    @Test
+    @DisplayName("캐시 무효화 후 재조회 확인")
+    void 캐시_무효화_성공_test() {
+        clearCache();
+
+        Long absenceAttendanceId = 1L;
+        Long courseId = 1L;
+
+        //첫 번쨰 조회 - 캐시 미스
+        AbsenceAttendanceResponseDto firstResult = absenceAttendanceService.getAbsenceAttendance(
+                mockMember, courseId, absenceAttendanceId
+        );
+
+        // 캐시 무효화 메서드 호출
+        AbsenceAttendanceResponseDto cachedResult = absenceAttendanceService.getAbsenceAttendance(
+                mockMember, courseId, absenceAttendanceId
+        );
+
+        // 업데이트 호출 - 캐시 무효화
+        absenceAttendanceService.cancelAttendanceAbsence(mockMember, absenceAttendanceId);
+
+        // 캐시 무효화 후 재조회
+        AbsenceAttendanceResponseDto afterResult = absenceAttendanceService.getAbsenceAttendance(
+                mockMember, courseId, absenceAttendanceId
+        );
+
+        assertThat(firstResult).isEqualTo(cachedResult);
+        assertThat(afterResult).isNotEqualTo(firstResult);
+
     }
 
 }
