@@ -1,6 +1,8 @@
 package org.example.educheck.domain.absenceattendance.service;
 
+import org.example.educheck.domain.absenceattendance.dto.request.UpdateAbsenceAttendacneRequestDto;
 import org.example.educheck.domain.absenceattendance.dto.response.AbsenceAttendanceResponseDto;
+import org.example.educheck.domain.absenceattendance.dto.response.UpdateAbsenceAttendanceReponseDto;
 import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
 import org.example.educheck.domain.absenceattendance.repository.AbsenceAttendanceRepository;
 import org.example.educheck.domain.absenceattendanceattachmentfile.entity.AbsenceAttendanceAttachmentFile;
@@ -9,19 +11,22 @@ import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.entity.Role;
 import org.example.educheck.domain.member.repository.MemberRepository;
 import org.example.educheck.domain.member.student.entity.Student;
+import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import org.springframework.cache.caffeine.CaffeineCache;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.util.ReflectionTestUtils;
-
 import java.util.ArrayList;
 import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
@@ -29,6 +34,7 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 class AbsenceAttendanceServiceTest {
 
+    private static final Logger log = LoggerFactory.getLogger(AbsenceAttendanceServiceTest.class);
     @Autowired
     private AbsenceAttendanceService absenceAttendanceService;
 
@@ -180,6 +186,85 @@ class AbsenceAttendanceServiceTest {
 
         assertThat(firstResult).isEqualTo(cachedResult);
         assertThat(afterResult).isNotEqualTo(firstResult);
+
+    }
+
+    @Test
+    @DisplayName("캐시 최대 크기로 인한 만료")
+    void 캐시_최대크기_만료_성공_test() {
+        clearCache();
+        for (long i = 0L; i < 130; i++) {
+            //각 id에 대해 모의 데이터 설정
+             mockAbsenceAttendance = AbsenceAttendance.builder()
+                    .student(mockStudent)
+                    .build();
+             ReflectionTestUtils.setField(mockAbsenceAttendance, "id", i);
+
+             doReturn(Optional.of(mockAbsenceAttendance))
+                     .when(absenceAttendanceRepository)
+                     .findById(i);
+
+             //캐시
+             absenceAttendanceService.getAbsenceAttendance(mockMember, 1L, i);
+        }
+
+        Cache cache = cacheManager.getCache("absenceAttendanceCache");
+
+        if (cache instanceof CaffeineCache) {
+            com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache =
+                    ((CaffeineCache) cache).getNativeCache();
+
+            log.info("Cache size : {}", nativeCache.estimatedSize());
+            log.info("Cache stats : {}",nativeCache.stats()) ;
+        }
+
+        //캐시가 존재하긴 함을 확인
+        assertThat(cache).isNotNull();
+
+        if (cache instanceof CaffeineCache) {
+            com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache =
+                    ((CaffeineCache) cache).getNativeCache();
+
+            long cacheSize = nativeCache.estimatedSize();
+
+            log.info("Cache size : {}", cacheSize);
+
+            assertThat(cacheSize)
+                    .isLessThanOrEqualTo(100);
+
+            assertThat(cacheSize).isGreaterThan(0);
+        }
+
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 유고결석 ID 조회 시 캐시 동작")
+    void 존재하지_않는_유고결석_ID_조회_test() {
+        clearCache();
+
+        Long nonExistedId = 9999L;
+        Long courseId = 1L;
+
+        doReturn(Optional.empty())
+                .when(absenceAttendanceRepository)
+                .findById(nonExistedId);
+
+        assertThatThrownBy(() ->
+                absenceAttendanceService.getAbsenceAttendance(mockMember, courseId, nonExistedId))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        assertThatThrownBy(() ->
+                absenceAttendanceService.getAbsenceAttendance(mockMember, courseId, nonExistedId))
+                .isInstanceOf(ResourceNotFoundException.class);
+
+        verify(absenceAttendanceRepository, times(2)).findById(nonExistedId);
+
+        Cache cache = cacheManager.getCache("absenceAttendanceCache");
+        if (cache instanceof CaffeineCache) {
+            com.github.benmanes.caffeine.cache.Cache<Object, Object> nativeCache =
+                    ((CaffeineCache) cache).getNativeCache();
+            assertThat(nativeCache.estimatedSize()).isEqualTo(0);
+        }
 
     }
 
