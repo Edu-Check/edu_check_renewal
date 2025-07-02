@@ -1,8 +1,6 @@
 package org.example.educheck.domain.absenceattendance.service;
 
-import org.example.educheck.domain.absenceattendance.dto.request.UpdateAbsenceAttendacneRequestDto;
 import org.example.educheck.domain.absenceattendance.dto.response.AbsenceAttendanceResponseDto;
-import org.example.educheck.domain.absenceattendance.dto.response.UpdateAbsenceAttendanceReponseDto;
 import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
 import org.example.educheck.domain.absenceattendance.repository.AbsenceAttendanceRepository;
 import org.example.educheck.domain.absenceattendanceattachmentfile.entity.AbsenceAttendanceAttachmentFile;
@@ -60,7 +58,6 @@ class AbsenceAttendanceServiceTest {
         mockStudent = Student.builder().build();
         ReflectionTestUtils.setField(mockStudent, "id", 1L);
 
-        // 멤버 객체 생성
         mockMember = Member.builder()
                 .role(Role.STUDENT)
                 .build();
@@ -132,7 +129,6 @@ class AbsenceAttendanceServiceTest {
                 mockMember, courseId, absenceAttendanceId
         );
 
-        //레포 호출 횟수 확인
         verify(absenceAttendanceRepository, times(1)).findById(absenceAttendanceId);
         verify(memberRepository, times(1)).findByStudent_Id(mockStudent.getId());
 
@@ -166,20 +162,16 @@ class AbsenceAttendanceServiceTest {
         Long absenceAttendanceId = 1L;
         Long courseId = 1L;
 
-        //첫 번쨰 조회 - 캐시 미스
         AbsenceAttendanceResponseDto firstResult = absenceAttendanceService.getAbsenceAttendance(
                 mockMember, courseId, absenceAttendanceId
         );
 
-        // 캐시 무효화 메서드 호출
         AbsenceAttendanceResponseDto cachedResult = absenceAttendanceService.getAbsenceAttendance(
                 mockMember, courseId, absenceAttendanceId
         );
 
-        // 업데이트 호출 - 캐시 무효화
         absenceAttendanceService.cancelAttendanceAbsence(mockMember, absenceAttendanceId);
 
-        // 캐시 무효화 후 재조회
         AbsenceAttendanceResponseDto afterResult = absenceAttendanceService.getAbsenceAttendance(
                 mockMember, courseId, absenceAttendanceId
         );
@@ -194,7 +186,6 @@ class AbsenceAttendanceServiceTest {
     void 캐시_최대크기_만료_성공_test() {
         clearCache();
         for (long i = 0L; i < 130; i++) {
-            //각 id에 대해 모의 데이터 설정
              mockAbsenceAttendance = AbsenceAttendance.builder()
                     .student(mockStudent)
                     .build();
@@ -204,7 +195,6 @@ class AbsenceAttendanceServiceTest {
                      .when(absenceAttendanceRepository)
                      .findById(i);
 
-             //캐시
              absenceAttendanceService.getAbsenceAttendance(mockMember, 1L, i);
         }
 
@@ -218,7 +208,6 @@ class AbsenceAttendanceServiceTest {
             log.info("Cache stats : {}",nativeCache.stats()) ;
         }
 
-        //캐시가 존재하긴 함을 확인
         assertThat(cache).isNotNull();
 
         if (cache instanceof CaffeineCache) {
