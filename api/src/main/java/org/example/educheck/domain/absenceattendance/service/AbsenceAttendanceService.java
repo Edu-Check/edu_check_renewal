@@ -23,6 +23,9 @@ import org.example.educheck.domain.registration.repository.RegistrationRepositor
 import org.example.educheck.domain.staffcourse.repository.StaffCourseRepository;
 import org.example.educheck.global.common.exception.custom.common.*;
 import org.example.educheck.global.common.s3.S3Service;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -279,6 +282,7 @@ public class AbsenceAttendanceService {
     }
 
     @Transactional
+    @CacheEvict(value = "absenceAttendanceCache", key = "#absenceAttendancesId")
     public void cancelAttendanceAbsence(Member member, Long absenceAttendancesId) {
 
         AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
@@ -292,6 +296,7 @@ public class AbsenceAttendanceService {
     }
 
     @Transactional
+    @CachePut(value = "absenceAttendanceCache", key = "#absenceAttendancesId")
     public UpdateAbsenceAttendanceReponseDto updateAttendanceAbsence(Member member, Long absenceAttendancesId, UpdateAbsenceAttendacneRequestDto requestDto, MultipartFile[] files) {
 
         AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
@@ -327,7 +332,9 @@ public class AbsenceAttendanceService {
         }
     }
 
+    @Cacheable(value = "absenceAttendanceCache", key = "#absenceAttendancesId")
     public AbsenceAttendanceResponseDto getAbsenceAttendance(Member member, Long courseId, Long absenceAttendancesId) {
+        log.info(">>> CACHE MISS: Fetching absence attendance with ID {}", absenceAttendancesId);
 
         AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
 
