@@ -48,6 +48,8 @@ public class MeetingRoomReservationService {
 
         meetingRoom.validateBelongsToCampus(campusId);
 
+        meetingRoomReservationPolicy.validateReservableTime(meetingRoom, startTime, endTime);
+
         MeetingRoomReservationTime reservationTime = MeetingRoomReservationTime.create(startTime, endTime, now);
         MeetingRoomReservation meetingRoomReservation = MeetingRoomReservation.create(member, meetingRoom, reservationTime, meetingRoomReservationPolicy, memberReservationPolicy);
 
