@@ -1,5 +1,6 @@
 package org.example.educheck.global.common.exception.handler;
 
+import jakarta.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.global.common.dto.ApiResponse;
 import org.example.educheck.global.common.exception.ErrorCode;
@@ -7,6 +8,7 @@ import org.example.educheck.global.common.exception.custom.LoginValidationExcept
 import org.example.educheck.global.common.exception.custom.attendance.AttendanceAlreadyException;
 import org.example.educheck.global.common.exception.custom.auth.EmailNotFoundException;
 import org.example.educheck.global.common.exception.custom.common.GlobalException;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
@@ -134,6 +136,14 @@ public class GlobalExceptionHandler {
                 .status(ErrorCode.ALREADY_ATTENDANCE.getStatus())
                 .body(ApiResponse.error(ErrorCode.ALREADY_ATTENDANCE.getMessage(),
                         ErrorCode.ALREADY_ATTENDANCE.getCode()));
+    }
+
+    @ExceptionHandler(OptimisticLockingFailureException.class)
+    public ResponseEntity<ApiResponse<Object>> handleOptimisticLockingFailureException(OptimisticLockingFailureException ex) {
+        return ResponseEntity
+                .status(ErrorCode.RESERVATION_CONFLICT.getStatus())
+                .body(ApiResponse.error(ErrorCode.RESERVATION_CONFLICT.getMessage(),
+                        ErrorCode.RESERVATION_CONFLICT.getCode()));
     }
 
 }
