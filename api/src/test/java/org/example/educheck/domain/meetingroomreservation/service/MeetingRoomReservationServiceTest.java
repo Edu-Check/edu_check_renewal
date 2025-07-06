@@ -111,6 +111,7 @@ class MeetingRoomReservationServiceTest {
         }
 
         latch.await();
+        executorService.shutdown();
 
         // then
         assertEquals(10, successCount.get());

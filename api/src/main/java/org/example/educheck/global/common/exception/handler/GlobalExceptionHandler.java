@@ -1,6 +1,5 @@
 package org.example.educheck.global.common.exception.handler;
 
-import jakarta.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.global.common.dto.ApiResponse;
 import org.example.educheck.global.common.exception.ErrorCode;
