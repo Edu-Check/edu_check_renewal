@@ -2,6 +2,7 @@ package org.example.educheck.domain.meetingroom.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.campus.Campus;
@@ -15,6 +16,9 @@ public class MeetingRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campus_id")
@@ -30,5 +34,11 @@ public class MeetingRoom {
 
     public boolean isNotInCampus(Long campusId) {
         return !this.campus.isSameCampus(campusId);
+    }
+
+    @Builder
+    public MeetingRoom(Campus campus, String name) {
+        this.campus = campus;
+        this.name = name;
     }
 }

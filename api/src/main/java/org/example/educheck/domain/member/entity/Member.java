@@ -114,4 +114,6 @@ public class Member implements UserDetails {
     public boolean isSameMember(Member member) {
         return Objects.equals(this, member);
     }
+
+    
 }

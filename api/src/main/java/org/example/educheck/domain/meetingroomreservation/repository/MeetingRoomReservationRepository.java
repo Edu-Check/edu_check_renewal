@@ -19,9 +19,7 @@ public interface MeetingRoomReservationRepository extends JpaRepository<MeetingR
             "WHERE r.meetingRoom = :meetingRoom " +
             "AND r.status = :status " +
             "AND FUNCTION('DATE',r.reservationTime.startTime)  = :date " +
-            "AND ((r.reservationTime.startTime <= :endTime AND r.reservationTime.endTime > :startTime) " +
-            "OR (r.reservationTime.startTime < :endTime AND r.reservationTime.endTime >= :endTime) " +
-            "OR (r.reservationTime.startTime >= :startTime AND r.reservationTime.endTime <= :endTime))")
+            "AND (r.reservationTime.startTime < :endTime AND r.reservationTime.endTime > :startTime)")
     boolean existsOverlappingReservation(@Param("meetingRoom") MeetingRoom meetingRoom,
                                          @Param("date") LocalDate data,
                                          @Param("startTime") LocalDateTime startTime,
