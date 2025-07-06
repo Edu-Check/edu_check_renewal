@@ -3,9 +3,12 @@ package org.example.educheck.domain.meetingroomreservation.service;
 import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.meetingroomreservation.dto.request.MeetingRoomReservationRequestDto;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.example.educheck.domain.campus.Campus;
@@ -17,8 +20,10 @@ import org.example.educheck.domain.member.repository.MemberRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.example.educheck.domain.course.repository.CourseRepository;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -28,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SpringBootTest
 class MeetingRoomReservationServiceTest {
 
+    private static final Logger log = LoggerFactory.getLogger(MeetingRoomReservationServiceTest.class);
     @Autowired
     private MeetingRoomReservationService meetingRoomReservationService;
 
@@ -76,7 +82,7 @@ class MeetingRoomReservationServiceTest {
 
 
     @Test
-    @DisplayName("동시에 100개의 예약 요청 시 1개만 성공해야 한다.")
+    @DisplayName("동시에 100개의 예약 요청 시 1개 이상 예약된다.")
     void 동시에_100개_예약_요청시_1개_이상_예약_성공() throws InterruptedException {
         // given
         int threadCount = 100;
@@ -109,5 +115,50 @@ class MeetingRoomReservationServiceTest {
         // then
         assertEquals(10, successCount.get());
         assertEquals(90, failCount.get());
+    }
+
+    @Test
+    @DisplayName("동시에 100개의 예약 요청 시 1개만 성공한다 - 낙관적 락")
+    void optimisticLockTest() throws InterruptedException {
+
+        assertTimeoutPreemptively(Duration.ofSeconds(60), () -> {
+            //given
+            int threadCount = 100;
+            ExecutorService executorService = Executors.newFixedThreadPool(10);
+            CountDownLatch latch = new CountDownLatch(threadCount);
+            AtomicInteger successCount = new AtomicInteger();
+            AtomicInteger failCount = new AtomicInteger();
+
+            LocalDateTime startTime = LocalDateTime.now().withHour(14).withMinute(0);
+            LocalDateTime endTime = startTime.plusHours(1);
+
+            MeetingRoomReservationRequestDto requestDto = new MeetingRoomReservationRequestDto(startTime, endTime,meetingRoom.getId(), course.getId());
+
+            //when
+            for (int i = 0; i < threadCount; i++) {
+                executorService.submit(() -> {
+                    try {
+                        meetingRoomReservationService.createReservation(member, campus.getId(), requestDto);
+                        successCount.getAndIncrement();
+                    } catch (ObjectOptimisticLockingFailureException e) {
+                        log.error("낙관적 락 충돌 발생");
+                        failCount.incrementAndGet();
+                    } catch (Exception e) {
+                        log.error("다른 에러 발생 : {}", e.getMessage());
+                        failCount.incrementAndGet();
+                    } finally {
+                        latch.countDown();
+                    }
+                });
+            }
+
+            latch.await();
+            executorService.shutdown();
+
+            //then
+            assertThat(successCount.get()).isEqualTo(1);
+            assertThat(failCount.get()).isEqualTo(threadCount - 1);
+        });
+
     }
 }
