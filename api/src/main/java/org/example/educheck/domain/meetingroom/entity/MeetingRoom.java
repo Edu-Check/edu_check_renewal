@@ -18,7 +18,7 @@ public class MeetingRoom {
     private Long id;
 
     @Version
-    private Long version;
+    private Long version = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "campus_id")
