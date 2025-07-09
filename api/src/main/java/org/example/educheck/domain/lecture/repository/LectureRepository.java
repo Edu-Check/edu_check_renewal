@@ -23,5 +23,7 @@ public interface LectureRepository extends JpaRepository<Lecture, Long> {
 
     List<Lecture> findAllByCourseId(Long courseId);
 
-    Long countByCourseId(Long courseId);
+    Integer countByCourseId(Long courseId);
+
+    Integer countByCourseIdAndDateLessThanEqual(@Param("courseId") Long courseId, @Param("date") LocalDate date);
 }
