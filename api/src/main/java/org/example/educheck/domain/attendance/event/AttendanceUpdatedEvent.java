@@ -8,7 +8,7 @@ import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 
 @Getter
 @RequiredArgsConstructor
-public class AttendanceUpdateEvent {
+public class AttendanceUpdatedEvent {
 
     private final Attendance attendance;
 

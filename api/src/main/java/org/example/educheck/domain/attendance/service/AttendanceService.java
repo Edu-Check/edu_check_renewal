@@ -6,6 +6,8 @@ import org.example.educheck.domain.attendance.dto.request.AttendanceCheckinReque
 import org.example.educheck.domain.attendance.dto.request.AttendanceUpdateRequestDto;
 import org.example.educheck.domain.attendance.dto.response.AttendanceStatusResponseDto;
 import org.example.educheck.domain.attendance.entity.Attendance;
+import org.example.educheck.domain.attendance.entity.AttendanceStatus;
+import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
 import org.example.educheck.domain.attendance.repository.AttendanceRepository;
 import org.example.educheck.domain.campus.Campus;
 import org.example.educheck.domain.course.entity.Course;
@@ -26,6 +28,7 @@ import org.example.educheck.global.common.exception.custom.common.ForbiddenExcep
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
 import org.example.educheck.global.common.exception.custom.common.ResourceMismatchException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,6 +47,7 @@ public class AttendanceService {
     private final MemberRepository memberRepository;
     private final StaffRepository staffRepository;
     private final StaffCourseRepository staffCourseRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public AttendanceStatusResponseDto checkIn(Member member, AttendanceCheckinRequestDto requestDto) {
@@ -75,12 +79,21 @@ public class AttendanceService {
                     throw new AttendanceAlreadyException();
                 });
 
+        Attendance savedAttendance = attendanceRepository.save(
+                Attendance.checkIn(
+                        student, todayLecture, currentTime
+                )
+        );
+
+        eventPublisher.publishEvent(new AttendanceUpdatedEvent(
+                savedAttendance,
+                null,
+                savedAttendance.getAttendanceStatus()
+        ));
+
+
         return new AttendanceStatusResponseDto(
-                attendanceRepository.save(
-                        Attendance.checkIn(
-                                student, todayLecture, currentTime
-                        )
-                ).getAttendanceStatus()
+                savedAttendance.getAttendanceStatus()
         );
     }
 
@@ -100,7 +113,15 @@ public class AttendanceService {
             throw new InvalidRequestException("출석/퇴실 가능한 위치가 아닙니다.");
         }
 
+        AttendanceStatus oldStatus = attendance.getAttendanceStatus();
+
         attendance.checkOut(currentTime);
+
+        eventPublisher.publishEvent(new AttendanceUpdatedEvent(
+                attendance,
+                oldStatus,
+                attendance.getAttendanceStatus()
+        ));
 
         return new AttendanceStatusResponseDto(attendance.getAttendanceStatus());
     }
@@ -115,8 +136,18 @@ public class AttendanceService {
                 .orElseThrow(() -> new ResourceNotFoundException("해당 날짜의 강의가 없습니다."));
 
         Attendance attendance = attendanceRepository.findByLectureIdStudentId(studentId, lecture.getId());
+
+        AttendanceStatus oldStatus = attendance.getAttendanceStatus();
+        AttendanceStatus newStatus = requestDto.getStatus();
+
         attendance.setAttendanceStatus(requestDto.getStatus());
         attendanceRepository.save(attendance);
+
+        eventPublisher.publishEvent(new AttendanceUpdatedEvent(
+                attendance,
+                oldStatus,
+                newStatus
+        ));
     }
 
 
