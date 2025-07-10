@@ -135,7 +135,7 @@ public class AttendanceService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("해당 날짜의 강의가 없습니다."));
 
-        Attendance attendance = attendanceRepository.findByLectureIdStudentId(studentId, lecture.getId());
+        Attendance attendance = attendanceRepository.findByStudentIdAndLectureId(studentId, lecture.getId()).orElseThrow();
 
         AttendanceStatus oldStatus = attendance.getAttendanceStatus();
         AttendanceStatus newStatus = requestDto.getStatus();

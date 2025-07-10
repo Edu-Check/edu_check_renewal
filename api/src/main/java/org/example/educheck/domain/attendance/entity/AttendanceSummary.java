@@ -6,6 +6,7 @@ import lombok.*;
 @Entity
 @IdClass(AttendanceSummaryId.class)
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -36,7 +37,7 @@ public class AttendanceSummary {
     @Column(name = "course_progress_rate")
     private Double courseProgressRate;
 
-
+    @Setter
     @Column(name = "lecture_count_until_today")
     private Integer lectureCountUntilToday;
 
@@ -46,6 +47,7 @@ public class AttendanceSummary {
     @Column(name = "adjusted_absent_by_late_or_early_leave")
     private Integer adjustedAbsentByLateOrEarlyLeave;
 
+    @Setter
     @Column(name = "total_lecture_count")
     private Integer totalLectureCount;
 
@@ -101,5 +103,24 @@ public class AttendanceSummary {
         }
 
         this.adjustedAbsenceCount = this.adjustedAbsentByLateOrEarlyLeave + this.absenceCountUntilToday;
+    }
+
+    @Override
+    public String toString() {
+        return "AttendanceSummary{" +
+                "studentId=" + studentId +
+                ", courseId=" + courseId +
+                ", totalAttendanceRate=" + totalAttendanceRate +
+                ", lateCountUntilToday=" + lateCountUntilToday +
+                ", earlyLeaveCountUntilToday=" + earlyLeaveCountUntilToday +
+                ", absenceCountUntilToday=" + absenceCountUntilToday +
+                ", adjustedAbsenceCount=" + adjustedAbsenceCount +
+                ", attendanceRateUntilToday=" + attendanceRateUntilToday +
+                ", courseProgressRate=" + courseProgressRate +
+                ", lectureCountUntilToday=" + lectureCountUntilToday +
+                ", attendanceCountUntilToday=" + attendanceCountUntilToday +
+                ", adjustedAbsentByLateOrEarlyLeave=" + adjustedAbsentByLateOrEarlyLeave +
+                ", totalLectureCount=" + totalLectureCount +
+                '}';
     }
 }

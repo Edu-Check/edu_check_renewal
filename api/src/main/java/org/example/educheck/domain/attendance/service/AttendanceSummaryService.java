@@ -11,6 +11,7 @@ import org.example.educheck.domain.attendance.repository.AttendanceSummaryReposi
 import org.example.educheck.domain.lecture.repository.LectureRepository;
 import org.example.educheck.global.common.time.SystemTimeProvider;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
@@ -27,8 +28,8 @@ public class AttendanceSummaryService {
     private final LectureRepository lectureRepository;
     private final SystemTimeProvider timeProvider;
 
-    @Transactional
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
     public void handleAttendanceUpdatedEvent(AttendanceUpdatedEvent event) {
         Attendance attendance = event.getAttendance();
         AttendanceStatus oldStatus = event.getOldStatus();
@@ -43,6 +44,7 @@ public class AttendanceSummaryService {
         AttendanceSummary summary = attendanceSummaryRepository.findById(summaryId)
                 .orElseGet(() -> {
                     Integer totalLecturesInCourse = lectureRepository.countByCourseId(courseId);
+                    log.info("totalLecturesInCourse : {}", totalLecturesInCourse);
                     Integer lecturesUntilToday = lectureRepository.countByCourseIdAndDateLessThanEqual(courseId, timeProvider.nowDate());
 
                     if (totalLecturesInCourse == null) totalLecturesInCourse = 0;
@@ -62,6 +64,10 @@ public class AttendanceSummaryService {
                             .totalLectureCount(totalLecturesInCourse)
                             .build();
                 });
+
+        // Always update lecture counts to ensure they are current
+        summary.setTotalLectureCount(lectureRepository.countByCourseId(courseId));
+        summary.setLectureCountUntilToday(lectureRepository.countByCourseIdAndDateLessThanEqual(courseId, timeProvider.nowDate()));
 
         LocalDate lectureDate = attendance.getLecture().getDate();
         boolean contributesToUntilToday = !lectureDate.isAfter(timeProvider.nowDate());
