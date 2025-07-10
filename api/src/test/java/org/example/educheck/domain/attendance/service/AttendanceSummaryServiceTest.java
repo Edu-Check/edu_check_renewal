@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -78,7 +77,7 @@ class AttendanceSummaryServiceTest {
         studentMember = memberRepository.save(Member.builder()
                 .name("Test Student")
                 .role(Role.STUDENT)
-                .email("testtwe6@naver.com")
+                .email("testtwe10@naver.com")
                 .build());
 
         student = studentRepository.save(Student.builder()
@@ -141,9 +140,48 @@ class AttendanceSummaryServiceTest {
                 .orElse(null);
 
         assertThat(summary).isNotNull();
-        assertThat(summary.getAttendanceCountUntilToday()).isEqualTo(1);
-        assertThat(summary.getLateCountUntilToday()).isEqualTo(0);
+        assertThat(summary.getAttendanceCountUntilToday()).isEqualTo(0);
+        assertThat(summary.getLateCountUntilToday()).isEqualTo(1);
         assertThat(summary.getLectureCountUntilToday()).isEqualTo(2); // 오늘과 어제 강의 포함
         assertThat(summary.getTotalLectureCount()).isEqualTo(2);
+    }
+
+    @Test
+    @DisplayName("기존 출석 통계가 조퇴 업데이트될 때 정상적으로 반영된다.")
+    void handleAttendanceUpdatedToEarlyLeave() {
+        //given
+        Attendance initialAttendacne = Attendance.builder()
+                .student(student)
+                .lecture(todayLecture)
+                .attendanceStatus(AttendanceStatus.ATTENDANCE)
+                .build();
+        Attendance savedInitialAttendance = attendanceRepository.save(initialAttendacne);
+
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
+
+        AttendanceUpdatedEvent event = new AttendanceUpdatedEvent(savedInitialAttendance, null, initialAttendacne.getAttendanceStatus());
+        attendanceSummaryService.handleAttendanceUpdatedEvent(event);
+
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
+
+        //when
+        AttendanceUpdatedEvent updateEvent = new AttendanceUpdatedEvent(savedInitialAttendance, savedInitialAttendance.getAttendanceStatus(), AttendanceStatus.EARLY_LEAVE);
+        attendanceSummaryService.handleAttendanceUpdatedEvent(updateEvent);
+
+
+        //then
+        AttendanceSummary summary = attendanceSummaryRepository.findById(new AttendanceSummaryId(student.getId(), course.getId())).orElse(null);
+
+        assertThat(summary).isNotNull();
+        assertThat(summary.getAttendanceCountUntilToday()).isEqualTo(0);
+        assertThat(summary.getEarlyLeaveCountUntilToday()).isEqualTo(1);
+        assertThat(summary.getLectureCountUntilToday()).isEqualTo(2);
+        assertThat(summary.getAbsenceCountUntilToday()).isEqualTo(0);
+        assertThat(summary.getTotalLectureCount()).isEqualTo(2);
+
     }
 }
