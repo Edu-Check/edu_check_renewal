@@ -67,6 +67,9 @@ class AttendanceSummaryServiceTest {
     private Student student;
     private Course course;
     private Lecture todayLecture;
+    private Lecture yesterdayLecture;
+    private Lecture nextdayLecture;
+
     @Autowired
     private AttendanceRepository attendanceRepository;
 
@@ -77,7 +80,7 @@ class AttendanceSummaryServiceTest {
         studentMember = memberRepository.save(Member.builder()
                 .name("Test Student")
                 .role(Role.STUDENT)
-                .email("testtwe10@naver.com")
+                .email("testtwe11naver.com")
                 .build());
 
         student = studentRepository.save(Student.builder()
@@ -101,13 +104,23 @@ class AttendanceSummaryServiceTest {
                 .build());
 
         // 오늘 이전의 강의 1개 추가
-        lectureRepository.save(Lecture.builder()
+        yesterdayLecture = lectureRepository.save(Lecture.builder()
                 .course(course)
                 .session(2)
                 .date(LocalDate.now().minusDays(1))
                 .startTime(LocalTime.of(9, 0))
                 .endTime(LocalTime.of(18, 0))
                 .build());
+
+        nextdayLecture = lectureRepository.save(Lecture.builder()
+                .course(course)
+                .session(3)
+                .date(LocalDate.now().plusDays(1))
+                .startTime(LocalTime.of(9, 0))
+                .endTime(LocalTime.of(18, 0))
+                .build());
+
+
 
     }
 
@@ -182,6 +195,54 @@ class AttendanceSummaryServiceTest {
         assertThat(summary.getLectureCountUntilToday()).isEqualTo(2);
         assertThat(summary.getAbsenceCountUntilToday()).isEqualTo(0);
         assertThat(summary.getTotalLectureCount()).isEqualTo(2);
+
+    }
+
+    @Test
+    @DisplayName("지각 횟수가 누적되어 조정된 결석 횟수가 정상적으로 반영된다.")
+    void handleAdjustedAbsenceByLatesAndEarlyLeaves() {
+        //given, when
+        Attendance firstLateAttendance = Attendance.builder()
+                .student(student)
+                .lecture(todayLecture)
+                .attendanceStatus(AttendanceStatus.LATE)
+                .build();
+        Attendance savedFirstLate = attendanceRepository.save(firstLateAttendance);
+
+        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        attendanceSummaryService.handleAttendanceUpdatedEvent(new AttendanceUpdatedEvent(savedFirstLate, null, savedFirstLate.getAttendanceStatus()));
+        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+
+        Attendance secondAttendance = Attendance.builder()
+                .student(student)
+                .lecture(yesterdayLecture)
+                .attendanceStatus(AttendanceStatus.LATE)
+                .build();
+        Attendance savedSecondLate = attendanceRepository.save(secondAttendance);
+
+        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        attendanceSummaryService.handleAttendanceUpdatedEvent(new AttendanceUpdatedEvent(savedSecondLate, null, savedSecondLate.getAttendanceStatus()));
+        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+
+        Attendance thirdAttendance = Attendance.builder()
+                .student(student)
+                .lecture(yesterdayLecture)
+                .attendanceStatus(AttendanceStatus.LATE)
+                .build();
+        Attendance savedThirdLate = attendanceRepository.save(thirdAttendance);
+
+        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        attendanceSummaryService.handleAttendanceUpdatedEvent(new AttendanceUpdatedEvent(savedThirdLate, null, savedThirdLate.getAttendanceStatus()));
+        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+
+        //then
+        AttendanceSummary summary = attendanceSummaryRepository.findById(new AttendanceSummaryId(student.getId(), course.getId()))
+                .orElse(null);
+
+        assertThat(summary).isNotNull();
+        assertThat(summary.getLateCountUntilToday()).isEqualTo(3);
+        assertThat(summary.getAdjustedAbsenceCount()).isEqualTo(1);
+        assertThat(summary.getAdjustedAbsentByLateOrEarlyLeave()).isEqualTo(1);
 
     }
 }
