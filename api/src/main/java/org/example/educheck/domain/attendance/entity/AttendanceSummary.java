@@ -170,13 +170,14 @@ public class AttendanceSummary {
 
             if (attendanceRecord != null) {
                 switch (attendanceRecord.getAttendanceStatus()) {
-                    case AttendanceStatus.ATTENDANCE:
+                switch (attendanceRecord.getAttendanceStatus()) {
+                    case ATTENDANCE:
                         this.attendanceCountUntilToday++;
                         break;
-                    case AttendanceStatus.LATE:
+                    case LATE:
                         this.lateCountUntilToday++;
                         break;
-                    case AttendanceStatus.EARLY_LEAVE:
+                    case EARLY_LEAVE:
                         this.earlyLeaveCountUntilToday++;
                         break;
                 }
