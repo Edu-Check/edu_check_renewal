@@ -116,8 +116,6 @@ public class AbsenceAttendanceService {
                         .toUpperCase().charAt(0)
         );
 
-        log.info("되고 있는거니?");
-
         eventPublisher.publishEvent(new AbsenceApprovedEvent(courseId,
                 absenceAttendance.getStudent().getId(),
                 absenceAttendance.getStartTime(),

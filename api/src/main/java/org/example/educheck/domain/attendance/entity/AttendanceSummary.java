@@ -1,13 +1,10 @@
 package org.example.educheck.domain.attendance.entity;
 
-import io.lettuce.core.internal.TimeoutProvider;
 import jakarta.persistence.*;
 import lombok.*;
-import org.checkerframework.common.returnsreceiver.qual.This;
 import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.global.common.time.SystemTimeProvider;
-import org.hibernate.boot.model.source.spi.CollectionIdSource;
 
 import java.time.LocalDate;
 import java.util.List;
