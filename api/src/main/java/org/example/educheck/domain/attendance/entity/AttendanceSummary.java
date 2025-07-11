@@ -192,13 +192,27 @@ public class AttendanceSummary {
         this.adjustedAbsentByLateOrEarlyLeave = totalLateAndEarlyLeave / LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE;
 
         int totalAbsence = this.absenceCountUntilToday + this.adjustedAbsentByLateOrEarlyLeave;
-        int actualAttendanceCount = this.lectureCountUntilToday - totalAbsence;
+        int actualAttendanceCount = attendanceCountUntilToday;
 
         if (this.lectureCountUntilToday > 0) {
             this.attendanceRateUntilToday = ((double) actualAttendanceCount / this.lectureCountUntilToday) * 100.0;
         } else {
             this.attendanceRateUntilToday = 0.0;
         }
+
+        this.totalLectureCount = allLectures.size();
+        if (this.totalLectureCount > 0) {
+            // 과정 진행률
+            this.courseProgressRate = ((double) this.lectureCountUntilToday / this.totalLectureCount) * 100;
+
+            // 전체 출석률
+            this.totalAttendanceRate = ((double) actualAttendanceCount / this.totalLectureCount) * 100;
+        } else {
+            this.courseProgressRate = 0.0;
+            this.totalAttendanceRate = 0.0;
+        }
+
+        this.adjustedAbsenceCount = totalAbsence;
 
     }
 }
