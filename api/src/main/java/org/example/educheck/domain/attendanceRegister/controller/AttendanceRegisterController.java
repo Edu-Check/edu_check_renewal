@@ -3,9 +3,10 @@ package org.example.educheck.domain.attendanceRegister.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.educheck.domain.attendance.service.AttendanceSummaryService;
 import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentDetail.StudentAttendanceOverviewDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceRecord.MyAttendanceRecordResponseDto;
-import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsResponseDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsResponseDtoV1;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
 import org.example.educheck.domain.attendanceRegister.service.AttendanceRegisterService;
 import org.example.educheck.domain.course.repository.CourseRepository;
@@ -27,6 +28,7 @@ public class AttendanceRegisterController {
 
     private final AttendanceRegisterService attendanceRegisterService;
     private final CourseRepository courseRepository;
+    private final AttendanceSummaryService attendanceSummaryService;
 
     @PreAuthorize("hasAuthority('MIDDLE_ADMIN')")
     @GetMapping("/courses/{courseId}/attendances/today")
@@ -61,8 +63,8 @@ public class AttendanceRegisterController {
     }
 
     @PreAuthorize("hasAnyAuthority('STUDENT')")
-    @GetMapping("/my/course/{courseId}/attendances/stats")
-    public ResponseEntity<ApiResponse<MyAttendanceStaticsResponseDto>> getAttendancesStats(@AuthenticationPrincipal Member member,
+    @GetMapping("old-v/my/course/{courseId}/attendances/stats")
+    public ResponseEntity<ApiResponse<MyAttendanceStaticsResponseDtoV1>> getAttendancesStats(@AuthenticationPrincipal Member member,
                                                                                            @PathVariable Long courseId) {
 
         return ResponseEntity.ok(
@@ -73,6 +75,8 @@ public class AttendanceRegisterController {
                 )
         );
     }
+
+
 
     @PreAuthorize("hasAuthority('STUDENT')")
     @GetMapping("/my/courses/{courseId}/attendances")

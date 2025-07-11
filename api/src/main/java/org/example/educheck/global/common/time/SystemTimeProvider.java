@@ -18,4 +18,8 @@ public class SystemTimeProvider {
     public LocalDateTime nowDateTime() {
         return LocalDateTime.now(clock);
     }
+
+    public LocalDate nowDate() {
+        return LocalDate.now(clock);
+    }
 }

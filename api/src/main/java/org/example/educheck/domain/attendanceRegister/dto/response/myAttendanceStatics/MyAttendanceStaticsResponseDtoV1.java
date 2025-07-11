@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @Builder
-public class MyAttendanceStaticsResponseDto {
+public class MyAttendanceStaticsResponseDtoV1 {
 
     private final double attendanceRate;
     private final int lateCount;
@@ -18,8 +18,8 @@ public class MyAttendanceStaticsResponseDto {
     private final LocalDate startDate;
     private final LocalDate endDate;
 
-    public static MyAttendanceStaticsResponseDto from(MyAttendanceStaticsProjection projection, Course course) {
-        return MyAttendanceStaticsResponseDto.builder()
+    public static MyAttendanceStaticsResponseDtoV1 from(MyAttendanceStaticsProjection projection, Course course) {
+        return MyAttendanceStaticsResponseDtoV1.builder()
                 .attendanceRate(projection.getTotalAttendanceRate())
                 .lateCount(projection.getLateCountUntilToday())
                 .earlyLeaveCount(projection.getEarlyLateCountUntilToday())

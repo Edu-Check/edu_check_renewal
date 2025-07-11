@@ -38,7 +38,9 @@ public class Student {
     public Student(Member member, char courseParticipationStatus, List<Registration> registrations) {
         this.member = member;
         this.courseParticipationStatus = courseParticipationStatus;
-        this.registrations = registrations;
+        if (registrations != null) {
+            this.registrations = registrations;
+        }
     }
 
     public boolean isParticipatingCourse() {

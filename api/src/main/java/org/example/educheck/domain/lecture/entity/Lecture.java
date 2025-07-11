@@ -2,6 +2,7 @@ package org.example.educheck.domain.lecture.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.course.entity.Course;
@@ -53,6 +54,16 @@ public class Lecture {
     public boolean isBeforeLectureEndTime(LocalTime currentTime) {
 
         return currentTime.isBefore(endTime);
+    }
+
+    @Builder
+    public Lecture(Course course, int session, String title, LocalDate date, LocalTime startTime, LocalTime endTime) {
+        this.course = course;
+        this.session = session;
+        this.title = title;
+        this.date = date;
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
 }
