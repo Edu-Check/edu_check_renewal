@@ -1,7 +1,20 @@
 package org.example.educheck.domain.attendance.entity;
 
+import io.lettuce.core.internal.TimeoutProvider;
 import jakarta.persistence.*;
 import lombok.*;
+import org.checkerframework.common.returnsreceiver.qual.This;
+import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
+import org.example.educheck.domain.lecture.entity.Lecture;
+import org.example.educheck.global.common.time.SystemTimeProvider;
+import org.hibernate.boot.model.source.spi.CollectionIdSource;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Entity
 @IdClass(AttendanceSummaryId.class)
@@ -51,6 +64,8 @@ public class AttendanceSummary {
     @Column(name = "total_lecture_count")
     private Integer totalLectureCount;
 
+    private static final int LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE = 3;
+
     public void updateSummary(AttendanceStatus oldStatus, AttendanceStatus newStatus) {
         if (oldStatus != null) {
             switch (oldStatus) {
@@ -86,7 +101,7 @@ public class AttendanceSummary {
             }
         }
 
-        this.adjustedAbsentByLateOrEarlyLeave = (this.lateCountUntilToday + this.earlyLeaveCountUntilToday) / 3;
+        this.adjustedAbsentByLateOrEarlyLeave = (this.lateCountUntilToday + this.earlyLeaveCountUntilToday) / LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE;
 
         if (this.lectureCountUntilToday > 0) {
             this.attendanceRateUntilToday = ((double) (this.attendanceCountUntilToday + this.lateCountUntilToday + this.earlyLeaveCountUntilToday - this.adjustedAbsentByLateOrEarlyLeave) / this.lectureCountUntilToday) * 100.0;
@@ -122,5 +137,68 @@ public class AttendanceSummary {
                 ", adjustedAbsentByLateOrEarlyLeave=" + adjustedAbsentByLateOrEarlyLeave +
                 ", totalLectureCount=" + totalLectureCount +
                 '}';
+    }
+
+    public void recalculateWithApprovedAbsences(List<Attendance> attendances, List<AbsenceAttendance> approvedAbsences, List<Lecture> allLectures, SystemTimeProvider timeProvider) {
+        this.attendanceCountUntilToday = 0;
+        this.lateCountUntilToday = 0;
+        this.earlyLeaveCountUntilToday = 0;
+        this.absenceCountUntilToday = 0;
+        this.adjustedAbsentByLateOrEarlyLeave = 0;
+
+        Map<LocalDate, Attendance> attendanceMap = attendances.stream()
+                .collect(Collectors.toMap(att -> att.getLecture().getDate(), Function.identity()));
+
+        Set<LocalDate> approvedAbsenceDates = approvedAbsences.stream()
+                .flatMap(absence -> absence.getStartTime().datesUntil(absence.getEndTime().plusDays(1)))
+                .collect(Collectors.toSet());
+
+        LocalDate today = timeProvider.nowDate();
+        List<Lecture> lecturesUntilToday = allLectures.stream()
+                .filter(lecture -> !lecture.getDate().isAfter(today))
+                .toList();
+
+        this.lectureCountUntilToday = lecturesUntilToday.size();
+
+        for (Lecture lecture : lecturesUntilToday) {
+            LocalDate lectureDate = lecture.getDate();
+
+            if (approvedAbsenceDates.contains(lectureDate)) {
+                this.attendanceCountUntilToday++;
+                continue;
+            }
+
+            Attendance attendanceRecord = attendanceMap.get(lectureDate);
+
+            if (attendanceRecord != null) {
+                switch (attendanceRecord.getAttendanceStatus()) {
+                    case AttendanceStatus.ATTENDANCE:
+                        this.attendanceCountUntilToday++;
+                        break;
+                    case AttendanceStatus.LATE:
+                        this.lateCountUntilToday++;
+                        break;
+                    case AttendanceStatus.EARLY_LEAVE:
+                        this.earlyLeaveCountUntilToday++;
+                        break;
+                }
+            } else {
+                // 출석 기록이 없다면 결석
+                this.absenceCountUntilToday++;
+            }
+        }
+
+        int totalLateAndEarlyLeave = this.lateCountUntilToday + this.earlyLeaveCountUntilToday;
+        this.adjustedAbsentByLateOrEarlyLeave = totalLateAndEarlyLeave / LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE;
+
+        int totalAbsence = this.absenceCountUntilToday + this.adjustedAbsentByLateOrEarlyLeave;
+        int actualAttendanceCount = this.lectureCountUntilToday - totalAbsence;
+
+        if (this.lectureCountUntilToday > 0) {
+            this.attendanceRateUntilToday = ((double) actualAttendanceCount / this.lectureCountUntilToday) * 100.0;
+        } else {
+            this.attendanceRateUntilToday = 0.0;
+        }
+
     }
 }

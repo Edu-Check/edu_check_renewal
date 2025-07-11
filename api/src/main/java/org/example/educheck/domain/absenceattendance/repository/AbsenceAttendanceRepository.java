@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public interface AbsenceAttendanceRepository extends JpaRepository<AbsenceAttendance, Long> {
     Page<AbsenceAttendance> findByCourseId(Long courseId, Pageable pageable);
@@ -30,5 +31,12 @@ public interface AbsenceAttendanceRepository extends JpaRepository<AbsenceAttend
     boolean existsByStudentAndCourseAndStartTimeLessThanEqualAndEndTimeGreaterThanEqualAndDeletionRequestedAtIsNull(
             Student student, Course course, LocalDate endDate, LocalDate startDate
     );
+
+    @Query("SELECT a FROM AbsenceAttendance a " +
+            "WHERE a.student.id = :studentId " +
+            "AND a.course.id = :courseId " +
+            "AND a.isApprove = 'T' " +
+            "AND a.deletionRequestedAt IS NULL")
+    List<AbsenceAttendance> findApprovedAbsences(@Param("studentId")Long studentId, @Param("courseId")Long courseId);
 
 }
