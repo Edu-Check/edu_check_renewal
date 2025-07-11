@@ -73,7 +73,6 @@ public class AttendanceSummaryService {
                             .build();
                 });
 
-        // Always update lecture counts to ensure they are current
         summary.setTotalLectureCount(lectureRepository.countByCourseId(courseId));
         summary.setLectureCountUntilToday(lectureRepository.countByCourseIdAndDateLessThanEqual(courseId, timeProvider.nowDate()));
 
