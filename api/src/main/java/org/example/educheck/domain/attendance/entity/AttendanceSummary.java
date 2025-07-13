@@ -65,8 +65,22 @@ public class AttendanceSummary {
 
     public void updateSummary(AttendanceStatus oldStatus, AttendanceStatus newStatus) {
         if (oldStatus != null) {
+        if (oldStatus != null) {
             switch (oldStatus) {
-            switch (oldStatus) {
+                case ATTENDANCE:
+                    this.attendanceCountUntilToday--;
+                    break;
+                case LATE:
+                    this.lateCountUntilToday--;
+                    break;
+                case EARLY_LEAVE:
+                    this.earlyLeaveCountUntilToday--;
+                    break;
+                case ABSENCE:
+                    this.absenceCountUntilToday--;
+                    break;
+            }
+        }
                 case ATTENDANCE:
                     this.attendanceCountUntilToday--;
                     break;
