@@ -13,6 +13,9 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.example.educheck.domain.attendance.entity.AttendanceStatus.ATTENDANCE;
+import static org.example.educheck.domain.attendance.entity.AttendanceStatus.LATE;
+
 @Entity
 @IdClass(AttendanceSummaryId.class)
 @Getter
@@ -65,22 +68,7 @@ public class AttendanceSummary {
 
     public void updateSummary(AttendanceStatus oldStatus, AttendanceStatus newStatus) {
         if (oldStatus != null) {
-        if (oldStatus != null) {
             switch (oldStatus) {
-                case ATTENDANCE:
-                    this.attendanceCountUntilToday--;
-                    break;
-                case LATE:
-                    this.lateCountUntilToday--;
-                    break;
-                case EARLY_LEAVE:
-                    this.earlyLeaveCountUntilToday--;
-                    break;
-                case ABSENCE:
-                    this.absenceCountUntilToday--;
-                    break;
-            }
-        }
                 case ATTENDANCE:
                     this.attendanceCountUntilToday--;
                     break;
@@ -98,148 +86,147 @@ public class AttendanceSummary {
 
         if (newStatus != null) {
             switch (newStatus) {
-switch (newStatus) {
-    case ATTENDANCE:
-        this.attendanceCountUntilToday++;
-        break;
-    case LATE:
-        this.lateCountUntilToday++;
-        break;
-    case EARLY_LEAVE:
-        this.earlyLeaveCountUntilToday++;
-        break;
-    case ABSENCE:
-        this.absenceCountUntilToday++;
-        break;
-}
+                case ATTENDANCE:
+                    this.attendanceCountUntilToday++;
+                    break;
+                case LATE:
+                    this.lateCountUntilToday++;
+                    break;
+                case EARLY_LEAVE:
+                    this.earlyLeaveCountUntilToday++;
+                    break;
+                case ABSENCE:
+                    this.absenceCountUntilToday++;
+                    break;
+            }
         }
 
         this.adjustedAbsentByLateOrEarlyLeave = (this.lateCountUntilToday + this.earlyLeaveCountUntilToday) / LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE;
 
-        if (this.lectureCountUntilToday > 0) {
-        if (this.lectureCountUntilToday > 0) {
-            int effectiveAttendance = this.attendanceCountUntilToday
-                                    + this.lateCountUntilToday
-                                    + this.earlyLeaveCountUntilToday
-                                    - this.adjustedAbsentByLateOrEarlyLeave;
-            this.attendanceRateUntilToday = ((double) effectiveAttendance
-                                            / this.lectureCountUntilToday) * 100.0;
-        } else {
-            this.attendanceRateUntilToday = 0.0;
-        }
-
-        if (this.totalLectureCount > 0) {
-            this.totalAttendanceRate = ((double) (this.attendanceCountUntilToday
-                    + this.lateCountUntilToday
-                    + this.earlyLeaveCountUntilToday
-                    - this.adjustedAbsentByLateOrEarlyLeave)
-                    / this.totalLectureCount) * 100.0;
-            this.courseProgressRate = ((double) this.lectureCountUntilToday
-                    / this.totalLectureCount) * 100.0;
-        } else {
-            this.totalAttendanceRate = 0.0;
-            this.courseProgressRate = 0.0;
-        }
-
-        this.adjustedAbsenceCount = this.adjustedAbsentByLateOrEarlyLeave + this.absenceCountUntilToday;
-    }
-
-    @Override
-    public String toString() {
-        return "AttendanceSummary{" +
-                "studentId=" + studentId +
-                ", courseId=" + courseId +
-                ", totalAttendanceRate=" + totalAttendanceRate +
-                ", lateCountUntilToday=" + lateCountUntilToday +
-                ", earlyLeaveCountUntilToday=" + earlyLeaveCountUntilToday +
-                ", absenceCountUntilToday=" + absenceCountUntilToday +
-                ", adjustedAbsenceCount=" + adjustedAbsenceCount +
-                ", attendanceRateUntilToday=" + attendanceRateUntilToday +
-                ", courseProgressRate=" + courseProgressRate +
-                ", lectureCountUntilToday=" + lectureCountUntilToday +
-                ", attendanceCountUntilToday=" + attendanceCountUntilToday +
-                ", adjustedAbsentByLateOrEarlyLeave=" + adjustedAbsentByLateOrEarlyLeave +
-                ", totalLectureCount=" + totalLectureCount +
-                '}';
-    }
-
-    public void recalculateWithApprovedAbsences(List<Attendance> attendances, List<AbsenceAttendance> approvedAbsences, List<Lecture> allLectures, SystemTimeProvider timeProvider) {
-        this.attendanceCountUntilToday = 0;
-        this.lateCountUntilToday = 0;
-        this.earlyLeaveCountUntilToday = 0;
-        this.absenceCountUntilToday = 0;
-        this.adjustedAbsentByLateOrEarlyLeave = 0;
-
-        Map<LocalDate, Attendance> attendanceMap = attendances.stream()
-                .collect(Collectors.toMap(att -> att.getLecture().getDate(), Function.identity()));
-
-        Set<LocalDate> approvedAbsenceDates = approvedAbsences.stream()
-                .flatMap(absence -> absence.getStartTime().datesUntil(absence.getEndTime().plusDays(1)))
-                .collect(Collectors.toSet());
-
-        LocalDate today = timeProvider.nowDate();
-        List<Lecture> lecturesUntilToday = allLectures.stream()
-                .filter(lecture -> !lecture.getDate().isAfter(today))
-                .toList();
-
-        this.lectureCountUntilToday = lecturesUntilToday.size();
-
-        for (Lecture lecture : lecturesUntilToday) {
-            LocalDate lectureDate = lecture.getDate();
-
-            if (approvedAbsenceDates.contains(lectureDate)) {
-                this.attendanceCountUntilToday++;
-                continue;
-            }
-
-            Attendance attendanceRecord = attendanceMap.get(lectureDate);
-
-            if (attendanceRecord != null) {
-                switch (attendanceRecord.getAttendanceStatus()) {
-                switch (attendanceRecord.getAttendanceStatus()) {
-                    case ATTENDANCE:
-                        this.attendanceCountUntilToday++;
-                        break;
-                    case LATE:
-                        this.lateCountUntilToday++;
-                        break;
-                    case EARLY_LEAVE:
-                        this.earlyLeaveCountUntilToday++;
-                        break;
-                }
+            if (this.lectureCountUntilToday > 0) {
+                int effectiveAttendance = this.attendanceCountUntilToday
+                        + this.lateCountUntilToday
+                        + this.earlyLeaveCountUntilToday
+                        - this.adjustedAbsentByLateOrEarlyLeave;
+                this.attendanceRateUntilToday = ((double) effectiveAttendance
+                        / this.lectureCountUntilToday) * 100.0;
             } else {
-                // 출석 기록이 없다면 결석
-                this.absenceCountUntilToday++;
+                this.attendanceRateUntilToday = 0.0;
+            }
+
+            if (this.totalLectureCount > 0) {
+                this.totalAttendanceRate = ((double) (this.attendanceCountUntilToday
+                        + this.lateCountUntilToday
+                        + this.earlyLeaveCountUntilToday
+                        - this.adjustedAbsentByLateOrEarlyLeave)
+                        / this.totalLectureCount) * 100.0;
+                this.courseProgressRate = ((double) this.lectureCountUntilToday
+                        / this.totalLectureCount) * 100.0;
+            } else {
+                this.totalAttendanceRate = 0.0;
+                this.courseProgressRate = 0.0;
+            }
+
+            this.adjustedAbsenceCount = this.adjustedAbsentByLateOrEarlyLeave + this.absenceCountUntilToday;
+        }
+
+        @Override
+        public String toString () {
+            return "AttendanceSummary{" +
+                    "studentId=" + studentId +
+                    ", courseId=" + courseId +
+                    ", totalAttendanceRate=" + totalAttendanceRate +
+                    ", lateCountUntilToday=" + lateCountUntilToday +
+                    ", earlyLeaveCountUntilToday=" + earlyLeaveCountUntilToday +
+                    ", absenceCountUntilToday=" + absenceCountUntilToday +
+                    ", adjustedAbsenceCount=" + adjustedAbsenceCount +
+                    ", attendanceRateUntilToday=" + attendanceRateUntilToday +
+                    ", courseProgressRate=" + courseProgressRate +
+                    ", lectureCountUntilToday=" + lectureCountUntilToday +
+                    ", attendanceCountUntilToday=" + attendanceCountUntilToday +
+                    ", adjustedAbsentByLateOrEarlyLeave=" + adjustedAbsentByLateOrEarlyLeave +
+                    ", totalLectureCount=" + totalLectureCount +
+                    '}';
+        }
+
+        public void recalculateWithApprovedAbsences
+        (List < Attendance > attendances, List < AbsenceAttendance > approvedAbsences, List < Lecture > allLectures, SystemTimeProvider
+        timeProvider){
+            this.attendanceCountUntilToday = 0;
+            this.lateCountUntilToday = 0;
+            this.earlyLeaveCountUntilToday = 0;
+            this.absenceCountUntilToday = 0;
+            this.adjustedAbsentByLateOrEarlyLeave = 0;
+
+            Map<LocalDate, Attendance> attendanceMap = attendances.stream()
+                    .collect(Collectors.toMap(att -> att.getLecture().getDate(), Function.identity()));
+
+            Set<LocalDate> approvedAbsenceDates = approvedAbsences.stream()
+                    .flatMap(absence -> absence.getStartTime().datesUntil(absence.getEndTime().plusDays(1)))
+                    .collect(Collectors.toSet());
+
+            LocalDate today = timeProvider.nowDate();
+            List<Lecture> lecturesUntilToday = allLectures.stream()
+                    .filter(lecture -> !lecture.getDate().isAfter(today))
+                    .toList();
+
+            this.lectureCountUntilToday = lecturesUntilToday.size();
+
+            for (Lecture lecture : lecturesUntilToday) {
+                LocalDate lectureDate = lecture.getDate();
+
+                if (approvedAbsenceDates.contains(lectureDate)) {
+                    this.attendanceCountUntilToday++;
+                    continue;
+                }
+
+                Attendance attendanceRecord = attendanceMap.get(lectureDate);
+
+                if (attendanceRecord != null) {
+                        switch (attendanceRecord.getAttendanceStatus()) {
+                            case ATTENDANCE:
+                                this.attendanceCountUntilToday++;
+                                break;
+                            case LATE:
+                                this.lateCountUntilToday++;
+                                break;
+                            case EARLY_LEAVE:
+                                this.earlyLeaveCountUntilToday++;
+                                break;
+                        }
+                    } else{
+                        // 출석 기록이 없다면 결석
+                        this.absenceCountUntilToday++;
+                    }
+                }
+
+                int totalLateAndEarlyLeave = this.lateCountUntilToday + this.earlyLeaveCountUntilToday;
+                this.adjustedAbsentByLateOrEarlyLeave = totalLateAndEarlyLeave / LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE;
+
+                int totalAbsence = this.absenceCountUntilToday + this.adjustedAbsentByLateOrEarlyLeave;
+                int actualAttendanceCount = attendanceCountUntilToday;
+
+                if (this.lectureCountUntilToday > 0) {
+                    int effectiveAttendance = actualAttendanceCount + this.lateCountUntilToday +
+                            this.earlyLeaveCountUntilToday - this.adjustedAbsentByLateOrEarlyLeave;
+                    this.attendanceRateUntilToday = ((double) effectiveAttendance / this.lectureCountUntilToday) * 100.0;
+                } else {
+                    this.attendanceRateUntilToday = 0.0;
+                }
+
+                this.totalLectureCount = allLectures.size();
+                if (this.totalLectureCount > 0) {
+                    // 과정 진행률
+                    this.courseProgressRate = ((double) this.lectureCountUntilToday / this.totalLectureCount) * 100;
+
+                    // 전체 출석률
+                    this.totalAttendanceRate = ((double) actualAttendanceCount / this.totalLectureCount) * 100;
+                } else {
+                    this.courseProgressRate = 0.0;
+                    this.totalAttendanceRate = 0.0;
+                }
+
+                this.adjustedAbsenceCount = totalAbsence;
+
             }
         }
-
-        int totalLateAndEarlyLeave = this.lateCountUntilToday + this.earlyLeaveCountUntilToday;
-        this.adjustedAbsentByLateOrEarlyLeave = totalLateAndEarlyLeave / LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE;
-
-        int totalAbsence = this.absenceCountUntilToday + this.adjustedAbsentByLateOrEarlyLeave;
-        int actualAttendanceCount = attendanceCountUntilToday;
-
-        if (this.lectureCountUntilToday > 0) {
-            int effectiveAttendance = actualAttendanceCount + this.lateCountUntilToday +
-                                     this.earlyLeaveCountUntilToday - this.adjustedAbsentByLateOrEarlyLeave;
-            this.attendanceRateUntilToday = ((double) effectiveAttendance / this.lectureCountUntilToday) * 100.0;
-        } else {
-            this.attendanceRateUntilToday = 0.0;
-        }
-
-        this.totalLectureCount = allLectures.size();
-        if (this.totalLectureCount > 0) {
-            // 과정 진행률
-            this.courseProgressRate = ((double) this.lectureCountUntilToday / this.totalLectureCount) * 100;
-
-            // 전체 출석률
-            this.totalAttendanceRate = ((double) actualAttendanceCount / this.totalLectureCount) * 100;
-        } else {
-            this.courseProgressRate = 0.0;
-            this.totalAttendanceRate = 0.0;
-        }
-
-        this.adjustedAbsenceCount = totalAbsence;
-
-    }
-}
