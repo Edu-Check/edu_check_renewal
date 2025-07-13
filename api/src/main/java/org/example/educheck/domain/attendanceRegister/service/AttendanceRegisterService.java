@@ -8,7 +8,7 @@ import org.example.educheck.domain.attendanceRegister.dto.response.adminStudentD
 import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceRecord.MyAttendanceRecordProjection;
 import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceRecord.MyAttendanceRecordResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsProjection;
-import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsResponseDto;
+import org.example.educheck.domain.attendanceRegister.dto.response.myAttendanceStatics.MyAttendanceStaticsResponseDtoV1;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceResponseDto;
 import org.example.educheck.domain.attendanceRegister.dto.response.today.TodayLectureAttendanceStatus;
 import org.example.educheck.domain.attendanceRegister.entity.AttendanceRegister;
@@ -68,13 +68,13 @@ public class AttendanceRegisterService {
 
     }
 
-    public MyAttendanceStaticsResponseDto getAttendanceDashboardData(Member member, Long courseId) {
+    public MyAttendanceStaticsResponseDtoV1 getAttendanceDashboardData(Member member, Long courseId) {
 
         Course validCourse = courseService.getValidCourse(courseId);
         Student enrolledStudent = studentService.getEnrolledStudent(member.getStudentId(), courseId);
         MyAttendanceStaticsProjection projection = attendanceRegisterRepository.findAttendanceSummaryByStudentIdAndCourseId(enrolledStudent.getId(), courseId);
 
-        return MyAttendanceStaticsResponseDto.from(projection, validCourse);
+        return MyAttendanceStaticsResponseDtoV1.from(projection, validCourse);
     }
 
     public MyAttendanceRecordResponseDto getMonthlyAttendance(Member member, Long courseId, Integer year, Integer month) {
