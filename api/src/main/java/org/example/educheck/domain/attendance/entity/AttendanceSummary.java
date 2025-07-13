@@ -98,19 +98,20 @@ public class AttendanceSummary {
 
         if (newStatus != null) {
             switch (newStatus) {
-                case AttendanceStatus.ATTENDANCE:
-                    this.attendanceCountUntilToday++;
-                    break;
-                case AttendanceStatus.LATE:
-                    this.lateCountUntilToday++;
-                    break;
-                case AttendanceStatus.EARLY_LEAVE:
-                    this.earlyLeaveCountUntilToday++;
-                    break;
-                case AttendanceStatus.ABSENCE:
-                    this.absenceCountUntilToday++;
-                    break;
-            }
+switch (newStatus) {
+    case ATTENDANCE:
+        this.attendanceCountUntilToday++;
+        break;
+    case LATE:
+        this.lateCountUntilToday++;
+        break;
+    case EARLY_LEAVE:
+        this.earlyLeaveCountUntilToday++;
+        break;
+    case ABSENCE:
+        this.absenceCountUntilToday++;
+        break;
+}
         }
 
         this.adjustedAbsentByLateOrEarlyLeave = (this.lateCountUntilToday + this.earlyLeaveCountUntilToday) / LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE;
