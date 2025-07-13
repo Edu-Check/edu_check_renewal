@@ -102,9 +102,15 @@ public class AttendanceSummary {
         this.adjustedAbsentByLateOrEarlyLeave = (this.lateCountUntilToday + this.earlyLeaveCountUntilToday) / LATE_OR_EARLY_LEAVE_COUNT_FOR_ABSENCE;
 
         if (this.lectureCountUntilToday > 0) {
-            this.attendanceRateUntilToday = ((double) (this.attendanceCountUntilToday + this.lateCountUntilToday + this.earlyLeaveCountUntilToday - this.adjustedAbsentByLateOrEarlyLeave) / this.lectureCountUntilToday) * 100.0;
+        if (this.lectureCountUntilToday > 0) {
+            int effectiveAttendance = this.attendanceCountUntilToday
+                                    + this.lateCountUntilToday
+                                    + this.earlyLeaveCountUntilToday
+                                    - this.adjustedAbsentByLateOrEarlyLeave;
+            this.attendanceRateUntilToday = ((double) effectiveAttendance
+                                            / this.lectureCountUntilToday) * 100.0;
         } else {
-            this.attendanceRateUntilToday = null;
+            this.attendanceRateUntilToday = 0.0;
         }
 
         if (this.totalLectureCount > 0) {
