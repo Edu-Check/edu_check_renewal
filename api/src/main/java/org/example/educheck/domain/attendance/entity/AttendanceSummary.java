@@ -114,11 +114,16 @@ public class AttendanceSummary {
         }
 
         if (this.totalLectureCount > 0) {
-            this.totalAttendanceRate = ((double) (this.attendanceCountUntilToday + this.lateCountUntilToday + this.earlyLeaveCountUntilToday - this.adjustedAbsentByLateOrEarlyLeave) / this.totalLectureCount) * 100.0;
-            this.courseProgressRate = ((double) this.lectureCountUntilToday / this.totalLectureCount) * 100.0;
+            this.totalAttendanceRate = ((double) (this.attendanceCountUntilToday
+                    + this.lateCountUntilToday
+                    + this.earlyLeaveCountUntilToday
+                    - this.adjustedAbsentByLateOrEarlyLeave)
+                    / this.totalLectureCount) * 100.0;
+            this.courseProgressRate = ((double) this.lectureCountUntilToday
+                    / this.totalLectureCount) * 100.0;
         } else {
-            this.totalAttendanceRate = null;
-            this.courseProgressRate = null;
+            this.totalAttendanceRate = 0.0;
+            this.courseProgressRate = 0.0;
         }
 
         this.adjustedAbsenceCount = this.adjustedAbsentByLateOrEarlyLeave + this.absenceCountUntilToday;
