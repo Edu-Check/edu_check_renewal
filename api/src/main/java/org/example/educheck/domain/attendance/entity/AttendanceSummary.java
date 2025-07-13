@@ -200,7 +200,9 @@ public class AttendanceSummary {
         int actualAttendanceCount = attendanceCountUntilToday;
 
         if (this.lectureCountUntilToday > 0) {
-            this.attendanceRateUntilToday = ((double) actualAttendanceCount / this.lectureCountUntilToday) * 100.0;
+            int effectiveAttendance = actualAttendanceCount + this.lateCountUntilToday +
+                                     this.earlyLeaveCountUntilToday - this.adjustedAbsentByLateOrEarlyLeave;
+            this.attendanceRateUntilToday = ((double) effectiveAttendance / this.lectureCountUntilToday) * 100.0;
         } else {
             this.attendanceRateUntilToday = 0.0;
         }
