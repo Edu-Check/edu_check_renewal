@@ -47,7 +47,7 @@ class AttendanceSummaryTest {
 
     @Test
     @DisplayName("출석 -> 지각으로 변경한다")
-    void updateSummary_FromAttendacneToLate() {
+    void updateSummary_FromAttendanceToLate() {
         //given
         summary.updateSummary(null, AttendanceStatus.ATTENDANCE);
         assertThat(summary.getAttendanceCountUntilToday()).isEqualTo(1);

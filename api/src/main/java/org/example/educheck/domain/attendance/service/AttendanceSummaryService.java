@@ -93,8 +93,6 @@ public class AttendanceSummaryService {
         log.info("유고 결석 승인 이벤트 수신 : id : {}, 과정 id : {}", event.getStudentId(), event.getCourseId());
         Long courseId = event.getCourseId();
         Long studentId = event.getStudentId();
-        LocalDate starDate = event.getStarDate();
-        LocalDate endDate = event.getEndDate();
 
         List<Lecture> allLectures = lectureRepository.findAllByCourseId(courseId);
 

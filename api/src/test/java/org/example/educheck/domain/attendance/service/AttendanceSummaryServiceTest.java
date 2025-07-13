@@ -80,7 +80,7 @@ class AttendanceSummaryServiceTest {
         studentMember = memberRepository.save(Member.builder()
                 .name("Test Student")
                 .role(Role.STUDENT)
-                .email("testtwe11naver.com")
+                .email("testtwe11@naver.com")
                 .build());
 
         student = studentRepository.save(Student.builder()
@@ -119,7 +119,6 @@ class AttendanceSummaryServiceTest {
                 .startTime(LocalTime.of(9, 0))
                 .endTime(LocalTime.of(18, 0))
                 .build());
-
 
 
     }
@@ -163,18 +162,18 @@ class AttendanceSummaryServiceTest {
     @DisplayName("기존 출석 통계가 조퇴 업데이트될 때 정상적으로 반영된다.")
     void handleAttendanceUpdatedToEarlyLeave() {
         //given
-        Attendance initialAttendacne = Attendance.builder()
+        Attendance initialAttendance = Attendance.builder()
                 .student(student)
                 .lecture(todayLecture)
                 .attendanceStatus(AttendanceStatus.ATTENDANCE)
                 .build();
-        Attendance savedInitialAttendance = attendanceRepository.save(initialAttendacne);
+        Attendance savedInitialAttendance = attendanceRepository.save(initialAttendance);
 
         TestTransaction.flagForCommit();
         TestTransaction.end();
         TestTransaction.start();
 
-        AttendanceUpdatedEvent event = new AttendanceUpdatedEvent(savedInitialAttendance, null, initialAttendacne.getAttendanceStatus());
+        AttendanceUpdatedEvent event = new AttendanceUpdatedEvent(savedInitialAttendance, null, initialAttendance.getAttendanceStatus());
         attendanceSummaryService.handleAttendanceUpdatedEvent(event);
 
         TestTransaction.flagForCommit();
@@ -209,9 +208,13 @@ class AttendanceSummaryServiceTest {
                 .build();
         Attendance savedFirstLate = attendanceRepository.save(firstLateAttendance);
 
-        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
         attendanceSummaryService.handleAttendanceUpdatedEvent(new AttendanceUpdatedEvent(savedFirstLate, null, savedFirstLate.getAttendanceStatus()));
-        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
 
         Attendance secondAttendance = Attendance.builder()
                 .student(student)
@@ -220,9 +223,13 @@ class AttendanceSummaryServiceTest {
                 .build();
         Attendance savedSecondLate = attendanceRepository.save(secondAttendance);
 
-        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
         attendanceSummaryService.handleAttendanceUpdatedEvent(new AttendanceUpdatedEvent(savedSecondLate, null, savedSecondLate.getAttendanceStatus()));
-        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
 
         Attendance thirdAttendance = Attendance.builder()
                 .student(student)
@@ -231,9 +238,13 @@ class AttendanceSummaryServiceTest {
                 .build();
         Attendance savedThirdLate = attendanceRepository.save(thirdAttendance);
 
-        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
         attendanceSummaryService.handleAttendanceUpdatedEvent(new AttendanceUpdatedEvent(savedThirdLate, null, savedThirdLate.getAttendanceStatus()));
-        TestTransaction.flagForCommit(); TestTransaction.end(); TestTransaction.start();
+        TestTransaction.flagForCommit();
+        TestTransaction.end();
+        TestTransaction.start();
 
         //then
         AttendanceSummary summary = attendanceSummaryRepository.findById(new AttendanceSummaryId(student.getId(), course.getId()))

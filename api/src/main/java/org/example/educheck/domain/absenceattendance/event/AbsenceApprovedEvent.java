@@ -11,6 +11,6 @@ public class AbsenceApprovedEvent {
 
     private final Long courseId;
     private final Long studentId;
-    private final LocalDate starDate;
+    private final LocalDate startDate;
     private final LocalDate endDate;
 }
