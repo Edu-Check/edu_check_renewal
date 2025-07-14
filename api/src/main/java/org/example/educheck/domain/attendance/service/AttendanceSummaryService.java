@@ -37,7 +37,7 @@ public class AttendanceSummaryService {
     private final AbsenceAttendanceRepository absenceAttendanceRepository;
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleAttendanceUpdatedEvent(AttendanceUpdatedEvent event) {
         Attendance attendance = event.getAttendance();
         AttendanceStatus oldStatus = event.getOldStatus();
