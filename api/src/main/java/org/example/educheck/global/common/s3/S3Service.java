@@ -93,7 +93,7 @@ public class S3Service {
         }
     }
 
-    public String generateViewPresignedUrl(String key) {
+    public String generateViewPresigndUrl(String key) {
         //조회 요청 정보 생성
         GetObjectRequest getObjectRequest = GetObjectRequest.builder()
                 .bucket(bucketName)
