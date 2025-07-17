@@ -26,7 +26,6 @@ import org.example.educheck.global.common.exception.custom.common.*;
 import org.example.educheck.global.common.s3.S3Service;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -57,6 +56,8 @@ public class AbsenceAttendanceService {
     private final RegistrationRepository registrationRepository;
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AbsenceAttendanceFinder absenceAttendanceFinder;
+
     @Value("${BUCKET_NAME}")
     private String bucketName;
     @Value("${REGION}")
@@ -291,7 +292,7 @@ public class AbsenceAttendanceService {
     @CacheEvict(value = "absenceAttendanceCache", key = "#absenceAttendancesId")
     public void cancelAttendanceAbsence(Member member, Long absenceAttendancesId) {
 
-        AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
+        AbsenceAttendance absenceAttendance = absenceAttendanceFinder.findAbsenceAttendanceById(absenceAttendancesId);
         validateMatchApplicant(member, absenceAttendance);
         validateAttendanceAbsenceCancellable(absenceAttendance);
 
@@ -305,7 +306,7 @@ public class AbsenceAttendanceService {
     @CachePut(value = "absenceAttendanceCache", key = "#absenceAttendancesId")
     public UpdateAbsenceAttendanceReponseDto updateAttendanceAbsence(Member member, Long absenceAttendancesId, UpdateAbsenceAttendacneRequestDto requestDto, MultipartFile[] files) {
 
-        AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
+        AbsenceAttendance absenceAttendance = absenceAttendanceFinder.findAbsenceAttendanceById(absenceAttendancesId);
         validateMatchApplicant(member, absenceAttendance);
         validateModifiable(absenceAttendance);
         if (requestDto.getStartDate().isAfter(requestDto.getEndDate())) {
@@ -325,10 +326,6 @@ public class AbsenceAttendanceService {
 
     }
 
-    private AbsenceAttendance getAbsenceAttendance(Long absenceAttendancesId) {
-        return absenceAttendanceRepository.findById(absenceAttendancesId)
-                .orElseThrow(() -> new ResourceNotFoundException("해당 유고 결석 신청 내역이 존재하지 않습니다."));
-    }
 
     private void markAttachementFilesForDeletion(AbsenceAttendance absenceAttendance) {
         List<AbsenceAttendanceAttachmentFile> attachmentFiles = absenceAttendance.getActiveFiles();
@@ -338,10 +335,9 @@ public class AbsenceAttendanceService {
         }
     }
 
-    public AbsenceAttendanceResponseDto getAbsenceAttendance(Member member, Long courseId, Long absenceAttendancesId) {
-        log.info(">>> CACHE MISS: Fetching absence attendance with ID {}", absenceAttendancesId);
+    public AbsenceAttendanceResponseDto findAbsenceAttendanceById(Member member, Long courseId, Long absenceAttendancesId) {
 
-        AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
+        AbsenceAttendance absenceAttendance = absenceAttendanceFinder.findAbsenceAttendanceById(absenceAttendancesId);
 
         Member student = memberRepository.findByStudent_Id(absenceAttendance.getStudent().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 학생이 존재하지 않습니다."));

@@ -95,12 +95,12 @@ class AbsenceAttendanceServiceTest {
         Long absenceAttendanceId = 1L;
         Long courseId = 1L;
 
-        AbsenceAttendanceResponseDto firstCall = absenceAttendanceService.getAbsenceAttendance(
+        AbsenceAttendanceResponseDto firstCall = absenceAttendanceService.findAbsenceAttendanceById(
                 mockMember, courseId, absenceAttendanceId
         );
 
         // 캐시 히트 예상
-        AbsenceAttendanceResponseDto secondCall = absenceAttendanceService.getAbsenceAttendance(
+        AbsenceAttendanceResponseDto secondCall = absenceAttendanceService.findAbsenceAttendanceById(
                 mockMember, courseId, absenceAttendanceId
         );
 
@@ -125,7 +125,7 @@ class AbsenceAttendanceServiceTest {
         Long absenceAttendanceId = 1L;
         Long courseId = 1L;
 
-        absenceAttendanceService.getAbsenceAttendance(
+        absenceAttendanceService.findAbsenceAttendanceById(
                 mockMember, courseId, absenceAttendanceId
         );
 
@@ -142,11 +142,11 @@ class AbsenceAttendanceServiceTest {
         Long absenceAttendanceId = 1L;
         Long courseId = 1L;
 
-        absenceAttendanceService.getAbsenceAttendance(
+        absenceAttendanceService.findAbsenceAttendanceById(
                 mockMember, courseId, absenceAttendanceId
         );
 
-        absenceAttendanceService.getAbsenceAttendance(
+        absenceAttendanceService.findAbsenceAttendanceById(
                 mockMember, courseId, absenceAttendanceId
         );
 
@@ -162,17 +162,17 @@ class AbsenceAttendanceServiceTest {
         Long absenceAttendanceId = 1L;
         Long courseId = 1L;
 
-        AbsenceAttendanceResponseDto firstResult = absenceAttendanceService.getAbsenceAttendance(
+        AbsenceAttendanceResponseDto firstResult = absenceAttendanceService.findAbsenceAttendanceById(
                 mockMember, courseId, absenceAttendanceId
         );
 
-        AbsenceAttendanceResponseDto cachedResult = absenceAttendanceService.getAbsenceAttendance(
+        AbsenceAttendanceResponseDto cachedResult = absenceAttendanceService.findAbsenceAttendanceById(
                 mockMember, courseId, absenceAttendanceId
         );
 
         absenceAttendanceService.cancelAttendanceAbsence(mockMember, absenceAttendanceId);
 
-        AbsenceAttendanceResponseDto afterResult = absenceAttendanceService.getAbsenceAttendance(
+        AbsenceAttendanceResponseDto afterResult = absenceAttendanceService.findAbsenceAttendanceById(
                 mockMember, courseId, absenceAttendanceId
         );
 
@@ -195,7 +195,7 @@ class AbsenceAttendanceServiceTest {
                      .when(absenceAttendanceRepository)
                      .findById(i);
 
-             absenceAttendanceService.getAbsenceAttendance(mockMember, 1L, i);
+             absenceAttendanceService.findAbsenceAttendanceById(mockMember, 1L, i);
         }
 
         Cache cache = cacheManager.getCache("absenceAttendanceCache");
@@ -239,11 +239,11 @@ class AbsenceAttendanceServiceTest {
                 .findById(nonExistedId);
 
         assertThatThrownBy(() ->
-                absenceAttendanceService.getAbsenceAttendance(mockMember, courseId, nonExistedId))
+                absenceAttendanceService.findAbsenceAttendanceById(mockMember, courseId, nonExistedId))
                 .isInstanceOf(ResourceNotFoundException.class);
 
         assertThatThrownBy(() ->
-                absenceAttendanceService.getAbsenceAttendance(mockMember, courseId, nonExistedId))
+                absenceAttendanceService.findAbsenceAttendanceById(mockMember, courseId, nonExistedId))
                 .isInstanceOf(ResourceNotFoundException.class);
 
         verify(absenceAttendanceRepository, times(2)).findById(nonExistedId);
