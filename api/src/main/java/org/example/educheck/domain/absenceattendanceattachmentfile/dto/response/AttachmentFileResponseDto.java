@@ -17,14 +17,15 @@ public class AttachmentFileResponseDto {
     private String originalName;
     private String fileUrl;
     private String s3Key;
-    private String mine;
+    private String mime;
 
     public static AttachmentFileResponseDto from(AbsenceAttendanceAttachmentFile file, String accessUrl) {
         return AttachmentFileResponseDto.builder()
                 .fileId(file.getId())
                 .originalName(file.getOriginalName())
                 .fileUrl(accessUrl)
-                .mine(file.getMime())
+                .s3Key(file.getS3Key())
+                .mime(file.getMime())
                 .build();
 
     }
