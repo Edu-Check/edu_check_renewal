@@ -117,7 +117,7 @@ public class AbsenceAttendanceController {
         return ResponseEntity.ok(
                 ApiResponse.ok("유고 결석 신청 내역 상세 조회 성공",
                         "OK",
-                        absenceAttendanceService.getAbsenceAttendance(member, courseId, absenceAttendancesId))
+                        absenceAttendanceService.findAbsenceAttendanceById(member, courseId, absenceAttendancesId))
         );
     }
 

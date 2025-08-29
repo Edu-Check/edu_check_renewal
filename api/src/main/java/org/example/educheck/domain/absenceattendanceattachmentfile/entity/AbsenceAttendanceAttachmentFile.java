@@ -25,8 +25,6 @@ public class AbsenceAttendanceAttachmentFile extends BaseTimeEntity {
     @JoinColumn(name = "absence_attendance_id")
     private AbsenceAttendance absenceAttendance;
 
-    @Column(columnDefinition = "TEXT")
-    private String url;
     private String mime;
     private String originalName;
     //버킷 내 고유 식별자, 전체 경로 포함
@@ -35,9 +33,8 @@ public class AbsenceAttendanceAttachmentFile extends BaseTimeEntity {
     private LocalDateTime deletionRequestedAt;
 
     @Builder
-    public AbsenceAttendanceAttachmentFile(AbsenceAttendance absenceAttendance, String url, String originalName, String s3Key, String mime) {
+    public AbsenceAttendanceAttachmentFile(AbsenceAttendance absenceAttendance, String originalName, String s3Key, String mime) {
         this.absenceAttendance = absenceAttendance;
-        this.url = url;
         this.originalName = originalName;
         this.s3Key = s3Key;
         this.mime = mime;
@@ -52,7 +49,6 @@ public class AbsenceAttendanceAttachmentFile extends BaseTimeEntity {
         return "AbsenceAttendanceAttachmentFile{" +
                 "id=" + id +
                 ", absenceAttendance=" + absenceAttendance +
-                ", url='" + url + '\'' +
                 ", mime='" + mime + '\'' +
                 ", originalName='" + originalName + '\'' +
                 ", s3Key='" + s3Key + '\'' +

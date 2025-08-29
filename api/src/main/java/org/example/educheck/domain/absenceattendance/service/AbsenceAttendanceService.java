@@ -9,10 +9,9 @@ import org.example.educheck.domain.absenceattendance.dto.response.*;
 import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
 import org.example.educheck.domain.absenceattendance.event.AbsenceApprovedEvent;
 import org.example.educheck.domain.absenceattendance.repository.AbsenceAttendanceRepository;
-import org.example.educheck.domain.absenceattendanceattachmentfile.dto.response.AttachmentFileReposeDto;
+import org.example.educheck.domain.absenceattendanceattachmentfile.dto.response.AttachmentFileResponseDto;
 import org.example.educheck.domain.absenceattendanceattachmentfile.entity.AbsenceAttendanceAttachmentFile;
 import org.example.educheck.domain.absenceattendanceattachmentfile.repository.AbsenceAttendanceAttachmentFileRepository;
-import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
 import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.course.repository.CourseRepository;
 import org.example.educheck.domain.member.entity.Member;
@@ -27,7 +26,6 @@ import org.example.educheck.global.common.exception.custom.common.*;
 import org.example.educheck.global.common.s3.S3Service;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -58,6 +56,8 @@ public class AbsenceAttendanceService {
     private final RegistrationRepository registrationRepository;
     private final MemberRepository memberRepository;
     private final ApplicationEventPublisher eventPublisher;
+    private final AbsenceAttendanceFinder absenceAttendanceFinder;
+
     @Value("${BUCKET_NAME}")
     private String bucketName;
     @Value("${REGION}")
@@ -167,12 +167,13 @@ public class AbsenceAttendanceService {
 
         List<AbsenceAttendanceAttachmentFile> attachmentFiles = requestDto.getFiles().stream()
                 .map(fileInfo -> {
-                    String accessUrl = s3Service.generateViewPresignedUrl(fileInfo.getS3Key());
+//                    String accessUrl = s3Service.generateViewPresignedUrl(fileInfo.getS3Key());
+                    String accessUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
+                            bucketName, region, fileInfo.getS3Key());
 
                     return AbsenceAttendanceAttachmentFile.builder()
                             .absenceAttendance(absenceAttendance)
                             .originalName(fileInfo.getOriginalName())
-                            .url(accessUrl)
                             .s3Key(fileInfo.getS3Key())
                             .mime(fileInfo.getMime())
                             .build();
@@ -223,12 +224,9 @@ public class AbsenceAttendanceService {
         log.info("첨부파일 저장 로직 동작");
         if (s3Keys != null && !s3Keys.isEmpty()) {
             for (String s3Key : s3Keys) {
-                String fileUrl = String.format("https://%s.s3.%s.amazonaws.com/%s",
-                        bucketName, region, s3Key);
 
                 AbsenceAttendanceAttachmentFile attachmentFile = AbsenceAttendanceAttachmentFile.builder()
                         .absenceAttendance(savedAbsenceAttendance)
-                        .url(fileUrl)
                         .s3Key(s3Key)
                         .originalName(s3Key.substring(s3Key.lastIndexOf("_") + 1))
                         .mime("application/octet-stream")
@@ -268,7 +266,6 @@ public class AbsenceAttendanceService {
 
                 AbsenceAttendanceAttachmentFile attachmentFile = AbsenceAttendanceAttachmentFile.builder()
                         .absenceAttendance(savedAbsenceAttendance)
-                        .url(result.get("fileUrl"))
                         .s3Key(result.get("s3Key"))
                         .originalName(originalFilename)
                         .mime(mineType)
@@ -295,7 +292,7 @@ public class AbsenceAttendanceService {
     @CacheEvict(value = "absenceAttendanceCache", key = "#absenceAttendancesId")
     public void cancelAttendanceAbsence(Member member, Long absenceAttendancesId) {
 
-        AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
+        AbsenceAttendance absenceAttendance = absenceAttendanceFinder.findAbsenceAttendanceById(absenceAttendancesId);
         validateMatchApplicant(member, absenceAttendance);
         validateAttendanceAbsenceCancellable(absenceAttendance);
 
@@ -309,7 +306,7 @@ public class AbsenceAttendanceService {
     @CachePut(value = "absenceAttendanceCache", key = "#absenceAttendancesId")
     public UpdateAbsenceAttendanceReponseDto updateAttendanceAbsence(Member member, Long absenceAttendancesId, UpdateAbsenceAttendacneRequestDto requestDto, MultipartFile[] files) {
 
-        AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
+        AbsenceAttendance absenceAttendance = absenceAttendanceFinder.findAbsenceAttendanceById(absenceAttendancesId);
         validateMatchApplicant(member, absenceAttendance);
         validateModifiable(absenceAttendance);
         if (requestDto.getStartDate().isAfter(requestDto.getEndDate())) {
@@ -329,10 +326,6 @@ public class AbsenceAttendanceService {
 
     }
 
-    private AbsenceAttendance getAbsenceAttendance(Long absenceAttendancesId) {
-        return absenceAttendanceRepository.findById(absenceAttendancesId)
-                .orElseThrow(() -> new ResourceNotFoundException("해당 유고 결석 신청 내역이 존재하지 않습니다."));
-    }
 
     private void markAttachementFilesForDeletion(AbsenceAttendance absenceAttendance) {
         List<AbsenceAttendanceAttachmentFile> attachmentFiles = absenceAttendance.getActiveFiles();
@@ -342,11 +335,9 @@ public class AbsenceAttendanceService {
         }
     }
 
-    @Cacheable(value = "absenceAttendanceCache", key = "#absenceAttendancesId")
-    public AbsenceAttendanceResponseDto getAbsenceAttendance(Member member, Long courseId, Long absenceAttendancesId) {
-        log.info(">>> CACHE MISS: Fetching absence attendance with ID {}", absenceAttendancesId);
+    public AbsenceAttendanceResponseDto findAbsenceAttendanceById(Member member, Long courseId, Long absenceAttendancesId) {
 
-        AbsenceAttendance absenceAttendance = getAbsenceAttendance(absenceAttendancesId);
+        AbsenceAttendance absenceAttendance = absenceAttendanceFinder.findAbsenceAttendanceById(absenceAttendancesId);
 
         Member student = memberRepository.findByStudent_Id(absenceAttendance.getStudent().getId())
                 .orElseThrow(() -> new ResourceNotFoundException("해당 학생이 존재하지 않습니다."));
@@ -362,8 +353,12 @@ public class AbsenceAttendanceService {
         }
 
         List<AbsenceAttendanceAttachmentFile> attachmentFiles = absenceAttendanceAttachmentFileRepository.findByActivateFilesById(absenceAttendance);
-        List<AttachmentFileReposeDto> fileReposeDtoList = attachmentFiles.stream()
-                .map(AttachmentFileReposeDto::from)
+        List<AttachmentFileResponseDto> fileReposeDtoList = attachmentFiles.stream()
+                .map(file -> {
+                            String accessUrl = s3Service.generateViewPresigndUrl(file.getS3Key());
+                            return AttachmentFileResponseDto.from(file, accessUrl);
+                        }
+                )
                 .toList();
 
         return AbsenceAttendanceResponseDto.from(absenceAttendance, student, fileReposeDtoList);

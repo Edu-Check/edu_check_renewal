@@ -11,19 +11,21 @@ import org.example.educheck.domain.absenceattendanceattachmentfile.entity.Absenc
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class AttachmentFileReposeDto {
+public class AttachmentFileResponseDto {
 
     private Long fileId;
     private String originalName;
     private String fileUrl;
-    private String mine;
+    private String s3Key;
+    private String mime;
 
-    public static AttachmentFileReposeDto from(AbsenceAttendanceAttachmentFile file) {
-        return AttachmentFileReposeDto.builder()
+    public static AttachmentFileResponseDto from(AbsenceAttendanceAttachmentFile file, String accessUrl) {
+        return AttachmentFileResponseDto.builder()
                 .fileId(file.getId())
                 .originalName(file.getOriginalName())
-                .fileUrl(file.getUrl())
-                .mine(file.getMime())
+                .fileUrl(accessUrl)
+                .s3Key(file.getS3Key())
+                .mime(file.getMime())
                 .build();
 
     }

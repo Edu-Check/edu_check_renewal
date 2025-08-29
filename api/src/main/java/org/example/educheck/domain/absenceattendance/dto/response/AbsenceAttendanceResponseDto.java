@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
-import org.example.educheck.domain.absenceattendanceattachmentfile.dto.response.AttachmentFileReposeDto;
+import org.example.educheck.domain.absenceattendanceattachmentfile.dto.response.AttachmentFileResponseDto;
 import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 import org.example.educheck.domain.member.entity.Member;
 
@@ -32,9 +32,9 @@ public class AbsenceAttendanceResponseDto {
     private String reason;
     private LocalDateTime approveDateTime;
     private Character isApprove;
-    private List<AttachmentFileReposeDto> files;
+    private List<AttachmentFileResponseDto> files;
 
-    public static AbsenceAttendanceResponseDto from(AbsenceAttendance absenceAttendance, Member student, List<AttachmentFileReposeDto> files) {
+    public static AbsenceAttendanceResponseDto from(AbsenceAttendance absenceAttendance, Member student, List<AttachmentFileResponseDto> files) {
         return AbsenceAttendanceResponseDto.builder()
                 .absenceAttendanceId(absenceAttendance.getId())
                 .absenceAttendanceRequesterId(student.getId())
