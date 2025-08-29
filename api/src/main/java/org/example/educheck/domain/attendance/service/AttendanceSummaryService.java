@@ -15,6 +15,7 @@ import org.example.educheck.domain.attendance.repository.AttendanceSummaryReposi
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.domain.lecture.repository.LectureRepository;
 import org.example.educheck.global.common.time.SystemTimeProvider;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +37,9 @@ public class AttendanceSummaryService {
     private final AttendanceRepository attendanceRepository;
     private final AbsenceAttendanceRepository absenceAttendanceRepository;
 
+    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleAttendanceUpdatedEvent(AttendanceUpdatedEvent event) {
         Attendance attendance = event.getAttendance();
         AttendanceStatus oldStatus = event.getOldStatus();
@@ -86,8 +88,9 @@ public class AttendanceSummaryService {
         attendanceSummaryRepository.save(summary);
     }
 
+    @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMPLETION)
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleAbsenceApprovedEvent(AbsenceApprovedEvent event) {
 
         log.info("유고 결석 승인 이벤트 수신 : id : {}, 과정 id : {}", event.getStudentId(), event.getCourseId());

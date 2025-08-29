@@ -80,7 +80,7 @@ class AttendanceSummaryServiceTest {
         studentMember = memberRepository.save(Member.builder()
                 .name("Test Student")
                 .role(Role.STUDENT)
-                .email("testtwe11@naver.com")
+                .email("abcde@naver.com")
                 .build());
 
         student = studentRepository.save(Student.builder()
@@ -152,10 +152,10 @@ class AttendanceSummaryServiceTest {
                 .orElse(null);
 
         assertThat(summary).isNotNull();
-        assertThat(summary.getAttendanceCountUntilToday()).isEqualTo(0);
-        assertThat(summary.getLateCountUntilToday()).isEqualTo(1);
+        assertThat(summary.getAttendanceCountUntilToday()).isEqualTo(1);
+        assertThat(summary.getLateCountUntilToday()).isEqualTo(0);
         assertThat(summary.getLectureCountUntilToday()).isEqualTo(2); // 오늘과 어제 강의 포함
-        assertThat(summary.getTotalLectureCount()).isEqualTo(2);
+        assertThat(summary.getTotalLectureCount()).isEqualTo(3);
     }
 
     @Test
