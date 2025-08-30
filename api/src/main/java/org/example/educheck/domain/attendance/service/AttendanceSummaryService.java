@@ -15,6 +15,8 @@ import org.example.educheck.domain.attendance.repository.AttendanceSummaryReposi
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.domain.lecture.repository.LectureRepository;
 import org.example.educheck.global.common.time.SystemTimeProvider;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -40,6 +42,14 @@ public class AttendanceSummaryService {
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Retryable(
+            value = {Exception.class},
+            maxAttempts = 4,
+            backoff = @Backoff(
+                    delay = 1500,
+                    multiplier = 2
+            )
+    )
     public void handleAttendanceUpdatedEvent(AttendanceUpdatedEvent event) {
         Attendance attendance = event.getAttendance();
         AttendanceStatus oldStatus = event.getOldStatus();
@@ -91,6 +101,14 @@ public class AttendanceSummaryService {
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Retryable(
+            value = {Exception.class},
+            maxAttempts = 4,
+            backoff = @Backoff(
+                    delay = 1500,
+                    multiplier = 2
+            )
+    )
     public void handleAbsenceApprovedEvent(AbsenceApprovedEvent event) {
 
         log.info("유고 결석 승인 이벤트 수신 : id : {}, 과정 id : {}", event.getStudentId(), event.getCourseId());
