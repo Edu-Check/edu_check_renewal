@@ -1,7 +1,6 @@
-package org.example.educheck.domain.event;
+package org.example.educheck.domain.event.entity;
 
 import jakarta.persistence.*;
-import jdk.jshell.Snippet;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -48,10 +47,9 @@ public class FailedEvent {
         this.errorMessage = errorMessage;
         this.status = Status.UNRESOLVED;
     }
+
+    public void updateStatus(Status status) {
+        this.status = status;
+    }
 }
 
-enum Status {
-    UNRESOLVED,
-    RESOLVED,
-    IGNORED
-}
