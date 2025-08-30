@@ -3,8 +3,11 @@ package org.example.educheck.domain.event;
 import jakarta.persistence.*;
 import jdk.jshell.Snippet;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -31,7 +34,20 @@ public class FailedEvent {
     @Column(nullable = false)
     private Status status;
 
+    @CreatedDate
+    @Column(updatable = false)
     private LocalDateTime createdAt;
+
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
+
+    @Builder
+    public FailedEvent (String eventTYPE, String payload, String errorMessage) {
+        this.eventTYPE = eventTYPE;
+        this.payload = payload;
+        this.errorMessage = errorMessage;
+        this.status = Status.UNRESOLVED;
+    }
 }
 
 enum Status {

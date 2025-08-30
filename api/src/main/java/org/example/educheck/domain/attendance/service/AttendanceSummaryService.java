@@ -1,5 +1,7 @@
 package org.example.educheck.domain.attendance.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
@@ -12,10 +14,13 @@ import org.example.educheck.domain.attendance.entity.AttendanceSummaryId;
 import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
 import org.example.educheck.domain.attendance.repository.AttendanceRepository;
 import org.example.educheck.domain.attendance.repository.AttendanceSummaryRepository;
+import org.example.educheck.domain.event.FailedEvent;
+import org.example.educheck.domain.event.FailedEventRepository;
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.domain.lecture.repository.LectureRepository;
 import org.example.educheck.global.common.time.SystemTimeProvider;
 import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -38,6 +43,8 @@ public class AttendanceSummaryService {
     private final SystemTimeProvider timeProvider;
     private final AttendanceRepository attendanceRepository;
     private final AbsenceAttendanceRepository absenceAttendanceRepository;
+    private final FailedEventRepository failedEventRepository;
+    private final ObjectMapper objectMapper;
 
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -150,6 +157,36 @@ public class AttendanceSummaryService {
 
         attendanceSummaryRepository.save(summary);
 
+    }
+
+    @Recover
+    public void recover(Exception e, AttendanceUpdatedEvent event) {
+        log.error("최종 실패 : AttendanceUpdatedEvent failed_event 테이블에 저장. event : {}", event, e);
+        saveFailedEvent(event, e);
+    }
+
+    @Recover
+    public void recover(Exception e, AbsenceApprovedEvent event) {
+        log.error("최종 실패 : AbsenceApprovedEvent failed_event 테이블에 저장. event : {}", event, e);
+        saveFailedEvent(event, e);
+    }
+
+    private void saveFailedEvent(Object event, Exception e) {
+        try {
+            String payload = objectMapper.writeValueAsString(event);
+            String eventType = event.getClass().getSimpleName();
+
+            FailedEvent failedEvent = FailedEvent.builder()
+                    .eventTYPE(eventType)
+                    .payload(payload)
+                    .errorMessage(e.getMessage())
+                    .build();
+            failedEventRepository.save(failedEvent);
+
+
+        } catch (JsonProcessingException ex) {
+            log.error("Failed Event JsonProcessing. event: {}", event, ex);
+        }
     }
 
 }
