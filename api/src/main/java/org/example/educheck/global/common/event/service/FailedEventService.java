@@ -2,6 +2,7 @@ package org.example.educheck.global.common.event.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.absenceattendance.event.AbsenceApprovedEvent;
 import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
 import org.example.educheck.domain.attendance.service.AttendanceSummaryService;
@@ -16,15 +17,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class FailedEventService {
 
-    private static final Logger log = LoggerFactory.getLogger(FailedEventService.class);
     private final FailedEventRepository failedEventRepository;
     private final AttendanceSummaryService attendanceSummaryService;
     private final ObjectMapper objectMapper;
+
+    private static final int MAX_RETRY_COUNT = 3;
 
     @Transactional
     public void reprocessFailedEvents() {
@@ -51,8 +54,13 @@ public class FailedEventService {
                 log.info("이벤트 ID {} ({}) 재처리 성공", failedEvent.getId(), failedEvent.getEventTYPE());
 
             } catch (Exception e) {
-                log.error("이벤트 ID {} 재처리 실패, 에러 : {}", failedEvent.getId(), e.getMessage());
-                //TODO : 재처리 마저 오류나면 어떻게 해야하지?
+                failedEvent.incrementRetryCount();
+                log.error("이벤트 ID {} 재처리 실패, 재시도 횟수 : {}/{}", failedEvent.getId(), failedEvent.getRetryCount(), MAX_RETRY_COUNT);
+
+                if (failedEvent.getRetryCount() >= MAX_RETRY_COUNT) {
+                    failedEvent.updateStatus(Status.IGNORED);
+                    log.warn("이벤트 ID {} 가 최대 재시도 횟수 ({})에 도달하여 IGNORED 처리", failedEvent.getId(), MAX_RETRY_COUNT);
+                }
             }
         }
     }

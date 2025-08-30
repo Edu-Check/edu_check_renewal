@@ -40,16 +40,23 @@ public class FailedEvent {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    private Integer retryCount;
+
     @Builder
     public FailedEvent (String eventTYPE, String payload, String errorMessage) {
         this.eventTYPE = eventTYPE;
         this.payload = payload;
         this.errorMessage = errorMessage;
         this.status = Status.UNRESOLVED;
+        this.retryCount = 0;
     }
 
     public void updateStatus(Status status) {
         this.status = status;
+    }
+
+    public void incrementRetryCount() {
+        this.retryCount++;
     }
 }
 
