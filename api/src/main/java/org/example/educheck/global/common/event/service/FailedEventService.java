@@ -1,13 +1,13 @@
-package org.example.educheck.domain.event.service;
+package org.example.educheck.global.common.event.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.educheck.domain.absenceattendance.event.AbsenceApprovedEvent;
 import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
 import org.example.educheck.domain.attendance.service.AttendanceSummaryService;
-import org.example.educheck.domain.event.entity.FailedEvent;
-import org.example.educheck.domain.event.entity.Status;
-import org.example.educheck.domain.event.repository.FailedEventRepository;
+import org.example.educheck.global.common.event.entity.FailedEvent;
+import org.example.educheck.global.common.event.entity.Status;
+import org.example.educheck.global.common.event.repository.FailedEventRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;

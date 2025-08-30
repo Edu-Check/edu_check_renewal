@@ -1,4 +1,4 @@
-package org.example.educheck.domain.event.entity;
+package org.example.educheck.global.common.event.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;

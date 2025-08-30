@@ -1,8 +1,7 @@
-package org.example.educheck.domain.event.repository;
+package org.example.educheck.global.common.event.repository;
 
-import jdk.jshell.Snippet;
-import org.example.educheck.domain.event.entity.FailedEvent;
-import org.example.educheck.domain.event.entity.Status;
+import org.example.educheck.global.common.event.entity.FailedEvent;
+import org.example.educheck.global.common.event.entity.Status;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
