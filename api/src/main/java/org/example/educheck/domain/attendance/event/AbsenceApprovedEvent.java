@@ -1,4 +1,4 @@
-package org.example.educheck.domain.absenceattendance.event;
+package org.example.educheck.domain.attendance.event;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
