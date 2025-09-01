@@ -3,7 +3,7 @@ package org.example.educheck.global.common.event.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.educheck.domain.absenceattendance.event.AbsenceApprovedEvent;
+import org.example.educheck.domain.attendance.event.AbsenceApprovedEvent;
 import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
 import org.example.educheck.domain.attendance.service.AttendanceSummaryService;
 import org.example.educheck.global.common.event.entity.FailedEvent;

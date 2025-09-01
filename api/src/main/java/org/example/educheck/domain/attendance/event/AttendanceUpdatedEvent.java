@@ -6,9 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.example.educheck.domain.attendance.entity.Attendance;
 import org.example.educheck.domain.attendance.entity.AttendanceStatus;
 
+import java.util.Map;
+
 @Getter
 @RequiredArgsConstructor
-public class AttendanceUpdatedEvent {
+public class AttendanceUpdatedEvent implements FailedEventPayloadProvider {
 
     private final Attendance attendance;
 
@@ -16,4 +18,12 @@ public class AttendanceUpdatedEvent {
 
     private final AttendanceStatus newStatus;
 
+    @Override
+    public Map<String, Object> toFailedEventPayload() {
+        return Map.of(
+                "studentId", attendance.getStudent().getId(),
+                "courseId", attendance.getLecture().getCourse().getId(),
+                "attendanceId", attendance.getId()
+        );
+    }
 }

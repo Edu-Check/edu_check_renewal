@@ -4,21 +4,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
-import org.example.educheck.domain.absenceattendance.event.AbsenceApprovedEvent;
-import org.example.educheck.domain.absenceattendance.repository.AbsenceAttendanceRepository;
+import org.example.educheck.domain.attendance.event.AbsenceApprovedEvent;
 import org.example.educheck.domain.attendance.entity.Attendance;
-import org.example.educheck.domain.attendance.entity.AttendanceStatus;
-import org.example.educheck.domain.attendance.entity.AttendanceSummary;
-import org.example.educheck.domain.attendance.entity.AttendanceSummaryId;
 import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
-import org.example.educheck.domain.attendance.repository.AttendanceRepository;
-import org.example.educheck.domain.attendance.repository.AttendanceSummaryRepository;
+import org.example.educheck.domain.attendance.event.FailedEventPayloadProvider;
 import org.example.educheck.global.common.event.entity.FailedEvent;
 import org.example.educheck.global.common.event.repository.FailedEventRepository;
-import org.example.educheck.domain.lecture.entity.Lecture;
-import org.example.educheck.domain.lecture.repository.LectureRepository;
-import org.example.educheck.global.common.time.SystemTimeProvider;
 import org.hibernate.dialect.lock.PessimisticEntityLockException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -33,8 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.time.LocalDate;
-import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -111,8 +101,18 @@ public class AttendanceSummaryService {
 
     private void saveFailedEvent(Object event, Exception e) {
         try {
-            String payload = objectMapper.writeValueAsString(event);
             String eventType = event.getClass().getSimpleName();
+            String payload;
+
+            if (event instanceof FailedEventPayloadProvider) {
+                payload = objectMapper.writeValueAsString(
+                        ((FailedEventPayloadProvider) event).toFailedEventPayload()
+                );
+            } else {
+                payload = objectMapper.writeValueAsString(
+                        Map.of("message", "unsupported event")
+                );
+            }
 
             FailedEvent failedEvent = FailedEvent.builder()
                     .eventType(eventType)
