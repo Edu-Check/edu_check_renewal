@@ -127,4 +127,9 @@ public class AttendanceSummaryService {
         }
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void recalculateAttendanceSummarySync(Long studentId, Long courseId) {
+        attendanceSummaryCalculator.recalculateAttendanceSummary(studentId, courseId);
+    }
+
 }
