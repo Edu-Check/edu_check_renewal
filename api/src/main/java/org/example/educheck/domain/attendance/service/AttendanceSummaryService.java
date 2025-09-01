@@ -19,6 +19,10 @@ import org.example.educheck.global.common.event.repository.FailedEventRepository
 import org.example.educheck.domain.lecture.entity.Lecture;
 import org.example.educheck.domain.lecture.repository.LectureRepository;
 import org.example.educheck.global.common.time.SystemTimeProvider;
+import org.hibernate.dialect.lock.PessimisticEntityLockException;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.dao.OptimisticLockingFailureException;
+import org.springframework.dao.TransientDataAccessException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
@@ -43,11 +47,15 @@ public class AttendanceSummaryService {
     private final ObjectMapper objectMapper;
 
     @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Retryable(
-            value = {Exception.class},
-            maxAttempts = 4,
+            value = {
+                    TransientDataAccessException.class,
+                    CannotAcquireLockException.class,
+                    OptimisticLockingFailureException.class,
+                    PessimisticEntityLockException.class
+            },            maxAttempts = 4,
             backoff = @Backoff(
                     delay = 1500,
                     multiplier = 2
@@ -64,10 +72,15 @@ public class AttendanceSummaryService {
     }
 
     @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Retryable(
-            value = {Exception.class},
+            value = {
+                    TransientDataAccessException.class,
+                    CannotAcquireLockException.class,
+                    OptimisticLockingFailureException.class,
+                    PessimisticEntityLockException.class
+            },
             maxAttempts = 4,
             backoff = @Backoff(
                     delay = 1500,
@@ -102,7 +115,7 @@ public class AttendanceSummaryService {
             String eventType = event.getClass().getSimpleName();
 
             FailedEvent failedEvent = FailedEvent.builder()
-                    .eventTYPE(eventType)
+                    .eventType(eventType)
                     .payload(payload)
                     .errorMessage(e.getMessage())
                     .build();

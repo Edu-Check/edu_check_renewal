@@ -9,8 +9,6 @@ import org.example.educheck.domain.attendance.service.AttendanceSummaryService;
 import org.example.educheck.global.common.event.entity.FailedEvent;
 import org.example.educheck.global.common.event.entity.Status;
 import org.example.educheck.global.common.event.repository.FailedEventRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +34,7 @@ public class FailedEventService {
 
         for (FailedEvent failedEvent : unresolvedEvents) {
             try {
-                switch (failedEvent.getEventTYPE()) {
+                switch (failedEvent.getEventType()) {
                     case "AttendanceUpdatedEvent":
                         AttendanceUpdatedEvent attendanceEvent = objectMapper.readValue(failedEvent.getPayload(), AttendanceUpdatedEvent.class);
                         attendanceSummaryService.handleAttendanceUpdatedEvent(attendanceEvent);
@@ -46,12 +44,13 @@ public class FailedEventService {
                         attendanceSummaryService.handleAbsenceApprovedEvent(absenceApprovedEvent);
                         break;
                     default:
-                        log.warn("알 수 없는 이벤트 타입 : {}", failedEvent.getEventTYPE());
+                        failedEvent.updateStatus(Status.IGNORED);
+                        log.warn("알 수 없는 이벤트 타입 : {}", failedEvent.getEventType());
                         continue;
                 }
 
                 failedEvent.updateStatus(Status.RESOLVED);
-                log.info("이벤트 ID {} ({}) 재처리 성공", failedEvent.getId(), failedEvent.getEventTYPE());
+                log.info("이벤트 ID {} ({}) 재처리 성공", failedEvent.getId(), failedEvent.getEventType());
 
             } catch (Exception e) {
                 failedEvent.incrementRetryCount();

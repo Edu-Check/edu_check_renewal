@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.example.educheck.global.common.entity.BaseTimeEntity;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -13,14 +14,14 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class FailedEvent {
+public class FailedEvent extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String eventTYPE;
+    private String eventType;
 
     @Lob
     @Column(nullable = false)
@@ -40,11 +41,12 @@ public class FailedEvent {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @Column(nullable = false)
     private Integer retryCount;
 
     @Builder
-    public FailedEvent (String eventTYPE, String payload, String errorMessage) {
-        this.eventTYPE = eventTYPE;
+    public FailedEvent (String eventType, String payload, String errorMessage) {
+        this.eventType = eventType;
         this.payload = payload;
         this.errorMessage = errorMessage;
         this.status = Status.UNRESOLVED;
@@ -56,7 +58,7 @@ public class FailedEvent {
     }
 
     public void incrementRetryCount() {
-        this.retryCount++;
+        this.retryCount = (this.retryCount == null ? 0 : this.retryCount) + 1;
     }
 }
 
