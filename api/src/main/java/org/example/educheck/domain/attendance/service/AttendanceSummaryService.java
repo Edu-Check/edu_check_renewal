@@ -10,6 +10,7 @@ import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
 import org.example.educheck.domain.attendance.event.FailedEventPayloadProvider;
 import org.example.educheck.global.common.event.entity.FailedEvent;
 import org.example.educheck.global.common.event.repository.FailedEventRepository;
+import org.hibernate.PessimisticLockException;
 import org.hibernate.dialect.lock.PessimisticEntityLockException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -44,7 +45,7 @@ public class AttendanceSummaryService {
                     TransientDataAccessException.class,
                     CannotAcquireLockException.class,
                     OptimisticLockingFailureException.class,
-                    PessimisticEntityLockException.class
+                    PessimisticLockException.class
             },            maxAttempts = 4,
             backoff = @Backoff(
                     delay = 1500,
@@ -69,7 +70,7 @@ public class AttendanceSummaryService {
                     TransientDataAccessException.class,
                     CannotAcquireLockException.class,
                     OptimisticLockingFailureException.class,
-                    PessimisticEntityLockException.class
+                    PessimisticLockException.class
             },
             maxAttempts = 4,
             backoff = @Backoff(
@@ -99,6 +100,7 @@ public class AttendanceSummaryService {
         saveFailedEvent(event, e);
     }
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
     private void saveFailedEvent(Object event, Exception e) {
         try {
             String eventType = event.getClass().getSimpleName();

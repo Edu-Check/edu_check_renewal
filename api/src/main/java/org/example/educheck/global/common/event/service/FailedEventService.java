@@ -1,5 +1,6 @@
 package org.example.educheck.global.common.event.service;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Map;
 
 @Slf4j
 @Service
@@ -36,7 +39,7 @@ public class FailedEventService {
             try {
                 switch (failedEvent.getEventType()) {
                     case "AttendanceUpdatedEvent":
-                        AttendanceUpdatedEvent attendanceEvent = objectMapper.readValue(failedEvent.getPayload(), AttendanceUpdatedEvent.class);
+                        AttendanceUpdatedEvent attendanceEvent = objectMapper.readValue(failedEvent.getPayload(),  AttendanceUpdatedEvent.class);
                         Long courseId = attendanceEvent.getAttendance().getLecture().getCourse().getId();
                         Long studentId = attendanceEvent.getAttendance().getStudent().getId();
                         attendanceSummaryService.recalculateAttendanceSummarySync(studentId, courseId);

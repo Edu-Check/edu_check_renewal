@@ -34,13 +34,6 @@ public class FailedEvent extends BaseTimeEntity {
     @Column(nullable = false)
     private Status status;
 
-    @CreatedDate
-    @Column(updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    private LocalDateTime updatedAt;
-
     @Column(nullable = false)
     private Integer retryCount;
 
