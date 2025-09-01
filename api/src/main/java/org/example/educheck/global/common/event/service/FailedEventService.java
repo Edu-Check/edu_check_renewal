@@ -37,11 +37,13 @@ public class FailedEventService {
                 switch (failedEvent.getEventType()) {
                     case "AttendanceUpdatedEvent":
                         AttendanceUpdatedEvent attendanceEvent = objectMapper.readValue(failedEvent.getPayload(), AttendanceUpdatedEvent.class);
-                        attendanceSummaryService.handleAttendanceUpdatedEvent(attendanceEvent);
+                        Long courseId = attendanceEvent.getAttendance().getLecture().getCourse().getId();
+                        Long studentId = attendanceEvent.getAttendance().getStudent().getId();
+                        attendanceSummaryService.recalculateAttendanceSummarySync(studentId, courseId);
                         break;
                     case "AbsenceApprovedEvent":
                         AbsenceApprovedEvent absenceApprovedEvent = objectMapper.readValue(failedEvent.getPayload(), AbsenceApprovedEvent.class);
-                        attendanceSummaryService.handleAbsenceApprovedEvent(absenceApprovedEvent);
+                        attendanceSummaryService.recalculateAttendanceSummarySync(absenceApprovedEvent.getStudentId(), absenceApprovedEvent.getCourseId());
                         break;
                     default:
                         failedEvent.updateStatus(Status.IGNORED);
