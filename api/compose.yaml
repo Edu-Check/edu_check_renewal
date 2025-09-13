@@ -24,6 +24,20 @@ services:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: redis-server --requirepass ${REDIS_PASSWORD}
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq_dev
+    ports:
+      - "${RABBITMQ_NODE_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - rabbitmq-volume:/var/lib/rabbitmq
+
+
 volumes:
   redis-volume:
+  rabbitmq-volume:
 #  mysql-volume:
