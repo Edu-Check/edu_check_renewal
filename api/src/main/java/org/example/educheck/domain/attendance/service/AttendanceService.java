@@ -86,9 +86,9 @@ public class AttendanceService {
         );
 
         eventPublisher.publishEvent(new AttendanceUpdatedEvent(
-                savedAttendance,
-                null,
-                savedAttendance.getAttendanceStatus()
+                student.getId(),
+                currentCourse.getId(),
+                savedAttendance.getId()
         ));
 
 
@@ -118,9 +118,9 @@ public class AttendanceService {
         attendance.checkOut(currentTime);
 
         eventPublisher.publishEvent(new AttendanceUpdatedEvent(
-                attendance,
-                oldStatus,
-                attendance.getAttendanceStatus()
+                student.getId(),
+                attendance.getLecture().getCourse().getId(),
+                attendance.getId()
         ));
 
         return new AttendanceStatusResponseDto(attendance.getAttendanceStatus());
@@ -144,9 +144,9 @@ public class AttendanceService {
         attendanceRepository.save(attendance);
 
         eventPublisher.publishEvent(new AttendanceUpdatedEvent(
-                attendance,
-                oldStatus,
-                newStatus
+                studentId,
+                courseId,
+                attendance.getId()
         ));
     }
 

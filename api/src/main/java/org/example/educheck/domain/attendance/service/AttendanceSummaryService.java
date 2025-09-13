@@ -10,6 +10,7 @@ import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
 import org.example.educheck.domain.attendance.event.FailedEventPayloadProvider;
 import org.example.educheck.global.common.event.entity.FailedEvent;
 import org.example.educheck.global.common.event.repository.FailedEventRepository;
+import org.example.educheck.global.common.event.service.FailedEventService;
 import org.hibernate.PessimisticLockException;
 import org.hibernate.dialect.lock.PessimisticEntityLockException;
 import org.springframework.dao.CannotAcquireLockException;
@@ -34,8 +35,7 @@ import java.util.Map;
 public class AttendanceSummaryService {
 
     private final AttendanceSummaryCalculator attendanceSummaryCalculator;
-    private final FailedEventRepository failedEventRepository;
-    private final ObjectMapper objectMapper;
+    private final FailedEventService failedEventService;
 
     @Async
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
@@ -53,9 +53,9 @@ public class AttendanceSummaryService {
             )
     )
     public void handleAttendanceUpdatedEvent(AttendanceUpdatedEvent event) {
-        Attendance attendance = event.getAttendance();
-        Long studentId = attendance.getStudent().getId();
-        Long courseId = attendance.getLecture().getCourse().getId();
+
+        Long studentId = event.getStudentId();
+        Long courseId = event.getCourseId();
 
         log.info("출석 상태 변경 이벤트 수신 및 재계산 : 학생 id : {}, 과정 id : {}", studentId, courseId);
 
@@ -88,48 +88,21 @@ public class AttendanceSummaryService {
 
     }
 
+    @Transactional(readOnly = false)
     @Recover
     public void recover(Exception e, AttendanceUpdatedEvent event) {
         log.error("최종 실패 : AttendanceUpdatedEvent failed_event 테이블에 저장. event : {}", event, e);
-        saveFailedEvent(event, e);
+        failedEventService.saveFailedEvent(event, e);
     }
 
+    @Transactional(readOnly = false)
     @Recover
     public void recover(Exception e, AbsenceApprovedEvent event) {
         log.error("최종 실패 : AbsenceApprovedEvent failed_event 테이블에 저장. event : {}", event, e);
-        saveFailedEvent(event, e);
+        failedEventService.saveFailedEvent(event, e);
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
-    private void saveFailedEvent(Object event, Exception e) {
-        try {
-            String eventType = event.getClass().getSimpleName();
-            String payload;
-
-            if (event instanceof FailedEventPayloadProvider) {
-                payload = objectMapper.writeValueAsString(
-                        ((FailedEventPayloadProvider) event).toFailedEventPayload()
-                );
-            } else {
-                payload = objectMapper.writeValueAsString(
-                        Map.of("message", "unsupported event")
-                );
-            }
-
-            FailedEvent failedEvent = FailedEvent.builder()
-                    .eventType(eventType)
-                    .payload(payload)
-                    .errorMessage(e.getMessage())
-                    .build();
-            failedEventRepository.save(failedEvent);
-
-
-        } catch (JsonProcessingException ex) {
-            log.error("Failed Event JsonProcessing. event: {}", event, ex);
-        }
-    }
-
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void recalculateAttendanceSummarySync(Long studentId, Long courseId) {
         attendanceSummaryCalculator.recalculateAttendanceSummary(studentId, courseId);
     }

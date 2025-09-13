@@ -12,18 +12,16 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AttendanceUpdatedEvent implements FailedEventPayloadProvider {
 
-    private final Attendance attendance;
-
-    private final AttendanceStatus oldStatus;
-
-    private final AttendanceStatus newStatus;
+    private final Long studentId;
+    private final Long courseId;
+    private final Long attendanceId;
 
     @Override
     public Map<String, Object> toFailedEventPayload() {
         return Map.of(
-                "studentId", attendance.getStudent().getId(),
-                "courseId", attendance.getLecture().getCourse().getId(),
-                "attendanceId", attendance.getId()
+                "studentId", studentId,
+                "courseId", courseId,
+                "attendanceId", attendanceId
         );
     }
 }

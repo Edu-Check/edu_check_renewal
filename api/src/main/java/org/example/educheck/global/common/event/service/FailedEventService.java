@@ -1,20 +1,24 @@
 package org.example.educheck.global.common.event.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.attendance.event.AbsenceApprovedEvent;
 import org.example.educheck.domain.attendance.event.AttendanceUpdatedEvent;
+import org.example.educheck.domain.attendance.event.FailedEventPayloadProvider;
 import org.example.educheck.domain.attendance.service.AttendanceSummaryService;
 import org.example.educheck.global.common.event.entity.FailedEvent;
 import org.example.educheck.global.common.event.entity.Status;
 import org.example.educheck.global.common.event.repository.FailedEventRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.fasterxml.jackson.databind.type.LogicalType.Map;
 
@@ -39,9 +43,9 @@ public class FailedEventService {
             try {
                 switch (failedEvent.getEventType()) {
                     case "AttendanceUpdatedEvent":
-                        AttendanceUpdatedEvent attendanceEvent = objectMapper.readValue(failedEvent.getPayload(),  AttendanceUpdatedEvent.class);
-                        Long courseId = attendanceEvent.getAttendance().getLecture().getCourse().getId();
-                        Long studentId = attendanceEvent.getAttendance().getStudent().getId();
+                        AttendanceUpdatedEvent attendanceEvent = objectMapper.readValue(failedEvent.getPayload(), AttendanceUpdatedEvent.class);
+                        Long courseId = attendanceEvent.getCourseId();
+                        Long studentId = attendanceEvent.getStudentId();
                         attendanceSummaryService.recalculateAttendanceSummarySync(studentId, courseId);
                         break;
                     case "AbsenceApprovedEvent":
@@ -73,5 +77,34 @@ public class FailedEventService {
     public void scheduleFailedEventsReprocessing() {
         log.info("스케줄러 실행 : 실패한 이벤트 재처리 시작");
         reprocessFailedEvents();
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = false)
+    public void saveFailedEvent(Object event, Exception e) {
+        try {
+            String eventType = event.getClass().getSimpleName();
+            String payload;
+
+            if (event instanceof FailedEventPayloadProvider) {
+                payload = objectMapper.writeValueAsString(
+                        ((FailedEventPayloadProvider) event).toFailedEventPayload()
+                );
+            } else {
+                payload = objectMapper.writeValueAsString(
+                        java.util.Map.of("message", "unsupported event")
+                );
+            }
+
+            FailedEvent failedEvent = FailedEvent.builder()
+                    .eventType(eventType)
+                    .payload(payload)
+                    .errorMessage(e.getMessage())
+                    .build();
+            failedEventRepository.save(failedEvent);
+
+
+        } catch (JsonProcessingException ex) {
+            log.error("Failed Event JsonProcessing. event: {}", event, ex);
+        }
     }
 }
