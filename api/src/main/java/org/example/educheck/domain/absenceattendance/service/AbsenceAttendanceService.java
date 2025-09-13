@@ -7,7 +7,7 @@ import org.example.educheck.domain.absenceattendance.dto.request.ProcessAbsenceA
 import org.example.educheck.domain.absenceattendance.dto.request.UpdateAbsenceAttendacneRequestDto;
 import org.example.educheck.domain.absenceattendance.dto.response.*;
 import org.example.educheck.domain.absenceattendance.entity.AbsenceAttendance;
-import org.example.educheck.domain.absenceattendance.event.AbsenceApprovedEvent;
+import org.example.educheck.domain.attendance.event.AbsenceApprovedEvent;
 import org.example.educheck.domain.absenceattendance.repository.AbsenceAttendanceRepository;
 import org.example.educheck.domain.absenceattendanceattachmentfile.dto.response.AttachmentFileResponseDto;
 import org.example.educheck.domain.absenceattendanceattachmentfile.entity.AbsenceAttendanceAttachmentFile;
