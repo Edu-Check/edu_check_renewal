@@ -2,6 +2,7 @@ package org.example.educheck.global.rabbitmq;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
@@ -17,9 +18,15 @@ public class RabbitMQProducerService {
     private final RabbitTemplate rabbitTemplate;
 
     public void sendCourseNotice(String courseName, String message) {
-        String routingKey = ROUTING_KEY_PREFIX + courseName + ROUTING_KEY_SUFFIX;
-        log.info("Sending course notice message to exchange : {}, routing key: {}, message: {}", EXCHANGE_NAME, routingKey, message);
+        String routingKey = getRoutingKey(courseName);
 
-        rabbitTemplate.convertAndSend(EXCHANGE_NAME, routingKey, message);
+        NoticeMessageDto noticeMessage = NoticeMessageDto.from(courseName, message);
+        log.info("Sending course notice message to exchange : {}, routing key: {}, message: {}", EXCHANGE_NAME, routingKey, noticeMessage);
+
+        rabbitTemplate.convertAndSend(EXCHANGE_NAME, routingKey, noticeMessage);
+    }
+
+    private static String getRoutingKey(String courseName) {
+        return ROUTING_KEY_PREFIX + courseName + ROUTING_KEY_SUFFIX;
     }
 }
