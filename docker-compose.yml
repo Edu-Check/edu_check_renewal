@@ -18,11 +18,33 @@ services:
       - db-network
       - cache-network
       - web-network
+      - message-network
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    container_name: rabbitmq-container
+    image: rabbitmq:3-management
+    env_file:
+      - .env
+    ports:
+      - "${RABBITMQ_NODE_PORT}:5672"
+      - "${RABBITMQ_MANAGEMENT_PORT}:15672"
+    networks:
+      - message-network
+    volumes:
+      - rabbitmq-volume:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   client:
     container_name: client-container
@@ -119,8 +141,10 @@ services:
 volumes:
   db-volume:
   redis-volume:
+  rabbitmq-volume:
 
 networks:
   db-network:
   cache-network:
   web-network:
+  message-network:
