@@ -9,31 +9,37 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
 
-    private static final String EXCHANGE_NAME = "educheck.course.exchange";
-    private static final String QUEUE_NAME = "educheck.course.notice.queue";
-    private static final String ROUTING_KEY = "course.#";
+    @Value("${rabbitmq.exchange.name}")
+    private String exchangeName;
+
+    @Value("${rabbitmq.queue.name}")
+    private String queueName;
+
+    @Value("${rabbitmq.routing-key.pattern}")
+    private String routingKeyPattern; // 메시지를 어떤 큐로 보낼지 결정하는 규칙
 
     @Bean
     public TopicExchange courseExchange() {
-        return new TopicExchange(EXCHANGE_NAME);
+        return new TopicExchange(exchangeName);
     }
 
     @Bean
     public Queue courseNoticeQueue() {
-        return new Queue(QUEUE_NAME, true);
+        return new Queue(queueName, true);
     }
 
     @Bean
     public Binding courseBinding(Queue courseNoticeQueue, TopicExchange courseExchange) {
         return BindingBuilder.bind(courseNoticeQueue)
                 .to(courseExchange)
-                .with(ROUTING_KEY);
+                .with(routingKeyPattern);
     }
 
     @Bean
