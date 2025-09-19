@@ -22,8 +22,8 @@ public class RabbitMQConfig {
     @Value("${rabbitmq.queue.name}")
     private String queueName;
 
-    @Value("${rabbitmq.routing-key.pattern}")
-    private String routingKeyPattern; // 메시지를 어떤 큐로 보낼지 결정하는 규칙
+    @Value("${rabbitmq.binding-key}")
+    private String bindingKey; // 메시지를 어떤 큐로 보낼지 결정하는 규칙
 
     @Bean
     public TopicExchange courseExchange() {
@@ -39,7 +39,7 @@ public class RabbitMQConfig {
     public Binding courseBinding(Queue courseNoticeQueue, TopicExchange courseExchange) {
         return BindingBuilder.bind(courseNoticeQueue)
                 .to(courseExchange)
-                .with(routingKeyPattern);
+                .with(bindingKey);
     }
 
     @Bean

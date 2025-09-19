@@ -1,20 +1,23 @@
-package org.example.educheck.global.rabbitmq;
+package org.example.educheck.domain.notice;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class RabbitMQProducerService {
+public class NoticeService {
 
-    private static final String EXCHANGE_NAME = "educheck.course.exchange";
-    private static final String ROUTING_KEY_PREFIX = "course.";
-    private static final String ROUTING_KEY_SUFFIX = ".notice";
+    @Value("${rabbitmq.exchange.name}")
+    private String exchangeName;
+
+    @Value("${rabbitmq.routing-key.prefix}")
+    private String routingKeyPrefix;
 
     private final RabbitTemplate rabbitTemplate;
 
@@ -24,9 +27,9 @@ public class RabbitMQProducerService {
         String routingKey = getRoutingKey(safeCourseName);
 
         NoticeMessageDto noticeMessage = createNoticeMessage(courseName, message);
-        log.info("Sending course notice message to exchange : {}, routing key: {}, message: {}", EXCHANGE_NAME, routingKey, noticeMessage);
+        log.info("Sending course notice message to exchange : {}, routing key: {}, message: {}", exchangeName, routingKey, noticeMessage);
 
-        rabbitTemplate.convertAndSend(EXCHANGE_NAME, routingKey, noticeMessage);
+        rabbitTemplate.convertAndSend(exchangeName, routingKey, noticeMessage);
     }
 
     private static NoticeMessageDto createNoticeMessage(String courseName, String message) {
@@ -42,8 +45,8 @@ public class RabbitMQProducerService {
         }
     }
 
-    private static String getRoutingKey(String courseName) {
-        return ROUTING_KEY_PREFIX + courseName + ROUTING_KEY_SUFFIX;
+    private String getRoutingKey(String courseName) {
+        return routingKeyPrefix + courseName;
     }
 
     private static String sanitizeCourseName(String raw) {
