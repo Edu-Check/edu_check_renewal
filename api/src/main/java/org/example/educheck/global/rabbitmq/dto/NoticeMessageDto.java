@@ -1,10 +1,12 @@
 package org.example.educheck.global.rabbitmq.dto;
 
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 
 @Getter
+@Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class NoticeMessageDto{
 
     String courseName;
