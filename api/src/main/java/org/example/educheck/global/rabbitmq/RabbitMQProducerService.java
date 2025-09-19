@@ -20,7 +20,7 @@ public class RabbitMQProducerService {
 
     public void sendCourseNotice(String courseName, String message) {
         validateInputs(courseName, message);
-        String safeCourseName = senitozeCourseName(courseName);
+        String safeCourseName = sanitizeCourseName(courseName);
         String routingKey = getRoutingKey(safeCourseName);
 
         NoticeMessageDto noticeMessage = createNoticeMessage(courseName, message);
@@ -46,7 +46,7 @@ public class RabbitMQProducerService {
         return ROUTING_KEY_PREFIX + courseName + ROUTING_KEY_SUFFIX;
     }
 
-    private static String senitozeCourseName(String raw) {
+    private static String sanitizeCourseName(String raw) {
         String cleaned = raw.replace(".", "_")
                 .replace("#", "")
                 .replace("*", "");

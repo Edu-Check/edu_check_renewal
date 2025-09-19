@@ -4,19 +4,16 @@ import lombok.*;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoticeMessageDto{
 
-    String courseName;
-    String content;
+    private String courseName;
+    private String content;
 
+    // 어차피 내부에서 추상화해서 제공 -> builder 사용할 이유가 없음
     public static NoticeMessageDto from(String courseName, String content){
-        return NoticeMessageDto.builder()
-                .courseName(courseName)
-                .content(content)
-                .build();
+        return new NoticeMessageDto(courseName, content);
     }
 
 }
