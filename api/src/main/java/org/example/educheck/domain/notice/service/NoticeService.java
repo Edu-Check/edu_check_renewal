@@ -1,4 +1,4 @@
-package org.example.educheck.domain.notice;
+package org.example.educheck.domain.notice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
