@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class NoticeMessageDto{
+public class NoticeMessageDto{ // MQ서버와 웹서버간 전달용 메세지
 
     private String courseName;
     private String content;
