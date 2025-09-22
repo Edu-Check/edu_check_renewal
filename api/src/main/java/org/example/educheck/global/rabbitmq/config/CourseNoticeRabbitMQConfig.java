@@ -1,4 +1,4 @@
-package org.example.educheck.global.common.config;
+package org.example.educheck.global.rabbitmq.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.Binding;
@@ -14,19 +14,19 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class RabbitMQConfig {
+public class CourseNoticeRabbitMQConfig {
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${educheck.rabbitmq.exchange.notice}")
     private String exchangeName;
 
-    @Value("${rabbitmq.queue.name}")
-    private String queueName;
+    @Value("${educheck.rabbitmq.queue.primary}")
+    private String queueName; // 추후 다른 두개의 큐는 retryQueueName 이런식으로
 
-    @Value("${rabbitmq.binding-key}")
-    private String bindingKey; // 메시지를 어떤 큐로 보낼지 결정하는 규칙
+    @Value("${educheck.rabbitmq.routing-key.send}")
+    private String routingKey;
 
     @Bean
-    public TopicExchange courseExchange() {
+    public TopicExchange courseNoticeExchange() {
         return new TopicExchange(exchangeName);
     }
 
@@ -36,10 +36,10 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding courseBinding(Queue courseNoticeQueue, TopicExchange courseExchange) {
-        return BindingBuilder.bind(courseNoticeQueue)
-                .to(courseExchange)
-                .with(bindingKey);
+    public Binding courseNoticeBinding(Queue courseNoticeQueue, TopicExchange courseNoticeExchange) {
+        return BindingBuilder.bind(courseNoticeExchange)
+                .to(courseNoticeExchange)
+                .with(routingKey);
     }
 
     @Bean
@@ -53,5 +53,4 @@ public class RabbitMQConfig {
         rabbitTemplate.setMessageConverter(messageConverter);
         return rabbitTemplate;
     }
-
 }
