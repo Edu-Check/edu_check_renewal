@@ -2,8 +2,7 @@ package org.example.educheck.domain.notice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
-import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
+import org.example.educheck.domain.notice.dto.SendNoticeRequestDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,46 +12,25 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class NoticeService {
 
-    @Value("${rabbitmq.exchange.name}")
+    @Value("${educheck.rabbitmq.exchange.notice}")
     private String exchangeName;
 
-    @Value("${rabbitmq.routing-key.prefix}")
-    private String routingKeyPrefix;
+    @Value("${educheck.rabbitmq.routing-key.format.send}")
+    private String routingKeyFormat;
 
     private final RabbitTemplate rabbitTemplate;
 
-    public void sendCourseNotice(String courseName, String message) {
-        validateInputs(courseName, message);
-        String safeCourseName = sanitizeCourseName(courseName);
-        String routingKey = getRoutingKey(safeCourseName);
+    // message를 받아서 RabbitMQ에 발행
+    public void sendCourseNotice(Long courseId, SendNoticeRequestDto noticeRequestDto) {
+        //TODO: courseId에 권한이 있는 관리자인지 확인
+        String routingKey = getRoutingKey(courseId);
 
-        NoticeMessageDto noticeMessage = createNoticeMessage(courseName, message);
-        log.info("Sending course notice message to exchange : {}, routing key: {}, message: {}", exchangeName, routingKey, noticeMessage);
-
-        rabbitTemplate.convertAndSend(exchangeName, routingKey, noticeMessage);
+        rabbitTemplate.convertAndSend(exchangeName, routingKey, noticeRequestDto);
     }
 
-    private static NoticeMessageDto createNoticeMessage(String courseName, String message) {
-        return NoticeMessageDto.from(courseName, message);
+    private String getRoutingKey(Long courseId) {
+        return String.format(routingKeyFormat, courseId);
     }
 
-    private void validateInputs(String courseName, String message) {
-        if (courseName == null || courseName.isBlank()) {
-            throw new InvalidRequestException("교육과정명은 필수입니다.");
-        }
-        if (message == null || message.isBlank()) {
-            throw new InvalidRequestException("공지사항 내용은 필수입니다.");
-        }
-    }
 
-    private String getRoutingKey(String courseName) {
-        return routingKeyPrefix + courseName;
-    }
-
-    private static String sanitizeCourseName(String raw) {
-        String cleaned = raw.replace(".", "_")
-                .replace("#", "")
-                .replace("*", "");
-        return cleaned.replaceAll("[^A-Za-z0-9_-]", "_"); // 알파벳, 숫자, 언더바, 하이픈 외 모든 문자는 언더바로 변경
-    }
 }

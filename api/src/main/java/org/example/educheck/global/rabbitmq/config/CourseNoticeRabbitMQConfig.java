@@ -22,7 +22,7 @@ public class CourseNoticeRabbitMQConfig {
     @Value("${educheck.rabbitmq.queue.primary}")
     private String queueName; // 추후 다른 두개의 큐는 retryQueueName 이런식으로
 
-    @Value("${educheck.rabbitmq.routing-key.send}")
+    @Value("${educheck.rabbitmq.routing-key.format.send}")
     private String routingKey;
 
     @Bean

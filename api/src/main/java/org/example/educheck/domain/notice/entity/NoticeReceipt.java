@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.member.entity.Member;
-import org.springframework.data.annotation.Id;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
