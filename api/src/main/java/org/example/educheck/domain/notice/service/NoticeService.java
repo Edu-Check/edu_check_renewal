@@ -11,6 +11,7 @@ import org.example.educheck.domain.notice.entity.Notice;
 import org.example.educheck.domain.notice.repository.NoticeRepository;
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
+import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -43,10 +44,11 @@ public class NoticeService {
         Notice notice = Notice.createNotice(course, member, noticeRequestDto.getMessage());
         noticeRepository.save(notice);
 
+        NoticeMessageDto messageDto = NoticeMessageDto.from(course.getName(), noticeRequestDto.getMessage());
         //TODO: courseId에 권한이 있는 관리자인지 확인
         String routingKey = getRoutingKey(courseId);
 
-        rabbitTemplate.convertAndSend(exchangeName, routingKey, noticeRequestDto);
+        rabbitTemplate.convertAndSend(exchangeName, routingKey, messageDto);
     }
 
     private String getRoutingKey(Long courseId) {
