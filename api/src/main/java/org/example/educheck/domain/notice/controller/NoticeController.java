@@ -1,9 +1,11 @@
 package org.example.educheck.domain.notice.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.notice.dto.SendNoticeRequestDto;
 import org.example.educheck.domain.notice.service.NoticeService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,8 +17,8 @@ public class NoticeController {
 
 
     @PostMapping("/{courseId}/notices")
-    public ResponseEntity<Object> sendNoticeToCourse(@PathVariable Long courseId, @RequestBody SendNoticeRequestDto requestDto) {
-        noticeService.sendCourseNotice(courseId, requestDto);
+    public ResponseEntity<Object> sendNoticeToCourse(@PathVariable Long courseId, @RequestBody SendNoticeRequestDto requestDto,  @AuthenticationPrincipal Member member) {
+        noticeService.sendCourseNotice(courseId, requestDto, member.getId());
 
         return ResponseEntity.accepted().build();
     }

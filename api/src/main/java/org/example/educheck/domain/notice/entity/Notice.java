@@ -35,4 +35,8 @@ public class Notice extends BaseTimeEntity {
         this.member = member;
         this.content = content;
     }
+
+    public static Notice createNotice(Course course, Member member, String content) {
+        return new Notice(course, member, content);
+    }
 }
