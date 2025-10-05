@@ -13,16 +13,10 @@ import org.springframework.stereotype.Service;
 public class RabbitMQConsumerService {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private static final String TOPIC_PREFIX = "/topic/course/";
 
-    @RabbitListener(queues = "educheck.course.notice.queue")
+    @RabbitListener(queues = "${educheck.rabbitmq.queue.primary}")
     public void receiveCourseNotice(NoticeMessageDto messageDto){
         log.info("messageDto : {}", messageDto);
-
-        String destination = TOPIC_PREFIX + messageDto.getCourseName();
-
-        messagingTemplate.convertAndSend(destination, messageDto.getContent());
-        log.info("Message sent to WebSocket destination: {}, message: {}", destination, messageDto.getContent());
 
     }
 

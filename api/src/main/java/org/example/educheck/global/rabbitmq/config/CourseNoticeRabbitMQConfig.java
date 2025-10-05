@@ -1,6 +1,7 @@
 package org.example.educheck.global.rabbitmq.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;
@@ -22,8 +23,8 @@ public class CourseNoticeRabbitMQConfig {
     @Value("${educheck.rabbitmq.queue.primary}")
     private String queueName; // 추후 다른 두개의 큐는 retryQueueName 이런식으로
 
-    @Value("${educheck.rabbitmq.routing-key.format.send}")
-    private String routingKey;
+    @Value("${educheck.rabbitmq.routing-key.format.receive}")
+    private String bindingPattern;
 
     @Bean
     public TopicExchange courseNoticeExchange() {
@@ -37,14 +38,16 @@ public class CourseNoticeRabbitMQConfig {
 
     @Bean
     public Binding courseNoticeBinding(Queue courseNoticeQueue, TopicExchange courseNoticeExchange) {
-        return BindingBuilder.bind(courseNoticeExchange)
+        return BindingBuilder.bind(courseNoticeQueue)
                 .to(courseNoticeExchange)
-                .with(routingKey);
+                .with(bindingPattern);
     }
 
     @Bean
-    public MessageConverter Jackson2JsonMessageConverter() {
-        return new Jackson2JsonMessageConverter(new ObjectMapper());
+    public MessageConverter messageConverter() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        return new Jackson2JsonMessageConverter(objectMapper);
     }
 
     @Bean
