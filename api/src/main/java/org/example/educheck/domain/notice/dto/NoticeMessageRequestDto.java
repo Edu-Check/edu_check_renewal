@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SendNoticeRequestDto {
+public class NoticeMessageRequestDto {
 
-    private String message;
+    private String title;
+    private String content;
 
 }

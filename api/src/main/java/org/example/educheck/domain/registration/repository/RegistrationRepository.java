@@ -37,4 +37,7 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
                         WHERE r.course.id = :courseId
             """)
     List<StudentInfoResponseDto> findByCourseIdWithStudentAndMember(@Param("courseId") Long courseId);
+
+    @Query("SELECT r.student.member.id FROM Registration r WHERE r.course.id = :courseId")
+    List<Long> findMemberIdsByCourseId(Long courseId);
 }

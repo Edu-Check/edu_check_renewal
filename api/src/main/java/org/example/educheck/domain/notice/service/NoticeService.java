@@ -6,7 +6,7 @@ import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.course.repository.CourseRepository;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.repository.MemberRepository;
-import org.example.educheck.domain.notice.dto.SendNoticeRequestDto;
+import org.example.educheck.domain.notice.dto.NoticeMessageRequestDto;
 import org.example.educheck.domain.notice.entity.Notice;
 import org.example.educheck.domain.notice.repository.NoticeRepository;
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
@@ -33,7 +33,7 @@ public class NoticeService {
     private final MemberRepository memberRepository;
 
     // message를 받아서 RabbitMQ에 발행
-    public void sendCourseNotice(Long courseId, SendNoticeRequestDto noticeRequestDto, Long memberId) {
+    public void sendCourseNotice(Long courseId, NoticeMessageRequestDto noticeRequestDto, Long memberId) {
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new InvalidRequestException("해당 과정이 존재하지 않습니다. id =" + courseId));
@@ -41,10 +41,10 @@ public class NoticeService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 사용자가 존재하지 않습니다. id = " + memberId));
 
-        Notice notice = Notice.createNotice(course, member, noticeRequestDto.getMessage());
+        Notice notice = Notice.createNotice(course, member, noticeRequestDto.getTitle(), noticeRequestDto.getContent());
         noticeRepository.save(notice);
 
-        NoticeMessageDto messageDto = NoticeMessageDto.from(course.getName(), noticeRequestDto.getMessage());
+        NoticeMessageDto messageDto = NoticeMessageDto.from(courseId, notice.getId(), notice.getTitle(), notice.getContent());
         //TODO: courseId에 권한이 있는 관리자인지 확인
         String routingKey = getRoutingKey(courseId);
 
