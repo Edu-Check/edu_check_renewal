@@ -11,7 +11,6 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.1",
-    "@stomp/stompjs": "^7.1.1",
     "axios": "^1.8.3",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.13",
@@ -25,7 +24,6 @@
     "react-geolocated": "^4.3.0",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.3.0",
-    "socketjs-client": "^1.0.2",
     "sockjs-client": "^1.6.1"
   },
   "devDependencies": {
