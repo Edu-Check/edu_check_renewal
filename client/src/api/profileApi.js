@@ -8,4 +8,8 @@ export const profileApi = {
   updateMyProfile: async (data) => {
     return await apiInstance.patch(`/my`, data, { withCredentials: true });
   },
+
+  registerFcmToken: async (data) => {
+    return await apiInstance.post(`/my/fcm-token`, data, { withCredentials: true })
+  }
 };
