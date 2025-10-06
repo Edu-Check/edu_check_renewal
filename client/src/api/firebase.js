@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, onMessage } from 'firebase/messaging';
 import { profileApi } from './profileApi';
+import { current } from '@reduxjs/toolkit';
 
 const firebaseConfig = {
     apiKey: import.meta.env.VITE_API_KEY,
@@ -23,7 +24,7 @@ export const requestForToken = async () => {
         const currentToken = await getToken(messaging, { vapidKey: import.meta.env.VITE_VAPID_KEY});
         if (currentToken) {
             console.log("current token for client : ", currentToken);
-            const response = await profileApi.registerFcmToken(currentToken);
+            return currentToken;
         } else {
             console.log("FCM Token 요청에 실패했습니다.");
         }

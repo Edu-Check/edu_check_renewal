@@ -8,6 +8,8 @@ import InputBox from '../../components/inputBox/InputBox';
 import MainButton from '../../components/buttons/mainButton/MainButton';
 import { BASE_PATHS, URL_PATHS } from '../../constants/urlPaths';
 import { demoAuthApi } from '../../api/demoAuthApi';
+import { requestForToken } from '../../api/firebase';
+import { profileApi } from '../../api/profileApi';
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -35,7 +37,8 @@ export default function Login() {
     }));
   };
 
-  const handleLoginSuccess = (response) => {
+  const handleLoginSuccess = async (response) => {
+    console.log('handleLoginSuccess 호출');
     const accessToken = response.headers?.authorization ?? '';
     const userData = response.data?.data;
 
@@ -45,6 +48,22 @@ export default function Login() {
         accessToken,
       }),
     );
+
+    //FCM 토큰 등록 로직 시작
+    try {
+      const fcmToken = await requestForToken();
+      console.log('fcmToken: ',fcmToken);
+
+      if(fcmToken) {
+        await profileApi.registerFcmToken(fcmToken);
+        console.log('FCM 토큰이 서버에 성공적으로 등록되었습니다.');
+      } else {
+        console.log('FCM 토큰 발급 실패');
+      }
+    } catch (error) {
+      console.error('FCM 토큰 발급 실패', error);
+    }
+
 
     if (userData?.isCheckIn) {
       const expiryDate = new Date();
