@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.member.entity.Member;
-import org.example.educheck.domain.notice.dto.NoticeMessageRequestDto;
+import org.example.educheck.domain.notice.dto.request.NoticeMessageRequestDto;
 import org.example.educheck.global.common.entity.BaseTimeEntity;
 
 @Getter

@@ -1,16 +1,17 @@
-package org.example.educheck.domain.notice.dto;
+package org.example.educheck.domain.notice.dto.request;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
-public class NoticeMessageResponseDto {
+@AllArgsConstructor
+public class NoticeMessageRequestDto {
 
-    private Long courseId;
-    private Long noticeId;
     private String title;
     private String content;
+
 }

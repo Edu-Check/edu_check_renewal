@@ -6,7 +6,8 @@ import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.course.repository.CourseRepository;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.repository.MemberRepository;
-import org.example.educheck.domain.notice.dto.NoticeMessageRequestDto;
+import org.example.educheck.domain.notice.dto.request.NoticeMessageRequestDto;
+import org.example.educheck.domain.notice.dto.response.NoticeListResponseDto;
 import org.example.educheck.domain.notice.entity.Notice;
 import org.example.educheck.domain.notice.repository.NoticeRepository;
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
@@ -15,6 +16,9 @@ import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -56,4 +60,18 @@ public class NoticeService {
     }
 
 
+    public List<NoticeListResponseDto> findAllNotices(Long courseId, Member member) {
+        //TODO: courseId 유효성 검증
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 과정이 존재하지 않습니다 courseId" + courseId));
+
+
+        List<Notice> notices = noticeRepository.findByCourseOrderByCreatedAtDesc(course);
+
+        return notices.stream()
+                .map(NoticeListResponseDto::from)
+                .collect(Collectors.toList());
+
+
+    }
 }

@@ -2,13 +2,16 @@ package org.example.educheck.domain.notice.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.educheck.domain.member.entity.Member;
-import org.example.educheck.domain.notice.dto.NoticeMessageRequestDto;
+import org.example.educheck.domain.notice.dto.request.NoticeMessageRequestDto;
+import org.example.educheck.domain.notice.dto.response.NoticeListResponseDto;
 import org.example.educheck.domain.notice.service.NoticeService;
 import org.example.educheck.global.common.dto.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -31,4 +34,20 @@ public class NoticeController {
                         )
                 );
     }
+
+    @GetMapping("/{courseId}/notices")
+    public ResponseEntity<ApiResponse<List<NoticeListResponseDto>>> getNoticeList(@PathVariable Long courseId, @AuthenticationPrincipal Member member) {
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        "공지사항 목록 조회 성공",
+                        "OK",
+                        noticeService.findAllNotices(courseId, member)
+                )
+        );
+    }
+
+
+
+
 }
