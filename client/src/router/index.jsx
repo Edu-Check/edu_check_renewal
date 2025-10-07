@@ -17,6 +17,7 @@ import RoomReservation from '../pages/roomReservation/RoomReservation';
 import AttendanceSheet from '../pages/attendanceSheet/AttendanceSheet';
 import PrivateRoute from '../components/privateRoute/PrivateRoute';
 import Notice from '../pages/notice/Notice';
+import NoticeDetail from '../pages/noticeDetail/NoticeDetail';
 
 const router = createBrowserRouter([
   {
@@ -76,12 +77,16 @@ const router = createBrowserRouter([
                 ],
               },
               {
-                path: URL_PATHS.STUDENT.NOTICE,
+                path: URL_PATHS.STUDENT.NOTICE.BASE,
                 element: <TmpLayout />,
                 children: [
                   {
                     index: true,
                     element: <Notice />,
+                  },
+                  {
+                    path: ':noticeId',
+                    element: <NoticeDetail />,
                   },
                 ],
               },
@@ -145,12 +150,16 @@ const router = createBrowserRouter([
                 ],
               },
               {
-                path: URL_PATHS.MIDDLE_ADMIN.NOTICE,
+                path: URL_PATHS.MIDDLE_ADMIN.NOTICE.BASE,
                 element: <TmpLayout />,
                 children: [
                   {
                     index: true,
                     element: <Notice />,
+                  },
+                  {
+                    path: ':noticeId',
+                    element: <NoticeDetail />,
                   },
                 ],
               },

@@ -6,9 +6,11 @@ import { useState } from 'react';
 import styles from './Notice.module.css';
 import { noticeApi } from '../../api/noticeApi';
 import NoticeListItem from '../../components/listItem/noticeListItem/NoticeListItem';
-import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
 
 export default function Notice() {
+  const navigate = useNavigate();
+
   const userRole = useSelector((state) => state.auth.user.role);
   const courseId = useSelector((state) => state.auth.user.courseId);
 
@@ -66,13 +68,17 @@ export default function Notice() {
     }));
   };
 
+  const handleNoticeClick = (noticeId) => {
+    navigate(`${noticeId}`);
+  };
+
   //모달에 들어갈 공지사항 작성 폼
   const noticeForm = (
     <form onSubmit={handleSubmit}>
       <div className={styles.inputContainer}>
         <label>제목</label>
         <input
-          className={styles.smallInputBox} // StaffStudentManage.module.css의 스타일 재활용
+          className={styles.smallInputBox}
           name="title"
           type="text"
           placeholder="공지사항 제목을 입력하세요"
@@ -82,7 +88,7 @@ export default function Notice() {
 
         <label>내용</label>
         <textarea
-          className={styles.largeInputBox} // 내용 입력창을 위해 CSS에 별도 스타일 추가 필요
+          className={styles.largeInputBox} 
           name="content"
           placeholder="내용을 입력하세요"
           value={newNotice.content}
@@ -120,9 +126,9 @@ export default function Notice() {
           <NoticeListItem
             key={notice.id}
             title={notice.title}
-            author={notice.authorName} // 백엔드에서 받은 작성자 이름
-            date={new Date(notice.createdAt).toLocaleString()} // 날짜+시간 형식
-            // onClick={() => alert(공지 ID: ${notice.id})} // 클릭 이벤트 추가 가능
+            author={notice.authorName}
+            date={new Date(notice.createdAt).toLocaleString()}
+            onClick={() => handleNoticeClick(notice.id)}
           />
         ))}
 

@@ -8,7 +8,7 @@ export const sidebarList = {
     {
       name: '공지사항',
       icon: '/assets/alarm-icon.png', // 임시
-      path: URL_PATHS.STUDENT.NOTICE
+      path: URL_PATHS.STUDENT.NOTICE.BASE
     }
   ],
 
@@ -31,7 +31,7 @@ export const sidebarList = {
     {
       name: '공지사항',
       icon: '/assets/alarm-icon.png', // 임시
-      path: URL_PATHS.MIDDLE_ADMIN.NOTICE
+      path: URL_PATHS.MIDDLE_ADMIN.NOTICE.BASE
     }
   ],
 };
