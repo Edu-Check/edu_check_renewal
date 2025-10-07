@@ -3,6 +3,7 @@ package org.example.educheck.domain.notice.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.notice.dto.request.NoticeMessageRequestDto;
+import org.example.educheck.domain.notice.dto.response.NoticeDetailResponseDto;
 import org.example.educheck.domain.notice.dto.response.NoticeListResponseDto;
 import org.example.educheck.domain.notice.service.NoticeService;
 import org.example.educheck.global.common.dto.ApiResponse;
@@ -43,6 +44,19 @@ public class NoticeController {
                         "공지사항 목록 조회 성공",
                         "OK",
                         noticeService.findAllNotices(courseId, member)
+                )
+        );
+    }
+
+    @GetMapping("/{courseId}/notices/{noticeId}")
+    public ResponseEntity<ApiResponse<NoticeDetailResponseDto>> getNoticeDetail(@PathVariable Long courseId, @PathVariable Long noticeId, @AuthenticationPrincipal Member member) {
+
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        "공지사항 목록 조회 성공",
+                        "OK",
+                        noticeService.findNoticeDetail(courseId, noticeId, member)
                 )
         );
     }

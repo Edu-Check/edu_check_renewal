@@ -13,4 +13,5 @@ public class NoticeMessageResponseDto {
     private Long noticeId;
     private String title;
     private String content;
+
 }

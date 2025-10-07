@@ -2,7 +2,9 @@ package org.example.educheck.global.common.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
+import org.example.educheck.domain.notice.dto.response.NoticeListResponseDto;
 
+import java.util.List;
 import java.util.Map;
 
 @Getter

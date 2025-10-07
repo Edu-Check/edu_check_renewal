@@ -7,6 +7,7 @@ import org.example.educheck.domain.course.repository.CourseRepository;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.repository.MemberRepository;
 import org.example.educheck.domain.notice.dto.request.NoticeMessageRequestDto;
+import org.example.educheck.domain.notice.dto.response.NoticeDetailResponseDto;
 import org.example.educheck.domain.notice.dto.response.NoticeListResponseDto;
 import org.example.educheck.domain.notice.entity.Notice;
 import org.example.educheck.domain.notice.repository.NoticeRepository;
@@ -73,5 +74,15 @@ public class NoticeService {
                 .collect(Collectors.toList());
 
 
+    }
+
+    public NoticeDetailResponseDto findNoticeDetail(Long courseId, Long noticeId, Member member) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 과정이 존재하지 않습니다 courseId" + courseId));
+
+        Notice notice = noticeRepository.findById(noticeId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 공지사항을 찾을 수 없습니다. id :" + noticeId));
+
+        return NoticeDetailResponseDto.from(notice);
     }
 }
