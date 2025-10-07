@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.educheck.domain.course.entity.Course;
 import org.example.educheck.domain.member.entity.Member;
+import org.example.educheck.domain.notice.dto.NoticeMessageRequestDto;
 import org.example.educheck.global.common.entity.BaseTimeEntity;
 
 @Getter
@@ -39,7 +40,7 @@ public class Notice extends BaseTimeEntity {
         this.content = content;
     }
 
-    public static Notice createNotice(Course course, Member member,String title,  String content) {
-        return new Notice(course, member, title, content);
+    public static Notice createNotice(Course course, Member member, NoticeMessageRequestDto noticeRequestDto) {
+        return new Notice(course, member, noticeRequestDto.getTitle(), noticeRequestDto.getContent());
     }
 }

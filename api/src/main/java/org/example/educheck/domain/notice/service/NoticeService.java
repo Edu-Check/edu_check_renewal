@@ -41,10 +41,10 @@ public class NoticeService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 사용자가 존재하지 않습니다. id = " + memberId));
 
-        Notice notice = Notice.createNotice(course, member, noticeRequestDto.getTitle(), noticeRequestDto.getContent());
+        Notice notice = Notice.createNotice(course, member, noticeRequestDto);
         noticeRepository.save(notice);
 
-        NoticeMessageDto messageDto = NoticeMessageDto.from(courseId, notice.getId(), notice.getTitle(), notice.getContent());
+        NoticeMessageDto messageDto = NoticeMessageDto.from(courseId, notice);
         //TODO: courseId에 권한이 있는 관리자인지 확인
         String routingKey = getRoutingKey(courseId);
 
