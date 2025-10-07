@@ -17,9 +17,12 @@ const messaging = firebase.messaging();
 messaging.onBackgroundMessage(function(payload) {
     console.log("Received background message ", payload);
 
-    payload.notificationOptions = {
-        body: payload.notification.body,
-        icon: payload.notification.icon || '/icon.png',
+    const notificationTitle = payload.data?.title || payload.notification?.title || '새로운 알림';
+    const notificationBody = payload.data?.body || payload.notification?.body || '새로운 알림이 있습니다';
+
+    const notificationOptions = {
+        body: notificationBody,
+        icon: '/assets/logo.png',
         data: payload.data
     };
 

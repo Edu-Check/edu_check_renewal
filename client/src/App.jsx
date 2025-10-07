@@ -43,7 +43,7 @@ export default function App() {
       console.log("포그라운드 메시지 수신:", payload);
 
       //TODO: 사용자에게 알림을 보여주는 UI 로직 구현
-      alert(`[새 알림] ${payload.notification.title}: ${payload.notification.body}`);
+      alert(`[새 알림] ${payload.data.title}: ${payload.data.body}`);
     });
 
     // 2. 컴포넌트가 언마운트될 때 리스너를 정리(clean-up) 한다. -> 누락시 메모리 누수 발생 가능

@@ -12,10 +12,16 @@ export default function BaseListItem({
   onTagChange,
   onClick,
   lectureTitle,
+  title,
+  createdAt,
+  authorName,
 }) {
   return (
     <div className={styles.baseListItem} onClick={onClick}>
       <div>
+        <div>{title}</div>
+        <div>{createdAt}</div>
+        <div>{authorName}</div>
         <div>{content}</div>
         <p>{phone}</p>
         <p>{email}</p>

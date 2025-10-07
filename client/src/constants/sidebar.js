@@ -5,6 +5,11 @@ export const sidebarList = {
     { name: '출석', icon: '/assets/calender-icon.png', path: URL_PATHS.STUDENT.ATTENDANCE.BASE },
     { name: '회의실 예약', icon: '/assets/alarm-icon.png', path: URL_PATHS.STUDENT.RESERVATION },
     { name: '설정', icon: '/assets/setting-icon.png', path: URL_PATHS.STUDENT.SETTING },
+    {
+      name: '공지사항',
+      icon: '/assets/alarm-icon.png', // 임시
+      path: URL_PATHS.STUDENT.NOTICE
+    }
   ],
 
   MIDDLE_ADMIN: [
@@ -23,5 +28,10 @@ export const sidebarList = {
       icon: '/assets/alarm-icon.png',
       path: URL_PATHS.MIDDLE_ADMIN.RESERVATION,
     },
+    {
+      name: '공지사항',
+      icon: '/assets/alarm-icon.png', // 임시
+      path: URL_PATHS.MIDDLE_ADMIN.NOTICE
+    }
   ],
 };

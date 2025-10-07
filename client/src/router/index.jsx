@@ -16,6 +16,7 @@ import { URL_PATHS } from '../constants/urlPaths';
 import RoomReservation from '../pages/roomReservation/RoomReservation';
 import AttendanceSheet from '../pages/attendanceSheet/AttendanceSheet';
 import PrivateRoute from '../components/privateRoute/PrivateRoute';
+import Notice from '../pages/notice/Notice';
 
 const router = createBrowserRouter([
   {
@@ -75,6 +76,16 @@ const router = createBrowserRouter([
                 ],
               },
               {
+                path: URL_PATHS.STUDENT.NOTICE,
+                element: <TmpLayout />,
+                children: [
+                  {
+                    index: true,
+                    element: <Notice />,
+                  },
+                ],
+              },
+              {
                 path: URL_PATHS.STUDENT.SETTING,
                 element: <TmpLayout />,
                 children: [
@@ -130,6 +141,16 @@ const router = createBrowserRouter([
                   {
                     index: true,
                     element: <RoomReservation />,
+                  },
+                ],
+              },
+              {
+                path: URL_PATHS.MIDDLE_ADMIN.NOTICE,
+                element: <TmpLayout />,
+                children: [
+                  {
+                    index: true,
+                    element: <Notice />,
                   },
                 ],
               },
