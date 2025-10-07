@@ -5,7 +5,7 @@ import Modal from '../../components/modal/Modal';
 import { useState } from 'react';
 import styles from './Notice.module.css';
 import { noticeApi } from '../../api/noticeApi';
-import BaseListItem from '../../components/listItem/baseListItem/BaseListItem';
+import NoticeListItem from '../../components/listItem/noticeListItem/NoticeListItem';
 import { format } from 'date-fns';
 
 export default function Notice() {
@@ -99,33 +99,36 @@ export default function Notice() {
 
   return (
     <>
-      <div>공지사항</div>
-      <div>
-        {userRole === 'MIDDLE_ADMIN' && (
-          <MainButton
-            title="공지 작성"
-            isEnable={true}
-            handleClick={() => setOpenModal(true)}
-          ></MainButton>
-        )}
-      </div>
-      <div className={styles.listContainer}>
-        {notices.map((notice) => (
-          <div className={styles.itemWrapper} key={notice.id}>
-            <BaseListItem
-              title={notice.title}
-              createdAt={format(new Date(notice.createdAt), 'yyyy-MM-dd HH:mm')}
-              authorName={notice.authorName}
-              // 태그는 중요 공지 등을 표시하는 데 사용할 수 있습니다.
-              // tagTitle={notice.isImportant ? '중요' : ''}
-              // onClick={() => handleNoticeClick(notice.id)} // 공지사항 클릭 시 상세 보기 모달 열기
-            />
-          </div>
-        ))}
-      </div>
+      <div className={styles.container}>
+        <div className={styles.buttonContainer}>
+          {userRole === 'MIDDLE_ADMIN' && (
+            <MainButton
+              title="공지 작성"
+              isEnable={true}
+              handleClick={() => setOpenModal(true)}
+            ></MainButton>
+          )}
+        </div>
 
-      {/* 모달  */}
-      <Modal content={noticeForm} isOpen={openModal} onClose={() => setOpenModal(false)}></Modal>
+        <div className={styles.listHeader}>
+          <p className={styles.headerTitle}>타이틀</p>
+          <span className={styles.headerAuthor}>작성자</span>
+          <span className={styles.headerDate}>작성시간</span>
+        </div>
+
+        {notices.map((notice) => (
+          <NoticeListItem
+            key={notice.id}
+            title={notice.title}
+            author={notice.authorName} // 백엔드에서 받은 작성자 이름
+            date={new Date(notice.createdAt).toLocaleString()} // 날짜+시간 형식
+            // onClick={() => alert(공지 ID: ${notice.id})} // 클릭 이벤트 추가 가능
+          />
+        ))}
+
+        {/* 모달  */}
+        <Modal content={noticeForm} isOpen={openModal} onClose={() => setOpenModal(false)}></Modal>
+      </div>
     </>
   );
 }
