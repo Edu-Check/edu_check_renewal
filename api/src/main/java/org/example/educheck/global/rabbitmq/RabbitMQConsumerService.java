@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.global.fcm.service.FCMService;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 @Slf4j
