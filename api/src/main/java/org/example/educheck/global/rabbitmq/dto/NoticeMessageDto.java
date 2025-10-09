@@ -7,6 +7,7 @@ import org.example.educheck.domain.notice.entity.Notice;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
 public class NoticeMessageDto{ // MQ서버와 웹서버간 전달용 메세지
 
     private Long courseId;
