@@ -8,7 +8,10 @@ export const tabList = {
     ],
     reservation: [{ name: '회의실 예약', path: URL_PATHS.STUDENT.RESERVATION }],
     setting: [{ name: '개인정보 수정', path: URL_PATHS.STUDENT.SETTING }],
-  },
+    notice:  [
+      { name: '공지사항', path: URL_PATHS.STUDENT.NOTICE.BASE },
+      { name: '공지사항 디테일', path: URL_PATHS.STUDENT.NOTICE.DETAIL}
+    ],  },
 
   MIDDLE_ADMIN: {
     attendance: [
@@ -18,5 +21,9 @@ export const tabList = {
     ],
     studentManage: [{ name: '학습자', path: URL_PATHS.MIDDLE_ADMIN.STUDENT_MANAGE }],
     reservation: [{ name: '회의실 예약', path: URL_PATHS.MIDDLE_ADMIN.RESERVATION }],
+    notice:  [
+      { name: '공지사항', path: URL_PATHS.MIDDLE_ADMIN.NOTICE.BASE },
+      { name: '공지사항 디테일', path: URL_PATHS.MIDDLE_ADMIN.NOTICE.DETAIL}
+    ],
   },
 };

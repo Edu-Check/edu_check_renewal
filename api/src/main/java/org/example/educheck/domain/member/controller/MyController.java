@@ -4,12 +4,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.educheck.domain.member.dto.request.FcmTokenRegisterRequestDto;
 import org.example.educheck.domain.member.dto.UpdateMyProfileRequestDto;
 import org.example.educheck.domain.member.dto.response.MyProfileResponseDto;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.service.AuthService;
 import org.example.educheck.domain.member.service.MyService;
 import org.example.educheck.global.common.dto.ApiResponse;
+import org.example.educheck.global.fcm.service.FCMService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +27,7 @@ public class MyController {
     private static final Logger log = LoggerFactory.getLogger(MyController.class);
     private final MyService myService;
     private final AuthService authService;
+    private final FCMService fcmService;
 
     //        @PreAuthorize("hasAuthority('STUDENT')")
     @PreAuthorize("hasAuthority('STUDENT')")
@@ -54,6 +57,19 @@ public class MyController {
         return ResponseEntity.ok(
                 ApiResponse.ok(
                         "개인 정보 수정 성공",
+                        "OK",
+                        null
+                )
+        );
+    }
+
+    @PostMapping("/fcm-token")
+    public ResponseEntity<ApiResponse<Object>> registerFcmToken(@AuthenticationPrincipal Member member, @Valid @RequestBody FcmTokenRegisterRequestDto requestDto) {
+        fcmService.registerFcmToken(member, requestDto.getFcmToken());
+
+        return ResponseEntity.ok(
+                ApiResponse.ok(
+                        "FCM 토큰 저장 완료",
                         "OK",
                         null
                 )

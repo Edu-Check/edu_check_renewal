@@ -107,7 +107,6 @@ export default function StaffAttendanceDetail() {
               <div key={index} className={styles.listItemWrapper}>
                 <BaseListItem
                   content={item.lectureDate}
-                  //TODO: API에서 lectureTitle 뽑아 온 후 넣어주기
                   lectureTitle={`${item.lectureSession}회차 : ${item.lectureTitle}`}
                   tagTitle={getAttendanceStatusText(item.attendanceStatus)}
                 />

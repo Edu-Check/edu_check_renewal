@@ -12,6 +12,10 @@ export const URL_PATHS = {
     },
     RESERVATION: `${BASE_PATHS.STUDENT}/reservation`,
     SETTING: `${BASE_PATHS.STUDENT}/setting`,
+    NOTICE: {
+      BASE: `${BASE_PATHS.STUDENT}/notice`,
+      DETAIL: (noticeId) => `${BASE_PATHS.STUDENT}/notice/${noticeId}`,
+    }
   },
   MIDDLE_ADMIN: {
     BASE: BASE_PATHS.MIDDLE_ADMIN,
@@ -24,5 +28,8 @@ export const URL_PATHS = {
     },
     STUDENT_MANAGE: `${BASE_PATHS.MIDDLE_ADMIN}/studentManage`,
     RESERVATION: `${BASE_PATHS.MIDDLE_ADMIN}/reservation`,
-  },
+    NOTICE: {
+      BASE: `${BASE_PATHS.MIDDLE_ADMIN}/notice`,
+      DETAIL: (noticeId) => `${BASE_PATHS.MIDDLE_ADMIN}/notice/${noticeId}`,
+    }  },
 };
