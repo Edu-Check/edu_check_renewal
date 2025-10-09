@@ -4,7 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.educheck.domain.member.dto.request.FcmTokenRegisterReuqestDto;
+import org.example.educheck.domain.member.dto.request.FcmTokenRegisterRequestDto;
 import org.example.educheck.domain.member.dto.UpdateMyProfileRequestDto;
 import org.example.educheck.domain.member.dto.response.MyProfileResponseDto;
 import org.example.educheck.domain.member.entity.Member;
@@ -64,7 +64,7 @@ public class MyController {
     }
 
     @PostMapping("/fcm-token")
-    public ResponseEntity<ApiResponse<Object>> registerFcmToken(@AuthenticationPrincipal Member member, @Valid @RequestBody FcmTokenRegisterReuqestDto requestDto) {
+    public ResponseEntity<ApiResponse<Object>> registerFcmToken(@AuthenticationPrincipal Member member, @Valid @RequestBody FcmTokenRegisterRequestDto requestDto) {
         fcmService.registerFcmToken(member, requestDto.getFcmToken());
 
         return ResponseEntity.ok(

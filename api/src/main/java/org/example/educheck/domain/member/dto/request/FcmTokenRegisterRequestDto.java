@@ -1,10 +1,11 @@
 package org.example.educheck.domain.member.dto.request;
 
 import lombok.Getter;
-import org.example.educheck.domain.member.entity.FcmToken;
+import lombok.NoArgsConstructor;
 
 @Getter
-public class FcmTokenRegisterReuqestDto {
+@NoArgsConstructor
+public class FcmTokenRegisterRequestDto {
 
     private String fcmToken;
 }

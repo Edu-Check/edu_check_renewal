@@ -54,7 +54,7 @@ public class NoticeController {
 
         return ResponseEntity.ok(
                 ApiResponse.ok(
-                        "공지사항 목록 조회 성공",
+                        "공지사항 상세 조회 성공",
                         "OK",
                         noticeService.findNoticeDetail(courseId, noticeId, member)
                 )
