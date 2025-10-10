@@ -86,7 +86,7 @@ public class FCMService {
         }
 
         String notificationTitle = (title != null) ? title : "새로운 공지";
-        String notificationBody = (body != null) ? body : "새로운 공지사항이 등록되었습니다. 앱에서 확인해주세요.";
+        String notificationBody = (body != null) ? body : "새로운 공지사항이 등록되었습니다. 웹에서 확인해주세요.";
 
 
         // Data payload 구성
