@@ -1,10 +1,12 @@
-package org.example.educheck.global.rabbitmq;
+package org.example.educheck.global.rabbitmq.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.global.fcm.service.FCMService;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
+import org.example.educheck.global.rabbitmq.entity.DeadLetterMessage;
+import org.example.educheck.global.rabbitmq.repository.DeadLetterMessageRepository;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,8 @@ import java.util.Map;
 public class RabbitMQConsumerService {
 
     private final FCMService fcmService;
+    private final DeadLetterMessageRepository deadLetterMessageRepository;
+    private final ObjectMapper objectMapper;
 
     @RabbitListener(queues = "${educheck.rabbitmq.queue.primary}")
     public void receiveCourseNotice(NoticeMessageDto messageDto){
@@ -48,6 +52,9 @@ public class RabbitMQConsumerService {
             reason = (String) firstDeath.get("reason");
         }
 
+        String failedMessageBody = new String(failedMessage.getBody());
+
+
         log.error("=================== Dead Letter ===================");
         log.error("Original Queue: {}", originalQueue);
         log.error("Reason: {}", reason);
@@ -55,6 +62,23 @@ public class RabbitMQConsumerService {
         log.error("=====================================================");
 
         //TODO: DLQ 처리 로직 (관리자아게 알림, DB 기록 등)
+        try {
+            NoticeMessageDto messageDto = objectMapper.readValue(failedMessageBody, NoticeMessageDto.class);
+
+            DeadLetterMessage deadLetter = DeadLetterMessage.create(originalQueue, failedMessageBody, reason, messageDto.getSourceTable(), messageDto.getSourcePk());
+            deadLetterMessageRepository.save(deadLetter);
+            log.info("Dead Letter Message DB에 저장. ID : {}", deadLetter.getId());
+        } catch (Exception e) {
+            log.error("Dead Letter Message 저장/직렬화 실패. Body: {}", failedMessageBody, e);
+
+            DeadLetterMessage deadLetter = DeadLetterMessage.builder()
+                    .originalQueue(originalQueue)
+                    .reason("PARSING_FAILED: " + reason)
+                    .messageBody(failedMessageBody)
+                    .build();
+            deadLetterMessageRepository.save(deadLetter);
+
+        }
     }
 
 }

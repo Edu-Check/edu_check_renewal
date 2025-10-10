@@ -14,10 +14,13 @@ public class NoticeMessageDto{ // MQ서버와 웹서버간 전달용 메세지
     private Long noticeId;
     private String title;
     private String content;
+    private String sourceTable;
+    private Long sourcePk;
 
     // 어차피 내부에서 추상화해서 제공 -> builder 사용할 이유가 없음
     public static NoticeMessageDto from(Long courseId, Notice notice){
-        return new NoticeMessageDto(courseId, notice.getId(), notice.getTitle(), notice.getContent());
+        return new NoticeMessageDto(courseId, notice.getId(), notice.getTitle(), notice.getContent(), "notice", notice.getId());
     }
+
 
 }

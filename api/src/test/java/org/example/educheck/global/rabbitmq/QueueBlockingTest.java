@@ -2,6 +2,7 @@ package org.example.educheck.global.rabbitmq;
 
 import org.example.educheck.global.fcm.service.FCMService;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
+import org.example.educheck.global.rabbitmq.service.RabbitMQConsumerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.amqp.core.*;
