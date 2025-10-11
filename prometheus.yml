@@ -28,6 +28,6 @@ scrape_configs:
       - targets: ['rabbitmq-container:15692']
   
   - job_name: 'api'
-    metrics_path: '/actuator/prometheus'
+    metrics_path: /actuator/prometheus
     static_configs:
       - targets: ['api-container:9100']
