@@ -1,5 +1,5 @@
 global:
-  scope_interval: 15s
+  scrape_interval: 15s
   evaluation_interval: 15s
 
 scrape_configs:
@@ -30,4 +30,4 @@ scrape_configs:
   - job_name: 'api'
     metrics_path: '/actuator/prometheus'
     static_configs:
-      - targets: ['api-container:8080']
+      - targets: ['api-container:9100']
