@@ -59,14 +59,14 @@ jobs:
             echo "Current directory: $(pwd)"
             mkdir -p ~/work-directory
 
-      - name: Copy .env and docker-compose.yml Into EC2
+      - name: Copy .env and docker-compose.yml, prometheus.yml Into EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
-          source: "docker-compose.yml, .env"
+          source: "docker-compose.yml, .env, prometheus.yml"
           target: "~/work-directory"
 
       - name: Pull Image from Docker Hub And UP Containers
