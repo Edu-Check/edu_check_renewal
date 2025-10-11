@@ -1,9 +1,6 @@
 package org.example.educheck.global.fcm.service;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.FirebaseMessagingException;
-import com.google.firebase.messaging.MulticastMessage;
-import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.member.entity.FcmToken;
@@ -11,9 +8,12 @@ import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.repository.FcmTokenRepository;
 import org.example.educheck.domain.notice.entity.Notice;
 import org.example.educheck.domain.registration.repository.RegistrationRepository;
+import org.example.educheck.global.common.exception.ErrorCode;
+import org.example.educheck.global.common.exception.custom.common.GlobalException;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.View;
 
 import java.util.List;
 import java.util.Map;
@@ -26,6 +26,7 @@ public class FCMService {
 
     private final FcmTokenRepository fcmTokenRepository;
     private final RegistrationRepository registrationRepository;
+    private final View error;
 
     @Transactional
     public void registerFcmToken(Member member, String token) {
@@ -110,7 +111,28 @@ public class FCMService {
             log.info("FCM Notification 전송 성공, 대상 토큰 수 : {}", tokens.size());
         } catch (FirebaseMessagingException e) {
             log.error("FCM Notification 전송 실패, error : {}", e.getMessage());
-            //TODO: 실패에 대한 처리
+
+            MessagingErrorCode errorCode = e.getMessagingErrorCode();
+
+            if (errorCode == null) {
+                throw new GlobalException(ErrorCode.FCM_SERVER_ERROR, e.getMessage());
+            }
+
+            switch(errorCode) {
+                case UNREGISTERED:
+                case INVALID_ARGUMENT:
+                    throw new GlobalException(ErrorCode.INVALID_FCM_TOKEN, e.getMessage());
+
+                case UNAVAILABLE:
+                case INTERNAL:
+                    throw new GlobalException(ErrorCode.FCM_SERVER_ERROR, e.getMessage());
+
+                default:
+                    log.warn("처리되지 않은 FCM 에러 코드 발생: {}. 일시적 오류로 처리", errorCode);
+                    throw new GlobalException(ErrorCode.EXTERNAL_API_ERROR, e.getMessage());
+            }
+
+
         }
 
     }

@@ -3,10 +3,13 @@ package org.example.educheck.global.rabbitmq.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.educheck.global.common.exception.custom.TransientMessageException;
+import org.example.educheck.global.common.exception.custom.common.GlobalException;
 import org.example.educheck.global.fcm.service.FCMService;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.example.educheck.global.rabbitmq.entity.DeadLetterMessage;
 import org.example.educheck.global.rabbitmq.repository.DeadLetterMessageRepository;
+import org.springframework.amqp.AmqpRejectAndDontRequeueException;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
@@ -31,8 +34,16 @@ public class RabbitMQConsumerService {
         try {
             fcmService.sendNotificationToCourseStudentds(messageDto);
             log.info("FCM로 메시지 전송 성공 courseId : {}", messageDto.getCourseId());
+        } catch (GlobalException e) {
+            if(e.isFatalError()) {
+                log.error("[Fatal Error] 메시지 처리 실패. 재시도 x DLQ 전송. courseId: {}, Error: {}", messageDto.getCourseId(), e.getMessage(), e);
+                throw new AmqpRejectAndDontRequeueException(e.getMessage(), e);
+            } else {
+                log.error("[Transient Error] 메시지 처리 실패. Spring AMQP 재시도 정책 시작. courseId: {}, Error: {}",  messageDto.getCourseId(), e.getMessage(), e);
+                throw new TransientMessageException(e.getMessage(), e);
+            }
         } catch (Exception e) {
-            log.error("FCM로 메시지 전송 실패 courseId: {}, Error:{} ", messageDto.getCourseId(), e.getMessage());
+            log.error("[Unknown Error] 예상치 못한 오류 발생. courseId: {}, Error:{} ", messageDto.getCourseId(), e.getMessage());
 //            throw e; // 예외를 다시 던져서 Spring AMQP가 재시도 및 DLQ 처리를 하도록 함
             throw new RuntimeException("메시지 처리 실패", e);
         }
