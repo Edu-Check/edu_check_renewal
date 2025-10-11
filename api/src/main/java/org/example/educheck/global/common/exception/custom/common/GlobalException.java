@@ -21,4 +21,9 @@ public class GlobalException extends RuntimeException {
     public GlobalException(String customMessage) {
         super(customMessage);
     }
+
+    public boolean isFatalError() {
+        return errorCode != null && errorCode.isFatalError();
+    }
+
 }
