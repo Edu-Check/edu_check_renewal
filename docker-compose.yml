@@ -19,6 +19,7 @@ services:
       - cache-network
       - web-network
       - message-network
+      - monitor-network
     depends_on:
       mysql:
         condition: service_healthy
@@ -153,7 +154,7 @@ services:
     container_name: mysql_exporter-container
     image: prom/mysqld-exporter:latest
     environment:
-      - MYSQLD_EXPORTER_PASSWORD=${EXPORTER_PASSWORD}
+      - MYSQLD_EXPORTER_PASSWORD=${MYSQLD_EXPORTER_PASSWORD}
     command:
       - "--mysqld.address=mysql-container:3306"
       - "--mysqld.username=exporter"
