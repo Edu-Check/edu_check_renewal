@@ -86,8 +86,10 @@ services:
       - "443:443"
     networks:
       - web-network
+      - monitor-network
     depends_on:
       - api
+      - prometheus
 
   flask_app:
     container_name: flask-app-container
@@ -115,7 +117,7 @@ services:
     image: redis:latest
     volumes:
       - redis-volume:/data
-    command: ["redis-server", "--appendonly", "yes"]
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD}"]
     env_file:
       - .env
     networks:
