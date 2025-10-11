@@ -32,11 +32,14 @@ services:
     image: rabbitmq:3-management
     env_file:
       - .env
+    # environment:
+    # - RABBITMQ_PROMETHEUS_PLUGIN_ENABLED=true
     ports:
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
-      - "15692:15692"
+      - "15692:15692" # prometheus 
     networks:
       - message-network
+      - monitor-network
     volumes:
       - rabbitmq-volume:/var/lib/rabbitmq
     healthcheck:
