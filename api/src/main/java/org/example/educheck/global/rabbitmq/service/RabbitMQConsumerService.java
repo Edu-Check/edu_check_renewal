@@ -14,6 +14,7 @@ import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -56,27 +57,27 @@ public class RabbitMQConsumerService {
         String originalQueue = "N/A";
         String reason = "N/A";
 
-        List<Map<String, Object>> deathHeader = failedMessage.getMessageProperties().getHeader("x-dead");
+        List<Map<String, Object>> deathHeader = failedMessage.getMessageProperties().getHeader("x-death");
         if (deathHeader != null && !deathHeader.isEmpty()) {
             Map<String, Object> firstDeath = deathHeader.get(0);
             originalQueue = (String) firstDeath.get("queue");
             reason = (String) firstDeath.get("reason");
         }
 
-        String failedMessageBody = new String(failedMessage.getBody());
+        String failedMessageBody =  new String(failedMessage.getBody(), StandardCharsets.UTF_8);
 
 
         log.error("=================== Dead Letter ===================");
         log.error("Original Queue: {}", originalQueue);
         log.error("Reason: {}", reason);
-        log.error("Failed Message Body: {}", new String(failedMessage.getBody()));
+        log.error("Failed Message Body: {}", failedMessageBody);
         log.error("=====================================================");
 
         //TODO: DLQ 처리 로직 (관리자아게 알림, DB 기록 등)
         try {
             NoticeMessageDto messageDto = objectMapper.readValue(failedMessageBody, NoticeMessageDto.class);
 
-            DeadLetterMessage deadLetter = DeadLetterMessage.create(originalQueue, failedMessageBody, reason, messageDto.getSourceTable(), messageDto.getSourcePk());
+            DeadLetterMessage deadLetter = DeadLetterMessage.create(originalQueue, failedMessageBody, reason, messageDto.getSourceTable(), messageDto.getNoticeId());
             deadLetterMessageRepository.save(deadLetter);
             log.info("Dead Letter Message DB에 저장. ID : {}", deadLetter.getId());
         } catch (Exception e) {

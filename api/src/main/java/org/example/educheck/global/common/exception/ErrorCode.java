@@ -43,7 +43,7 @@ public enum ErrorCode {
 
     //7000 알림 (Transient Errors - 재시도 필요)
     FCM_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "7000", "FCM 서버 일시적 오류가 발생했습니다."),
-    NETWORK_TIMEOUT(HttpStatus.REQUEST_TIMEOUT, "7001", "네트워크 타임아웃이 발생했습니다."),
+    NETWORK_TIMEOUT(HttpStatus.GATEWAY_TIMEOUT, "7001", "네트워크 타임아웃이 발생했습니다."),
     EXTERNAL_API_ERROR(HttpStatus.BAD_GATEWAY, "7002", "외부 API 일시적 오류가 발생했습니다.");
 
 

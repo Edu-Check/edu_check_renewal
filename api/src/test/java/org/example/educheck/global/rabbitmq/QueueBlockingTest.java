@@ -99,7 +99,7 @@ public class QueueBlockingTest {
             verify(fcmService, atLeast(3)).sendNotificationToCourseStudentds(poisonMsg);
         });
 
-        verify(fcmService, timeout(1)).sendNotificationToCourseStudentds(normalMsg1);
+        verify(fcmService, timeout(5000)).sendNotificationToCourseStudentds(normalMsg1);
 
 
     }

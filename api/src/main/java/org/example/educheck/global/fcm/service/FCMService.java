@@ -6,14 +6,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.member.entity.FcmToken;
 import org.example.educheck.domain.member.entity.Member;
 import org.example.educheck.domain.member.repository.FcmTokenRepository;
-import org.example.educheck.domain.notice.entity.Notice;
 import org.example.educheck.domain.registration.repository.RegistrationRepository;
 import org.example.educheck.global.common.exception.ErrorCode;
 import org.example.educheck.global.common.exception.custom.common.GlobalException;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.View;
 
 import java.util.List;
 import java.util.Map;
@@ -26,7 +24,6 @@ public class FCMService {
 
     private final FcmTokenRepository fcmTokenRepository;
     private final RegistrationRepository registrationRepository;
-    private final View error;
 
     @Transactional
     public void registerFcmToken(Member member, String token) {
