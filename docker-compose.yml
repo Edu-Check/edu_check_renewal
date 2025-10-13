@@ -189,7 +189,7 @@ services:
       - PUBLISH_PORT=9419
     depends_on:
       - rabbitmq:
-        condition: service_healthy
+          condition: service_healthy
     networks:
       - message-network
       - monitor-network
