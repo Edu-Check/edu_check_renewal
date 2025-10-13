@@ -188,8 +188,8 @@ services:
       - RABBIT_PASSWORD=${RABBITMQ_DEFAULT_PASS}
       - PUBLISH_PORT=9419
     depends_on:
-      - rabbitmq:
-          condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - message-network
       - monitor-network
