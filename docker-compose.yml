@@ -33,11 +33,11 @@ services:
     image: rabbitmq:3-management
     env_file:
       - .env
-    # environment:
-    # - RABBITMQ_PROMETHEUS_PLUGIN_ENABLED=true
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     ports:
       - "${RABBITMQ_MANAGEMENT_PORT}:15672"
-      - "15692:15692" # prometheus 
     networks:
       - message-network
       - monitor-network
@@ -177,6 +177,22 @@ services:
       - monitor-network
     depends_on:
       - redis
+    restart: unless-stopped
+  
+  rabbitmq_exporter:
+    container_name: rabbitmq_exporter-container
+    image: kbudde/rabbitmq-exporter
+    environment:
+      - RABBIT_URL=http://rabbitmq-container:15672
+      - RABBIT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBIT_PASSWORD=${RABBITMQ_DEFAULT_PASS}
+      - PUBLISH_PORT=9419
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - message-network
+      - monitor-network
     restart: unless-stopped
   
   node_exporter:
