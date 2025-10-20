@@ -29,7 +29,8 @@ public class QueueBlockingTest {
 
     @Container
     static RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3.9-management")
-            .withUser("testUser", "testPassword");
+            .withUser("testUser", "testPassword")
+            .withPermission("/","testUser",".*", ".*", ".*");
 
     @Autowired
     private AmqpAdmin amqpAdmin;
@@ -42,6 +43,12 @@ public class QueueBlockingTest {
 
     @Value("${educheck.rabbitmq.routing-key.format.send}")
     private String PRIMARY_ROUTING_KEY;
+
+    @Value("${educheck.rabbitmq.exchange.dlx}")
+    private String DLX_EXCHANGE;
+
+    @Value("${educheck.rabbitmq.routing-key.format.dlq}")
+    private String DLQ_ROUTING_KEY;
 
     @DynamicPropertySource
     static void configure(DynamicPropertyRegistry registry) {
@@ -56,7 +63,12 @@ public class QueueBlockingTest {
     void setup() {
 
         TopicExchange topicExchange = new TopicExchange(PRIMARY_EXCHANGE);
-        Queue queue = new Queue(PRIMARY_QUEUE);
+
+        Queue queue = QueueBuilder.durable(PRIMARY_QUEUE)
+                .withArgument("x-dead-letter-exchange", DLX_EXCHANGE)
+                .withArgument("x-dead-letter-routing-key", DLQ_ROUTING_KEY)
+                .build();
+
         Binding binding = BindingBuilder.bind(queue).to(topicExchange).with(PRIMARY_ROUTING_KEY);
 
         amqpAdmin.declareExchange(topicExchange);
