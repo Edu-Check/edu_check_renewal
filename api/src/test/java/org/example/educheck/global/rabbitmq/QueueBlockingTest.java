@@ -29,8 +29,7 @@ public class QueueBlockingTest {
 
     @Container
     static RabbitMQContainer rabbitMQContainer = new RabbitMQContainer("rabbitmq:3.9-management")
-            .withAdminUser("testUser")
-            .withAdminPassword("testPassword");
+            .withUser("testUser", "testPassword");
 
     @Autowired
     private AmqpAdmin amqpAdmin;
