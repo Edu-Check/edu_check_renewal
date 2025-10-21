@@ -10,34 +10,33 @@ import org.example.educheck.domain.notice.dto.request.NoticeMessageRequestDto;
 import org.example.educheck.domain.notice.dto.response.NoticeDetailResponseDto;
 import org.example.educheck.domain.notice.dto.response.NoticeListResponseDto;
 import org.example.educheck.domain.notice.entity.Notice;
+import org.example.educheck.domain.notice.event.NoticeCreatedEvent;
+import org.example.educheck.domain.notice.port.out.NoticeEventPublisherPort;
 import org.example.educheck.domain.notice.repository.NoticeRepository;
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class NoticeService {
 
-    @Value("${educheck.rabbitmq.exchange.notice}")
-    private String exchangeName;
-
-    @Value("${educheck.rabbitmq.routing-key.format.send}")
-    private String routingKeyFormat;
-
-    private final RabbitTemplate rabbitTemplate;
     private final NoticeRepository noticeRepository;
     private final CourseRepository courseRepository;
     private final MemberRepository memberRepository;
 
+    private final ApplicationEventPublisher eventPublisher;
+
     // message를 받아서 RabbitMQ에 발행
+    @Transactional
     public void sendCourseNotice(Long courseId, NoticeMessageRequestDto noticeRequestDto, Long memberId) {
 
         Course course = courseRepository.findById(courseId)
@@ -50,16 +49,12 @@ public class NoticeService {
         noticeRepository.save(notice);
 
         NoticeMessageDto messageDto = NoticeMessageDto.from(courseId, notice);
+        NoticeCreatedEvent noticeCreatedEvent = NoticeCreatedEvent.create(messageDto);
+
         //TODO: courseId에 권한이 있는 관리자인지 확인
-        String routingKey = getRoutingKey(courseId);
 
-        rabbitTemplate.convertAndSend(exchangeName, routingKey, messageDto);
+        eventPublisher.publishEvent(noticeCreatedEvent);
     }
-
-    private String getRoutingKey(Long courseId) {
-        return String.format(routingKeyFormat, courseId);
-    }
-
 
     public List<NoticeListResponseDto> findAllNotices(Long courseId, Member member) {
         //TODO: courseId 유효성 검증
@@ -72,7 +67,6 @@ public class NoticeService {
         return notices.stream()
                 .map(NoticeListResponseDto::from)
                 .collect(Collectors.toList());
-
 
     }
 
