@@ -11,7 +11,6 @@ import org.example.educheck.domain.notice.dto.response.NoticeDetailResponseDto;
 import org.example.educheck.domain.notice.dto.response.NoticeListResponseDto;
 import org.example.educheck.domain.notice.entity.Notice;
 import org.example.educheck.domain.notice.event.NoticeCreatedEvent;
-import org.example.educheck.domain.notice.port.out.NoticeEventPublisherPort;
 import org.example.educheck.domain.notice.repository.NoticeRepository;
 import org.example.educheck.global.common.exception.custom.common.InvalidRequestException;
 import org.example.educheck.global.common.exception.custom.common.ResourceNotFoundException;
