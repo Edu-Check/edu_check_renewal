@@ -67,6 +67,7 @@ dependencies {
     testImplementation "org.awaitility:awaitility:4.2.0"
     testImplementation "org.testcontainers:rabbitmq:1.18.0"
     implementation 'org.springframework.retry:spring-retry'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 }
 
 tasks.named('test') {

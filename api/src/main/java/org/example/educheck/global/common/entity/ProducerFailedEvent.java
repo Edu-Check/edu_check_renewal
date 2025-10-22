@@ -42,7 +42,8 @@ public class ProducerFailedEvent {
     private String errorMessage;
 
     @Column(nullable = false)
-    private Integer retryCount;
+    @Builder.Default
+    private Integer retryCount = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)

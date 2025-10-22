@@ -1,4 +1,4 @@
-package org.example.educheck.global.common.repotiroy;
+package org.example.educheck.global.common.repository;
 
 import org.example.educheck.global.common.entity.ProducerFailedEvent;
 import org.springframework.data.jpa.repository.JpaRepository;

@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.educheck.domain.notice.port.out.NoticeEventPublisherPort;
 import org.example.educheck.global.common.entity.FailStatus;
 import org.example.educheck.global.common.entity.ProducerFailedEvent;
-import org.example.educheck.global.common.repotiroy.ProducerFailedEventRepository;
+import org.example.educheck.global.common.repository.ProducerFailedEventRepository;
 import org.example.educheck.global.rabbitmq.dto.NoticeMessageDto;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
