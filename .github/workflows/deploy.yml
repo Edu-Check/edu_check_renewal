@@ -21,7 +21,7 @@ jobs:
           restore-keys: docker-image-cache-
 
       - name: Create .env file
-        run: echo """${{ secrets.ENV_FILE }}""" >> .env
+        run: echo """${{ secrets.ENV_FILE_2 }}""" >> .env
 
       - name: Add ssh-agent
         uses: webfactory/ssh-agent@v0.9.0
